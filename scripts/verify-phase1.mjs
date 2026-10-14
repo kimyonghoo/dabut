@@ -87,6 +87,18 @@ try {
   createdConnectionId = accept.rows[0].connection_id;
   assert.ok(createdConnectionId, "accept_connection_invitation should return a connection id");
 
+  await assert.rejects(
+    () =>
+      asUser(userAId, () =>
+        client.query(
+          "insert into public.connection_invitations (inviter_id, invitee_id) values ($1, $2)",
+          [userAId, userBId]
+        )
+      ),
+    /row-level security/,
+    "already-connected users must not be able to invite each other again"
+  );
+
   const category = await asUser(userAId, () =>
     client.query("select id from public.categories where name = $1", ["식비"])
   );
