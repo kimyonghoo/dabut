@@ -1,3 +1,7 @@
-export default function Home() {
-  return <main>다붓 (Dabut) — Phase 2 scaffold</main>;
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
+
+export default async function Home() {
+  const locale = await getLocale();
+  redirect({ href: "/calendar", locale });
 }

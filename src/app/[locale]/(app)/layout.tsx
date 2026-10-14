@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { BrandColorProvider } from "@/components/theme/brand-color-provider";
+import { AppShell } from "./app-shell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -22,7 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <BrandColorProvider initialColor={profile?.brand_color ?? "#FF6F61"}>
-      {children}
+      <AppShell>{children}</AppShell>
     </BrandColorProvider>
   );
 }
