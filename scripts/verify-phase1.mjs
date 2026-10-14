@@ -1,17 +1,17 @@
-// Holistic Phase 1 acceptance gate: exercises phone search -> invite -> accept
+// Holistic Phase 1 acceptance gate: exercises email search -> invite -> accept
 // -> shared transaction -> cross-user RLS isolation, end to end, against a
 // real Supabase project (local or hosted).
 //
 // "Signed in as" a given test user is simulated via a direct Postgres
 // connection with request.jwt.claims set to that user's id (through the
-// non-bypassrls `authenticated` role) rather than a real phone OTP sign-in:
-// hosted Supabase has no local test_otp shortcut, and wiring up a real SMS
-// provider is out of Phase 1's scope. User creation still goes through the
-// real Supabase Auth admin API, so the auth.users -> profiles trigger is
-// exercised for real.
+// non-bypassrls `authenticated` role) rather than a real email confirmation
+// sign-in: there is no local-only shortcut for confirming a real inbox, and
+// wiring up a test mailbox is out of Phase 1's scope. User creation still
+// goes through the real Supabase Auth admin API, so the auth.users ->
+// profiles trigger is exercised for real.
 //
-// Safe to re-run: phone numbers are randomized per run, and every row this
-// script creates is deleted again in the `finally` block.
+// Safe to re-run: emails are randomized per run, and every row this script
+// creates is deleted again in the `finally` block.
 import { createClient } from "@supabase/supabase-js";
 import { Client } from "pg";
 import assert from "node:assert/strict";
@@ -29,20 +29,16 @@ const client = new Client({ connectionString: dbUrl });
 await client.connect();
 
 const runId = `${Date.now()}${Math.floor(Math.random() * 10000)}`.slice(-9);
-const phoneFor = (n) => `+1555${runId}${n}`;
+const emailFor = (n) => `e2e-${runId}-${n}@example.com`;
 
 const createdUserIds = [];
 let createdConnectionId = null;
 
-// Supabase Auth's admin API normalizes stored phone numbers by stripping the
-// leading "+" (createUser("+15550000000") stores "15550000000"). Returning
-// the normalized phone alongside the id keeps exact-match phone search
-// correct without re-deriving Supabase's normalization rule elsewhere.
-async function createTestUser(phone) {
-  const { data, error } = await admin.auth.admin.createUser({ phone, phone_confirm: true });
-  assert.equal(error, null, `createUser(${phone}) failed: ${error?.message}`);
+async function createTestUser(email) {
+  const { data, error } = await admin.auth.admin.createUser({ email, email_confirm: true });
+  assert.equal(error, null, `createUser(${email}) failed: ${error?.message}`);
   createdUserIds.push(data.user.id);
-  return { id: data.user.id, phone: data.user.phone };
+  return { id: data.user.id };
 }
 
 async function asUser(userId, fn) {
@@ -63,14 +59,17 @@ async function asUser(userId, fn) {
 }
 
 try {
-  const { id: userAId } = await createTestUser(phoneFor(1));
-  const { id: userBId, phone: userBStoredPhone } = await createTestUser(phoneFor(2));
-  const { id: userCId } = await createTestUser(phoneFor(3)); // unrelated third user
+  const { id: userAId } = await createTestUser(emailFor("a"));
+  const userBEmail = emailFor("b");
+  const { id: userBId } = await createTestUser(userBEmail);
+  const { id: userCId } = await createTestUser(emailFor("c")); // unrelated third user
 
   const found = await asUser(userAId, () =>
-    client.query("select id, display_name from public.search_profile_by_phone($1)", [userBStoredPhone])
+    // Mixed-case search on purpose: proves the case-insensitive match, not
+    // just an exact byte-for-byte one.
+    client.query("select id, display_name from public.search_profile_by_email($1)", [userBEmail.toUpperCase()])
   );
-  assert.equal(found.rows.length, 1, "expected to find user B by exact phone match");
+  assert.equal(found.rows.length, 1, "expected to find user B by case-insensitive email match");
   assert.equal(found.rows[0].id, userBId);
 
   const invitation = await asUser(userAId, () =>

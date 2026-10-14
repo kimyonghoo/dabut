@@ -125,14 +125,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "brand_color": string,"created_at": string,"display_name": string,"id": string,"locale": string,"phone": string,"telegram_chat_id": string | null,"updated_at": string
+                    "brand_color": string,"created_at": string,"display_name": string,"email": string,"id": string,"locale": string,"telegram_chat_id": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"id": string,"locale"?: string,"phone": string,"telegram_chat_id"?: string | null,"updated_at"?: string
+                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"email": string,"id": string,"locale"?: string,"telegram_chat_id"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"id"?: string,"locale"?: string,"phone"?: string,"telegram_chat_id"?: string | null,"updated_at"?: string
+                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"email"?: string,"id"?: string,"locale"?: string,"telegram_chat_id"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -187,8 +187,8 @@ isOneToOne: false
 "is_connection_member":
 { Args: { "target_connection_id": string }; Returns: boolean
                            },
-"search_profile_by_phone":
-{ Args: { "target_phone": string }; Returns: {
+"search_profile_by_email":
+{ Args: { "target_email": string }; Returns: {
               "display_name": string,"id": string
             }[]
                            }

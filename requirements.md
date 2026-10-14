@@ -20,9 +20,9 @@
 
 ### 3.1. 회원가입 및 사용자 연결 (User & Connection)
 *   **회원가입 및 식별자 (Supabase Auth):**
-    *   전화번호를 고유 식별자(Unique ID)로 사용하여 가입.
+    *   이메일을 고유 식별자(Unique ID)로 사용하여 가입. 이메일 인증(확인 메일) 후 가입 완료.
 *   **사용자 초대 및 연결 방식:**
-    *   전체 가입자 목록 노출 없이, **"전화번호 정확도 검색"**을 통해 특정 사용자만 찾아 초대장 발송.
+    *   전체 가입자 목록 노출 없이, **"이메일 정확도 검색"**을 통해 특정 사용자만 찾아 초대장 발송.
     *   Supabase RLS(Row Level Security)를 적용하여 연결된 사용자끼리만 캘린더와 가계부 데이터에 접근하도록 격리.
 *   **텔레그램 연동:**
     *   가입 완료 후 온보딩(Onboarding) 단계 또는 마이페이지에서 연동. (텔레그램 봇 `/start` 후 Chat ID 획득 및 Supabase User 테이블 저장)
@@ -64,7 +64,7 @@
 ## 4. 단계별 구현 가이드 (Claude Code Prompting Guide)
 
 **[Phase 1] DB 모델링 및 Supabase Auth 구축**
-*   Supabase 프로젝트 셋업 및 Phone Auth 설정.
+*   Supabase 프로젝트 셋업 및 Email Auth(인증 메일) 설정.
 *   사용자(User), 연결(Couples/Groups), 일정(Events), 가계부(Transactions) 스키마 설계 및 RLS(Row Level Security) 정책 작성.
 
 **[Phase 2] Next.js 뼈대 및 다국어/테마 시스템**
