@@ -1,0 +1,9 @@
+{
+  "app": { "name": "多伏", "tagline": "紧紧相依，温暖相伴" },
+  "nav": { "calendar": "日程", "ledger": "账本", "settings": "设置" },
+  "auth": {
+    "login": { "title": "登录", "email": "电子邮箱", "password": "密码", "submit": "登录" },
+    "signup": { "title": "注册", "email": "电子邮箱", "password": "密码", "submit": "注册" }
+  },
+  "theme": { "light": "浅色", "dark": "深色" }
+}

@@ -1,0 +1,9 @@
+{
+  "app": { "name": "Dabut", "tagline": "Close together, with warmth" },
+  "nav": { "calendar": "Calendar", "ledger": "Ledger", "settings": "Settings" },
+  "auth": {
+    "login": { "title": "Log In", "email": "Email", "password": "Password", "submit": "Log In" },
+    "signup": { "title": "Sign Up", "email": "Email", "password": "Password", "submit": "Sign Up" }
+  },
+  "theme": { "light": "Light", "dark": "Dark" }
+}

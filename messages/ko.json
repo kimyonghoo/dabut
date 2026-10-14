@@ -1,0 +1,9 @@
+{
+  "app": { "name": "다붓", "tagline": "함께 붙어, 다정하게" },
+  "nav": { "calendar": "일정", "ledger": "가계부", "settings": "설정" },
+  "auth": {
+    "login": { "title": "로그인", "email": "이메일", "password": "비밀번호", "submit": "로그인" },
+    "signup": { "title": "회원가입", "email": "이메일", "password": "비밀번호", "submit": "가입하기" }
+  },
+  "theme": { "light": "라이트", "dark": "다크" }
+}
