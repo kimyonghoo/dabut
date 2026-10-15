@@ -6,6 +6,14 @@
     "signup": { "title": "회원가입", "email": "이메일", "password": "비밀번호", "submit": "가입하기" }
   },
   "theme": { "light": "라이트", "dark": "다크" },
+  "calendar": {
+    "monthView": "달력",
+    "threadView": "스레드",
+    "newEvent": "+ 일정 추가",
+    "categoryMine": "내 일정",
+    "categoryPartner": "상대방 일정",
+    "categoryShared": "공통 일정"
+  },
   "events": {
     "title": "제목",
     "location": "어디서",

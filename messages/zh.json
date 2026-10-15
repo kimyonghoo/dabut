@@ -6,6 +6,14 @@
     "signup": { "title": "注册", "email": "电子邮箱", "password": "密码", "submit": "注册" }
   },
   "theme": { "light": "浅色", "dark": "深色" },
+  "calendar": {
+    "monthView": "日历",
+    "threadView": "时间线",
+    "newEvent": "+ 添加日程",
+    "categoryMine": "我的日程",
+    "categoryPartner": "对方的日程",
+    "categoryShared": "共同日程"
+  },
   "events": {
     "title": "标题",
     "location": "地点",
