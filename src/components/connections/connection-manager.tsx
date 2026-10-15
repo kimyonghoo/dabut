@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   searchProfileByEmail,
@@ -18,6 +18,19 @@ export function ConnectionManager({
 }) {
   const t = useTranslations("connections");
   const [state, formAction] = useActionState<SearchState, FormData>(searchProfileByEmail, {});
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  async function handleInvite(inviteeId: string) {
+    setActionError(null);
+    const result = await sendConnectionInvitation(inviteeId);
+    if (result.error) setActionError(result.error);
+  }
+
+  async function handleAccept(invitationId: string) {
+    setActionError(null);
+    const result = await acceptConnectionInvitation(invitationId);
+    if (result.error) setActionError(result.error);
+  }
 
   return (
     <section>
@@ -30,13 +43,14 @@ export function ConnectionManager({
       </form>
 
       {state.error && <p role="alert">{state.error}</p>}
+      {actionError && <p role="alert">{actionError}</p>}
 
       {state.results && state.results.length > 0 && (
         <ul>
           {state.results.map((result) => (
             <li key={result.id}>
               {result.display_name}
-              <button type="button" onClick={() => sendConnectionInvitation(result.id)}>
+              <button type="button" onClick={() => handleInvite(result.id)}>
                 {t("invite")}
               </button>
             </li>
@@ -49,7 +63,7 @@ export function ConnectionManager({
         {receivedInvitations.map((invitation) => (
           <li key={invitation.id}>
             {invitation.inviterEmail}
-            <button type="button" onClick={() => acceptConnectionInvitation(invitation.id)}>
+            <button type="button" onClick={() => handleAccept(invitation.id)}>
               {t("accept")}
             </button>
           </li>
