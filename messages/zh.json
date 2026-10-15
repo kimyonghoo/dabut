@@ -6,6 +6,21 @@
     "signup": { "title": "注册", "email": "电子邮箱", "password": "密码", "submit": "注册" }
   },
   "theme": { "light": "浅色", "dark": "深色" },
+  "ledger": {
+    "type": "收支类型",
+    "expense": "支出",
+    "income": "收入",
+    "category": "分类",
+    "amount": "金额",
+    "memo": "备注",
+    "occurredAt": "日期",
+    "save": "保存",
+    "delete": "删除",
+    "newTransaction": "+ 添加记录",
+    "income_total": "收入合计",
+    "expense_total": "支出合计",
+    "net_total": "净额"
+  },
   "calendar": {
     "monthView": "日历",
     "threadView": "时间线",

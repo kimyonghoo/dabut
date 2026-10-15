@@ -6,6 +6,21 @@
     "signup": { "title": "회원가입", "email": "이메일", "password": "비밀번호", "submit": "가입하기" }
   },
   "theme": { "light": "라이트", "dark": "다크" },
+  "ledger": {
+    "type": "수입/지출",
+    "expense": "지출",
+    "income": "수입",
+    "category": "카테고리",
+    "amount": "금액",
+    "memo": "메모",
+    "occurredAt": "날짜",
+    "save": "저장",
+    "delete": "삭제",
+    "newTransaction": "+ 내역 추가",
+    "income_total": "수입 합계",
+    "expense_total": "지출 합계",
+    "net_total": "순액"
+  },
   "calendar": {
     "monthView": "달력",
     "threadView": "스레드",

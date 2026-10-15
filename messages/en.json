@@ -6,6 +6,21 @@
     "signup": { "title": "Sign Up", "email": "Email", "password": "Password", "submit": "Sign Up" }
   },
   "theme": { "light": "Light", "dark": "Dark" },
+  "ledger": {
+    "type": "Type",
+    "expense": "Expense",
+    "income": "Income",
+    "category": "Category",
+    "amount": "Amount",
+    "memo": "Memo",
+    "occurredAt": "Date",
+    "save": "Save",
+    "delete": "Delete",
+    "newTransaction": "+ Add transaction",
+    "income_total": "Income total",
+    "expense_total": "Expense total",
+    "net_total": "Net"
+  },
   "calendar": {
     "monthView": "Month",
     "threadView": "Thread",
