@@ -6,6 +6,18 @@
     "signup": { "title": "Sign Up", "email": "Email", "password": "Password", "submit": "Sign Up" }
   },
   "theme": { "light": "Light", "dark": "Dark" },
+  "events": {
+    "title": "Title",
+    "location": "Where",
+    "companions": "Who with",
+    "modeAllDay": "All day",
+    "modeTimeRange": "Time range",
+    "modeDateRange": "Date range (period)",
+    "shared": "Shared event",
+    "noConnection": "No connection yet. Connect with someone in Settings first.",
+    "save": "Save",
+    "delete": "Delete"
+  },
   "connections": {
     "searchLabel": "Find your partner by email",
     "searchPlaceholder": "email@example.com",

@@ -6,6 +6,18 @@
     "signup": { "title": "회원가입", "email": "이메일", "password": "비밀번호", "submit": "가입하기" }
   },
   "theme": { "light": "라이트", "dark": "다크" },
+  "events": {
+    "title": "제목",
+    "location": "어디서",
+    "companions": "누구랑",
+    "modeAllDay": "하루 종일",
+    "modeTimeRange": "시간 단위",
+    "modeDateRange": "날짜 단위(기간)",
+    "shared": "같이 하는 일정",
+    "noConnection": "연결된 상대가 없습니다. 설정에서 먼저 연결하세요.",
+    "save": "저장",
+    "delete": "삭제"
+  },
   "connections": {
     "searchLabel": "이메일로 상대방 찾기",
     "searchPlaceholder": "email@example.com",
