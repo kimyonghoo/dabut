@@ -4,16 +4,62 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useBrandColor } from "@/components/theme/brand-color-provider";
+import { ConnectionManager } from "@/components/connections/connection-manager";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
   const [userId, setUserId] = useState<string | null>(null);
+  const [receivedInvitations, setReceivedInvitations] = useState<
+    Array<{ id: string; inviterEmail: string }>
+  >([]);
+  const [connections, setConnections] = useState<Array<{ id: string; partnerEmail: string }>>([]);
 
   useEffect(() => {
     createClient()
       .auth.getUser()
       .then(({ data }) => setUserId(data.user?.id ?? null));
   }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    const supabase = createClient();
+
+    supabase
+      .from("connection_invitations")
+      .select("id, profiles!connection_invitations_inviter_id_fkey(email)")
+      .eq("status", "pending")
+      .eq("invitee_id", userId)
+      .then(({ data }) => {
+        setReceivedInvitations(
+          (data ?? []).map((row) => ({
+            id: row.id,
+            inviterEmail: (row as unknown as { profiles: { email: string } }).profiles.email,
+          }))
+        );
+      });
+
+    supabase
+      .from("connection_members")
+      .select("connection_id")
+      .eq("user_id", userId)
+      .then(async ({ data: memberships }) => {
+        const connectionIds = (memberships ?? []).map((m) => m.connection_id);
+        if (connectionIds.length === 0) return;
+
+        const { data: otherMembers } = await supabase
+          .from("connection_members")
+          .select("connection_id, profiles(email)")
+          .in("connection_id", connectionIds)
+          .neq("user_id", userId);
+
+        setConnections(
+          (otherMembers ?? []).map((row) => ({
+            id: row.connection_id,
+            partnerEmail: (row as unknown as { profiles: { email: string } }).profiles.email,
+          }))
+        );
+      });
+  }, [userId]);
 
   async function handleBrandColorChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
@@ -26,6 +72,7 @@ export default function SettingsPage() {
     <main>
       <ThemeToggle />
       <input type="color" value={brandColor} onChange={handleBrandColorChange} />
+      <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
     </main>
   );
 }

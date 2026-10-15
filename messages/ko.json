@@ -5,5 +5,15 @@
     "login": { "title": "로그인", "email": "이메일", "password": "비밀번호", "submit": "로그인" },
     "signup": { "title": "회원가입", "email": "이메일", "password": "비밀번호", "submit": "가입하기" }
   },
-  "theme": { "light": "라이트", "dark": "다크" }
+  "theme": { "light": "라이트", "dark": "다크" },
+  "connections": {
+    "searchLabel": "이메일로 상대방 찾기",
+    "searchPlaceholder": "email@example.com",
+    "searchButton": "검색",
+    "invite": "초대 보내기",
+    "pendingReceived": "받은 초대",
+    "pendingSent": "보낸 초대",
+    "accept": "수락",
+    "connectedWith": "연결됨"
+  }
 }
