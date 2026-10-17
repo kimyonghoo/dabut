@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { ViewToggle } from "@/components/calendar/view-toggle";
 import { MonthView } from "@/components/calendar/month-view";
 import { ThreadView } from "@/components/calendar/thread-view";
+import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 
 export default async function CalendarPage({
   searchParams,
@@ -32,6 +33,7 @@ export default async function CalendarPage({
 
   return (
     <main>
+      <RealtimeRefresh table="events" />
       <ViewToggle />
       <Link href="/calendar/new">{t("newEvent")}</Link>
       {view === "thread" ? (

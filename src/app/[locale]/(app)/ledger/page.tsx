@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { calculateMonthlyTotals } from "@/lib/ledger/calculate-totals";
 import { Link } from "@/i18n/navigation";
+import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 
 export default async function LedgerPage() {
   const t = await getTranslations("ledger");
@@ -25,6 +26,7 @@ export default async function LedgerPage() {
 
   return (
     <main>
+      <RealtimeRefresh table="transactions" />
       <section>
         <p>
           {t("income_total")}: {totals.income}
