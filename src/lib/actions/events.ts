@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { buildEventTimestamps } from "@/lib/events/build-event-timestamps";
 import { validateSharedSelection } from "@/lib/events/validate-shared-selection";
+import { eventNotificationMessage } from "@/lib/telegram/messages";
+import { notifyConnectionMembers } from "@/lib/telegram/notify-connection";
+import { resolveActorName } from "@/lib/telegram/actor-name";
 
 export type EventActionState = { error?: string };
 
@@ -75,6 +78,18 @@ export async function createEvent(_prevState: EventActionState, formData: FormDa
   });
   if (error) return { error: error.message };
 
+  await notifyConnectionMembers(supabase, {
+    connectionId,
+    excludeUserId: user.id,
+    message: eventNotificationMessage({
+      action: "created",
+      actorName: await resolveActorName(supabase, user),
+      title,
+      startAt: timestamps.startAt,
+      allDay: timestamps.allDay,
+    }),
+  });
+
   revalidatePath("/", "layout");
   return {};
 }
@@ -116,14 +131,51 @@ export async function updateEvent(
     .eq("id", eventId);
   if (error) return { error: error.message };
 
+  await notifyConnectionMembers(supabase, {
+    connectionId,
+    excludeUserId: user.id,
+    message: eventNotificationMessage({
+      action: "updated",
+      actorName: await resolveActorName(supabase, user),
+      title,
+      startAt: timestamps.startAt,
+      allDay: timestamps.allDay,
+    }),
+  });
+
   revalidatePath("/", "layout");
   return {};
 }
 
 export async function deleteEvent(eventId: string): Promise<EventActionState> {
   const supabase = await createClient();
-  const { error } = await supabase.from("events").delete().eq("id", eventId);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  // DELETE ... RETURNING: the deleted row feeds the notification, no extra read.
+  const { data: deleted, error } = await supabase
+    .from("events")
+    .delete()
+    .eq("id", eventId)
+    .select("title, connection_id, start_at, all_day")
+    .maybeSingle();
   if (error) return { error: error.message };
+
+  if (deleted) {
+    await notifyConnectionMembers(supabase, {
+      connectionId: deleted.connection_id,
+      excludeUserId: user.id,
+      message: eventNotificationMessage({
+        action: "deleted",
+        actorName: await resolveActorName(supabase, user),
+        title: deleted.title,
+        startAt: deleted.start_at,
+        allDay: deleted.all_day,
+      }),
+    });
+  }
 
   revalidatePath("/", "layout");
   return {};
