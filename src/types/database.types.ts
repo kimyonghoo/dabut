@@ -137,6 +137,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"telegram_link_codes": {
+                  Row: {
+                    "code": string,"created_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"created_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "code"?: string,"created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "telegram_link_codes_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"transactions": {
                   Row: {
                     "amount": number,"category_id": string,"connection_id": string,"created_at": string,"created_by": string,"id": string,"memo": string | null,"occurred_at": string,"owner_id": string,"type": string,"updated_at": string
