@@ -116,7 +116,7 @@ export async function updateEvent(
   if (sharedError) return sharedError;
   const connectionId = isShared ? selectedConnectionId : await resolveDefaultConnectionId(supabase, user.id);
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("events")
     .update({
       connection_id: connectionId,
@@ -128,20 +128,26 @@ export async function updateEvent(
       start_at: timestamps.startAt,
       end_at: timestamps.endAt,
     })
-    .eq("id", eventId);
+    .eq("id", eventId)
+    .select("id")
+    .maybeSingle();
   if (error) return { error: error.message };
 
-  await notifyConnectionMembers(supabase, {
-    connectionId,
-    excludeUserId: user.id,
-    message: eventNotificationMessage({
-      action: "updated",
-      actorName: await resolveActorName(supabase, user),
-      title,
-      startAt: timestamps.startAt,
-      allDay: timestamps.allDay,
-    }),
-  });
+  // RLS (owner-only update) silently matches 0 rows for a non-owner; only
+  // notify when a row was actually updated.
+  if (updated) {
+    await notifyConnectionMembers(supabase, {
+      connectionId,
+      excludeUserId: user.id,
+      message: eventNotificationMessage({
+        action: "updated",
+        actorName: await resolveActorName(supabase, user),
+        title,
+        startAt: timestamps.startAt,
+        allDay: timestamps.allDay,
+      }),
+    });
+  }
 
   revalidatePath("/", "layout");
   return {};

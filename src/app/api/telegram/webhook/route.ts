@@ -36,10 +36,14 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (linkRow) {
-      await supabase
+      const { error: linkError } = await supabase
         .from("profiles")
         .update({ telegram_chat_id: String(chatId) })
         .eq("id", linkRow.user_id);
+      if (linkError) {
+        console.error("telegram webhook: linking failed:", linkError.message);
+        return new Response("ok", { status: 200 });
+      }
       await supabase.from("telegram_link_codes").delete().eq("user_id", linkRow.user_id);
       await sendTelegramMessage(String(chatId), "다붓 계정과 연결됐어요!");
     } else {
