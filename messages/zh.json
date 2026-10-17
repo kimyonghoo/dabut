@@ -50,5 +50,6 @@
     "pendingSent": "发出的邀请",
     "accept": "接受",
     "connectedWith": "已连接"
-  }
+  },
+  "telegram": {"title": "Telegram 关联", "connected": "已连接", "notConnected": "未连接", "connectButton": "连接", "disconnectButton": "断开连接"}
 }

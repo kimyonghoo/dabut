@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useBrandColor } from "@/components/theme/brand-color-provider";
 import { ConnectionManager } from "@/components/connections/connection-manager";
+import { TelegramLink } from "@/components/settings/telegram-link";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
@@ -13,6 +14,7 @@ export default function SettingsPage() {
     Array<{ id: string; inviterEmail: string }>
   >([]);
   const [connections, setConnections] = useState<Array<{ id: string; partnerEmail: string }>>([]);
+  const [telegramConnected, setTelegramConnected] = useState<boolean>(false);
 
   useEffect(() => {
     createClient()
@@ -61,6 +63,33 @@ export default function SettingsPage() {
       });
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId) return;
+    const supabase = createClient();
+
+    supabase
+      .from("profiles")
+      .select("telegram_chat_id")
+      .eq("id", userId)
+      .single()
+      .then(({ data }) => setTelegramConnected(!!data?.telegram_chat_id));
+
+    // Live status: flips to "connected" as soon as the webhook stores the chat id.
+    const channel = supabase
+      .channel("profile-" + userId)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: "id=eq." + userId },
+        (payload) =>
+          setTelegramConnected(!!(payload.new as { telegram_chat_id?: string | null }).telegram_chat_id)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
+
   async function handleBrandColorChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setBrandColor(value);
@@ -73,6 +102,7 @@ export default function SettingsPage() {
       <ThemeToggle />
       <input type="color" value={brandColor} onChange={handleBrandColorChange} />
       <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
+      <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
     </main>
   );
 }

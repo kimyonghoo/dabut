@@ -50,5 +50,6 @@
     "pendingSent": "Sent invitations",
     "accept": "Accept",
     "connectedWith": "Connected"
-  }
+  },
+  "telegram": {"title": "Telegram", "connected": "Connected", "notConnected": "Not connected", "connectButton": "Connect", "disconnectButton": "Disconnect"}
 }
