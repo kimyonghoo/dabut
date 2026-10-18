@@ -155,7 +155,8 @@
     "signOut": "退出登录",
     "language": "语言",
     "accountSection": "账户",
-    "accountDeleteHint": "删除账户后，你的日程、账本记录和分类都会被删除，并解除与对方的连接。对方创建的记录会保留在对方账户中。"
+    "accountDeleteHint": "删除账户后，你的日程、账本记录和分类都会被删除，并解除与对方的连接。对方创建的记录会保留在对方账户中。",
+    "nicknameSection": "昵称"
   },
   "common": {
     "loading": "加载中…",
@@ -193,6 +194,20 @@
     "met": "已满足",
     "unmet": "未满足",
     "invalid": "密码不符合要求"
+  },
+  "nickname": {
+    "label": "昵称",
+    "placeholder": "请输入昵称",
+    "required": "请输入昵称",
+    "taken": "该昵称已被使用",
+    "tooShort": "至少输入2个字符",
+    "tooLong": "最多输入20个字符",
+    "invalidChars": "只能使用字母、数字",
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消",
+    "saved": "昵称已更新",
+    "failed": "昵称更新失败，请稍后重试"
   },
   "dates": {
     "today": "今天",

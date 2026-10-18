@@ -10,10 +10,11 @@ import { BrandColorPicker } from "@/components/settings/brand-color-picker";
 import { SignOutButton } from "@/components/settings/sign-out-button";
 import { LanguageSelect } from "@/components/settings/language-select";
 import { DeleteAccount } from "@/components/settings/delete-account";
+import { NicknameEditor } from "@/components/settings/nickname-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { HeartHandshake, Languages, Palette, UserX } from "lucide-react";
+import { HeartHandshake, Languages, Palette, Smile } from "lucide-react";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
@@ -28,6 +29,7 @@ export default function SettingsPage() {
   >([]);
   const [connections, setConnections] = useState<Array<{ id: string; partnerEmail: string }>>([]);
   const [telegramConnected, setTelegramConnected] = useState<boolean>(false);
+  const [displayName, setDisplayName] = useState<string>("");
 
   useEffect(() => {
     createClient()
@@ -96,10 +98,13 @@ export default function SettingsPage() {
 
     supabase
       .from("profiles")
-      .select("telegram_chat_id")
+      .select("telegram_chat_id, display_name")
       .eq("id", userId)
       .single()
-      .then(({ data }) => setTelegramConnected(!!data?.telegram_chat_id));
+      .then(({ data }) => {
+        setTelegramConnected(!!data?.telegram_chat_id);
+        setDisplayName(data?.display_name ?? "");
+      });
 
     // Live status: flips to "connected" as soon as the webhook stores the chat id.
     const channel = supabase
@@ -127,25 +132,11 @@ export default function SettingsPage() {
     <main className="flex flex-col gap-4 pb-8">
       <PageHeader title={tNav("settings")} />
 
-      <Card className="flex flex-col gap-5">
+      <Card className="flex flex-col gap-3">
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">
-          <Palette aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("themeSection")}
+          <Smile aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("nicknameSection")}
         </h2>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-medium text-ink-muted">{t("mode")}</span>
-          <ThemeToggle />
-        </div>
-        <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium text-ink-muted">{t("brandColor")}</span>
-          <BrandColorPicker value={brandColor} onChange={handleBrandColorChange} />
-        </div>
-      </Card>
-
-      <Card className="flex flex-col gap-4">
-        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
-          <Languages aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("language")}
-        </h2>
-        <LanguageSelect userId={userId} />
+        <NicknameEditor initialName={displayName} onSaved={setDisplayName} />
       </Card>
 
       <Card className="flex flex-col gap-4">
@@ -159,19 +150,34 @@ export default function SettingsPage() {
         />
       </Card>
 
+      <Card className="flex flex-col gap-4">
+        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+          <Languages aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("language")}
+        </h2>
+        <LanguageSelect userId={userId} />
+      </Card>
+
+      <Card className="flex flex-col gap-2 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
+            <Palette aria-hidden className="size-4 text-brand" strokeWidth={2} /> {t("themeSection")}
+          </h2>
+          <ThemeToggle compact />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-ink-muted">{t("brandColor")}</span>
+          <BrandColorPicker compact value={brandColor} onChange={handleBrandColorChange} />
+        </div>
+      </Card>
+
       <Card>
         <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
       </Card>
 
-      <SignOutButton />
-
-      <Card className="flex flex-col gap-3">
-        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
-          <UserX aria-hidden className="size-5 text-expense" strokeWidth={2} /> {t("accountSection")}
-        </h2>
-        <p className="text-sm leading-relaxed text-ink-muted">{t("accountDeleteHint")}</p>
-        <DeleteAccount />
-      </Card>
+      <div className="mt-2 flex flex-col items-center gap-2">
+        <SignOutButton />
+        <DeleteAccount compact />
+      </div>
     </main>
   );
 }

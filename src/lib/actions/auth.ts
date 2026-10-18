@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { redirect } from "@/i18n/navigation";
 import { passwordViolations, type PasswordRule } from "@/lib/auth/password-policy";
+import { nicknameViolations, normalizeNickname, type NicknameRule } from "@/lib/auth/nickname-policy";
 import {
   MAX_OTP_ATTEMPTS,
   SIGNUP_LINK_TTL_MS,
@@ -24,7 +25,9 @@ export type SignUpState = {
   telegramUrl?: string;
   /** Rules the submitted password failed (server-side check). */
   passwordViolations?: PasswordRule[];
-  /** "emailRequired" | "emailExists" | "failed" */
+  /** Rules the submitted nickname failed (server-side check). */
+  nicknameViolations?: NicknameRule[];
+  /** "emailRequired" | "emailExists" | "nicknameTaken" | "failed" */
   error?: string;
 };
 
@@ -95,6 +98,11 @@ async function createUnconfirmedUser(
   return { ok: true, userId: retry.data.user.id };
 }
 
+// Postgres error code for a unique-constraint violation — used as a backstop
+// in case of a race between the pre-check below and the display_name update
+// (e.g. two signups picking the same nickname at the same moment).
+const UNIQUE_VIOLATION = "23505";
+
 /**
  * Step 1 of signup: creates the auth user as unconfirmed (service role —
  * never the public client, which would send Supabase's own confirmation
@@ -105,6 +113,7 @@ async function createUnconfirmedUser(
 export async function startSignup(_prev: SignUpState, formData: FormData): Promise<SignUpState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const nickname = normalizeNickname(String(formData.get("nickname") ?? ""));
 
   if (!email) return { error: "emailRequired" };
 
@@ -112,9 +121,40 @@ export async function startSignup(_prev: SignUpState, formData: FormData): Promi
   const violations = passwordViolations(password);
   if (violations.length > 0) return { passwordViolations: violations };
 
+  const nickViolations = nicknameViolations(nickname);
+  if (nickViolations.length > 0) return { nicknameViolations: nickViolations };
+
   const admin = createServiceClient();
+
+  // Pre-check uniqueness (case-insensitive) before creating a throwaway auth
+  // user for a nickname that's already taken. The allowed nickname charset
+  // (letters/numbers only, see nickname-policy.ts) has no `%`/`_` wildcards,
+  // so a plain ilike is a safe case-insensitive exact match here.
+  const { data: nicknameTaken } = await admin
+    .from("profiles")
+    .select("id")
+    .ilike("display_name", nickname)
+    .maybeSingle();
+  if (nicknameTaken) return { error: "nicknameTaken" };
+
   const created = await createUnconfirmedUser(admin, email, password);
   if (!created.ok) return { error: created.error };
+
+  // handle_new_user() inserts the profile row with display_name = '';
+  // set the real nickname now. A unique-index hit here means someone else
+  // grabbed the same nickname between the pre-check above and this update
+  // (race) — roll back the auth user we just created so the email isn't
+  // squatted by a half-finished signup.
+  const { error: nicknameError } = await admin
+    .from("profiles")
+    .update({ display_name: nickname })
+    .eq("id", created.userId);
+  if (nicknameError) {
+    await admin.auth.admin.deleteUser(created.userId).catch(() => undefined);
+    if (nicknameError.code === UNIQUE_VIOLATION) return { error: "nicknameTaken" };
+    console.error("startSignup: failed to set nickname:", nicknameError.message);
+    return { error: "failed" };
+  }
 
   const token = generateSignupToken();
   const { error: insertError } = await admin.from("signup_verifications").insert({

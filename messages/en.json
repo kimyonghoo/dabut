@@ -155,7 +155,8 @@
     "signOut": "Sign out",
     "language": "Language",
     "accountSection": "Account",
-    "accountDeleteHint": "Deleting your account removes your events, ledger entries and categories, and unlinks you from your partner. Entries your partner created stay in their account."
+    "accountDeleteHint": "Deleting your account removes your events, ledger entries and categories, and unlinks you from your partner. Entries your partner created stay in their account.",
+    "nicknameSection": "Nickname"
   },
   "common": {
     "loading": "Loading…",
@@ -193,6 +194,20 @@
     "met": "met",
     "unmet": "not met",
     "invalid": "Password doesn't meet the requirements"
+  },
+  "nickname": {
+    "label": "Nickname",
+    "placeholder": "Enter a nickname",
+    "required": "Please enter a nickname",
+    "taken": "That nickname is already taken",
+    "tooShort": "Use at least 2 characters",
+    "tooLong": "Use 20 characters or fewer",
+    "invalidChars": "Only letters and numbers are allowed",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Nickname updated",
+    "failed": "Couldn't update your nickname. Please try again."
   },
   "dates": {
     "today": "Today",

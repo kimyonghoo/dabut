@@ -37,7 +37,6 @@ export function BrandHero() {
   const t = useTranslations("app");
   return (
     <div className="flex flex-col gap-3 bg-[#2c2320] px-6 pb-6 pt-9">
-      <span aria-hidden="true" className="size-2 rounded-full bg-brand" />
       <div className="flex items-center gap-2.5">
         <LogoMark size={34} />
         <p className="text-[28px] font-extrabold leading-none tracking-tight text-[#fdf6f0]">{t("name")}</p>

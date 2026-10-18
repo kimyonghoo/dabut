@@ -1,18 +1,21 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Heart, Mail, Search, Send } from "lucide-react";
+import { Heart, Mail, Send } from "lucide-react";
 import {
   searchProfileByEmail,
   sendConnectionInvitation,
   acceptConnectionInvitation,
   declineConnectionInvitation,
   cancelConnectionInvitation,
-  type SearchState,
 } from "@/lib/actions/connections";
 import { buttonClass } from "@/components/ui/button";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/submit-button";
+
+// Debounce delay for live search-as-you-type.
+const SEARCH_DEBOUNCE_MS = 350;
 
 function initials(text: string) {
   const name = (text.split("@")[0] ?? text).replace(/[^\p{L}\p{N}]/gu, "");
@@ -51,10 +54,50 @@ export function ConnectionManager({
   connections: Array<{ id: string; partnerEmail: string }>;
 }) {
   const t = useTranslations("connections");
-  const [state, formAction] = useActionState<SearchState, FormData>(searchProfileByEmail, {});
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; display_name: string }> | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [pendingInviteId, setPendingInviteId] = useState<string | null>(null);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  // Live search-as-you-type: debounced, and stale in-flight responses are
+  // ignored if the input changes again before they come back. The RPC
+  // itself stays an exact, case-insensitive full-email match (see
+  // search_profile_by_email in supabase/migrations/0007_email_auth.sql) —
+  // this only changes *when* it's called, not what it matches.
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      setSearchResults(null);
+      setSearchError(null);
+      setSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSearching(true);
+    const handle = setTimeout(async () => {
+      const formData = new FormData();
+      formData.set("email", trimmed);
+      const result = await searchProfileByEmail({}, formData);
+      if (cancelled) return;
+      setSearching(false);
+      if (result.error) {
+        setSearchError(result.error);
+        setSearchResults(null);
+      } else {
+        setSearchError(null);
+        setSearchResults(result.results ?? []);
+      }
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [query]);
 
   function showError(error: string) {
     setActionError(LOCALIZED_ERROR_KEYS.has(error) ? t(error) : error);
@@ -128,31 +171,31 @@ export function ConnectionManager({
         </div>
       )}
 
-      <form action={formAction} >
-        <div className="flex items-end gap-2">
-          <label className={`${labelClass} min-w-0 flex-1`}>
-            {t("searchLabel")}
-            <input
-              type="email"
-              name="email"
-              placeholder={t("searchPlaceholder")}
-              required
-              className={inputClass}
-            />
-          </label>
-          <button type="submit" className={buttonClass("primary", "shrink-0")}>
-            <Search aria-hidden className="size-4" strokeWidth={2} />
-            {t("searchButton")}
-          </button>
+      <label className={labelClass}>
+        {t("searchLabel")}
+        <div className="relative">
+          <input
+            type="email"
+            name="email"
+            placeholder={t("searchPlaceholder")}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className={`${inputClass} pr-10`}
+          />
+          {searching && (
+            <span aria-hidden className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted">
+              <Spinner className="size-4" />
+            </span>
+          )}
         </div>
-      </form>
+      </label>
 
-      {state.error && <p role="alert" className={errorClass}>{state.error}</p>}
+      {searchError && <p role="alert" className={errorClass}>{searchError}</p>}
       {actionError && <p role="alert" className={errorClass}>{actionError}</p>}
 
-      {state.results && state.results.length > 0 && (
+      {searchResults && searchResults.length > 0 && (
         <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-line">
-          {state.results.map((result) => (
+          {searchResults.map((result) => (
             <li key={result.id} className="flex items-center gap-3 bg-surface px-3 py-2.5">
               <Avatar label={initials(result.display_name ?? "")} tone="partner" />
               <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">

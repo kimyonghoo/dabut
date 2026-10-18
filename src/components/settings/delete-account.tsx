@@ -10,7 +10,7 @@ import { buttonClass } from "@/components/ui/button";
 import { errorClass, inputClass } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/submit-button";
 
-export function DeleteAccount() {
+export function DeleteAccount({ compact = false }: { compact?: boolean }) {
   const t = useTranslations("account");
   const router = useProgressRouter();
   const [open, setOpen] = useState(false);
@@ -54,9 +54,19 @@ export function DeleteAccount() {
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={buttonClass("danger", "w-full")}>
-        <Trash2 aria-hidden className="size-4" strokeWidth={2} /> {t("deleteButton")}
-      </button>
+      {compact ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="text-xs font-medium text-ink-muted underline-offset-2 transition hover:text-expense hover:underline"
+        >
+          {t("deleteButton")}
+        </button>
+      ) : (
+        <button type="button" onClick={() => setOpen(true)} className={buttonClass("danger", "w-full")}>
+          <Trash2 aria-hidden className="size-4" strokeWidth={2} /> {t("deleteButton")}
+        </button>
+      )}
 
       <dialog
         ref={dialogRef}

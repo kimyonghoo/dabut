@@ -4,6 +4,7 @@ import { startTransition, useEffect, useState, useTransition, useActionState } f
 import { useTranslations } from "next-intl";
 import { startSignup, verifySignupOtp, type SignUpState } from "@/lib/actions/auth";
 import { isPasswordValid } from "@/lib/auth/password-policy";
+import { isNicknameValid, nicknameViolations } from "@/lib/auth/nickname-policy";
 import { Link } from "@/i18n/navigation";
 import { TooltipInput } from "@/components/ui/tooltip-input";
 import { Spinner } from "@/components/ui/submit-button";
@@ -23,10 +24,12 @@ const stepPillClass =
 export default function SignupPage() {
   const t = useTranslations("auth.signup");
   const tp = useTranslations("passwordPolicy");
+  const tn = useTranslations("nickname");
   const [state, formAction, pending] = useActionState<SignUpState, FormData>(startSignup, {});
   const [step, setStep] = useState<"form" | "verify">("form");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nickname, setNickname] = useState("");
   const [attempted, setAttempted] = useState(false);
   const [otp, setOtp] = useState("");
   const [verifyError, setVerifyError] = useState<string | null>(null);
@@ -36,6 +39,11 @@ export default function SignupPage() {
   // Server-side rejections are shown even if the client check was bypassed.
   const serverRejectedPassword = (state.passwordViolations?.length ?? 0) > 0;
   const showPasswordError = (attempted && !passwordValid) || serverRejectedPassword;
+
+  const nicknameValid = isNicknameValid(nickname);
+  const serverRejectedNickname = (state.nicknameViolations?.length ?? 0) > 0;
+  const showNicknameError = (attempted && !nicknameValid) || serverRejectedNickname;
+  const nicknameErrorKey = nicknameViolations(nickname)[0] ?? state.nicknameViolations?.[0];
 
   useEffect(() => {
     if (state.ok && state.token && state.telegramUrl) setStep("verify");
@@ -57,7 +65,7 @@ export default function SignupPage() {
     // Submit via a transition so React does not reset the (controlled) fields.
     e.preventDefault();
     setAttempted(true);
-    if (!passwordValid) return;
+    if (!passwordValid || !nicknameValid) return;
     const formData = new FormData(e.currentTarget);
     startTransition(() => formAction(formData));
   }
@@ -189,9 +197,33 @@ export default function SignupPage() {
             {tp("invalid")}
           </p>
         )}
+        <div className={authFieldWrap}>
+          <label className={authLabelClass} htmlFor="signup-nickname">
+            {tn("label")}
+          </label>
+          <TooltipInput
+            id="signup-nickname"
+            type="text"
+            name="nickname"
+            autoComplete="nickname"
+            placeholder={tn("placeholder")}
+            className={authInputClass}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            aria-invalid={showNicknameError || undefined}
+            aria-describedby="nickname-error"
+            required
+            messages={{ valueMissing: tn("required") }}
+          />
+        </div>
+        {showNicknameError && nicknameErrorKey && (
+          <p id="nickname-error" role="alert" className={authErrorClass}>
+            {tn(nicknameErrorKey)}
+          </p>
+        )}
         {state.error && (
           <p role="alert" className={authErrorClass}>
-            {t.has(state.error) ? t(state.error) : state.error}
+            {state.error === "nicknameTaken" ? tn("taken") : t.has(state.error) ? t(state.error) : state.error}
           </p>
         )}
         <button type="submit" disabled={pending} aria-busy={pending} className={`${authButtonClass} mt-1 flex items-center justify-center gap-2`}>
