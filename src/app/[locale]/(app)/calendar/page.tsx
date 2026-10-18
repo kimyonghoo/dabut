@@ -11,6 +11,7 @@ import { ThreadView } from "@/components/calendar/thread-view";
 import { CategoryLegend } from "@/components/calendar/category-legend";
 import { getDateFnsLocale, monthTitlePattern, parseMonthParam } from "@/components/calendar/date-locale";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
+import { TelegramOnboardingBanner } from "@/components/settings/telegram-onboarding-banner";
 
 export default async function CalendarPage({
   searchParams,
@@ -25,6 +26,11 @@ export default async function CalendarPage({
     data: { user },
   } = await supabase.auth.getUser();
   const { data: events } = await supabase.from("events").select("*");
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("telegram_chat_id")
+    .eq("id", user!.id)
+    .maybeSingle();
 
   const categorized = (events ?? []).map((event) => ({
     ...event,
@@ -49,6 +55,7 @@ export default async function CalendarPage({
 
   return (
     <main className="flex flex-col gap-4 pb-6">
+      {profile && !profile.telegram_chat_id && <TelegramOnboardingBanner />}
       <RealtimeRefresh table="events" />
       <PageHeader
         title={

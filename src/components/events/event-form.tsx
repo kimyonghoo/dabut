@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { createEvent, updateEvent, deleteEvent, type EventActionState } from "@/lib/actions/events";
 import type { Database } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
+import { SubmitButton, Spinner } from "@/components/ui/submit-button";
+import { doneProgress, startProgress } from "@/components/feedback/progress-store";
 import { Card } from "@/components/ui/card";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
 
@@ -47,6 +49,35 @@ export function EventForm({
   const [state, formAction] = useActionState<EventActionState, FormData>(action, {});
   const [timeMode, setTimeMode] = useState<TimeMode>(computeInitialTimeMode(event));
   const [shared, setShared] = useState(event?.visibility === "shared");
+  const [deleting, startDelete] = useTransition();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | undefined>();
+
+  // The confirm state reverts after 3s if the second tap never comes.
+  useEffect(() => {
+    if (!confirmingDelete) return;
+    const timer = setTimeout(() => setConfirmingDelete(false), 3000);
+    return () => clearTimeout(timer);
+  }, [confirmingDelete]);
+
+  function handleDelete() {
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
+    setConfirmingDelete(false);
+    setDeleteError(undefined);
+    startDelete(async () => {
+      startProgress();
+      try {
+        // On success the action redirects to the calendar; only errors return.
+        const result = await deleteEvent(event!.id);
+        if (result?.error) setDeleteError(result.error);
+      } finally {
+        doneProgress();
+      }
+    });
+  }
 
   const modes: Array<{ value: TimeMode; label: string }> = [
     { value: "allDay", label: t("modeAllDay") },
@@ -201,22 +232,38 @@ export function EventForm({
         )}
       </Card>
 
-      {state.error && (
+      {(deleteError ?? state.error) && (
         <p role="alert" className={errorClass}>
-          {state.error}
+          {deleteError ?? state.error}
         </p>
       )}
 
       {mode === "edit" && (
-        <Button type="button" variant="danger" onClick={() => deleteEvent(event!.id)}>
-          {t("delete")}
+        <Button
+          type="button"
+          variant="danger"
+          onClick={handleDelete}
+          disabled={deleting}
+          aria-busy={deleting}
+          aria-live="polite"
+        >
+          {deleting && <Spinner />}
+          {deleting
+            ? txt("deleting", "Deleting…")
+            : confirmingDelete
+              ? txt("deleteConfirm", "Tap again to delete")
+              : t("delete")}
         </Button>
       )}
 
       <div className="sticky bottom-24 z-10 -mx-1 mt-2 rounded-full bg-bg/80 p-1 backdrop-blur">
-        <Button type="submit" className="w-full py-3.5 text-base">
+        <SubmitButton
+          className="w-full py-3.5 text-base"
+          pendingText={txt("saving", "Saving…")}
+          disabled={deleting}
+        >
           {t("save")}
-        </Button>
+        </SubmitButton>
       </div>
     </form>
   );

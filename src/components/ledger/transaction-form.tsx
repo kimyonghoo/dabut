@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import {
   createTransaction,
@@ -13,7 +13,11 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
-import { categoryEmoji } from "@/components/ledger/category-emoji";
+import { SubmitButton, Spinner } from "@/components/ui/submit-button";
+import { doneProgress, startProgress } from "@/components/feedback/progress-store";
+import { CategoryPicker, type PickerCategory } from "@/components/ledger/category-picker";
+
+const DELETE_CONFIRM_MS = 3000;
 
 type TransactionRow = Database["public"]["Tables"]["transactions"]["Row"];
 type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
@@ -34,10 +38,55 @@ export function TransactionForm({
     (transaction?.type as "expense" | "income") ?? "expense"
   );
 
-  const filteredCategories = categories.filter((category) => category.type === type);
-  const defaultCategoryId =
-    filteredCategories.find((category) => category.id === transaction?.category_id)?.id ??
-    filteredCategories[0]?.id;
+  // Categories created inline are kept locally so they show up (selected)
+  // immediately, without waiting for a server refresh.
+  const [createdCategories, setCreatedCategories] = useState<PickerCategory[]>([]);
+  const allCategories = useMemo(() => {
+    const seen = new Set(categories.map((category) => category.id));
+    return [...categories, ...createdCategories.filter((category) => !seen.has(category.id))];
+  }, [categories, createdCategories]);
+  const filteredCategories = allCategories.filter((category) => category.type === type);
+
+  const [selectedByType, setSelectedByType] = useState<Partial<Record<"expense" | "income", string>>>(() =>
+    transaction ? { [transaction.type as "expense" | "income"]: transaction.category_id } : {}
+  );
+  const selectedCategoryId =
+    filteredCategories.find((category) => category.id === selectedByType[type])?.id ?? filteredCategories[0]?.id;
+
+  const [deletePending, startDelete] = useTransition();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (confirmTimer.current) clearTimeout(confirmTimer.current);
+    },
+    []
+  );
+
+  function onDeleteClick() {
+    if (deletePending || !transaction) return;
+    if (!confirmingDelete) {
+      setDeleteError(null);
+      setConfirmingDelete(true);
+      if (confirmTimer.current) clearTimeout(confirmTimer.current);
+      confirmTimer.current = setTimeout(() => setConfirmingDelete(false), DELETE_CONFIRM_MS);
+      return;
+    }
+    if (confirmTimer.current) clearTimeout(confirmTimer.current);
+    setConfirmingDelete(false);
+    startProgress();
+    startDelete(async () => {
+      try {
+        // On success the action redirects to the ledger (with a toast).
+        const result = await deleteTransaction(transaction.id);
+        if (result?.error) setDeleteError(result.error);
+      } finally {
+        doneProgress();
+      }
+    });
+  }
+
   const today = new Date().toISOString().slice(0, 10);
   const isIncome = type === "income";
 
@@ -106,27 +155,16 @@ export function TransactionForm({
         </div>
       </Card>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-sm font-medium text-ink-muted">{t("category")}</legend>
-        <div key={type} className="flex flex-wrap gap-2">
-          {filteredCategories.map((category) => (
-            <label key={category.id} className="cursor-pointer">
-              <input
-                type="radio"
-                name="categoryId"
-                value={category.id}
-                defaultChecked={category.id === defaultCategoryId}
-                required
-                className="peer sr-only"
-              />
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink transition peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand-strong peer-focus-visible:ring-2 peer-focus-visible:ring-brand active:scale-[0.97]">
-                <span aria-hidden>{categoryEmoji(category.name)}</span>
-                {category.name}
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <CategoryPicker
+        type={type}
+        categories={filteredCategories}
+        selectedId={selectedCategoryId}
+        onSelect={(id) => setSelectedByType((prev) => ({ ...prev, [type]: id }))}
+        onCreated={(category) => {
+          setCreatedCategories((prev) => [...prev, category]);
+          setSelectedByType((prev) => ({ ...prev, [category.type]: category.id }));
+        }}
+      />
 
       <label className={labelClass}>
         {t("occurredAt")}
@@ -151,13 +189,28 @@ export function TransactionForm({
       )}
 
       <div className="sticky bottom-24 z-10 flex flex-col gap-2 bg-gradient-to-t from-bg via-bg to-transparent pt-3">
-        <Button type="submit" className="w-full py-3.5 text-base">
+        <SubmitButton className="w-full py-3.5 text-base" disabled={deletePending}>
           {t("save")}
-        </Button>
+        </SubmitButton>
         {mode === "edit" && (
-          <Button type="button" variant="danger" className="w-full" onClick={() => deleteTransaction(transaction!.id)}>
-            {t("delete")}
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="danger"
+              className="w-full"
+              onClick={onDeleteClick}
+              disabled={deletePending}
+              aria-busy={deletePending}
+            >
+              {deletePending && <Spinner />}
+              {confirmingDelete ? t("deleteConfirm") : t("delete")}
+            </Button>
+            {deleteError && (
+              <p role="alert" className={errorClass}>
+                {deleteError}
+              </p>
+            )}
+          </>
         )}
       </div>
     </form>

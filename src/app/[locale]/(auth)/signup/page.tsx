@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/submit-button";
+import { doneProgress, startProgress } from "@/components/feedback/progress-store";
 
 export default function SignupPage() {
   const t = useTranslations("auth.signup");
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +23,16 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     setPending(true);
-    const { error } = await createClient().auth.signUp({ email, password });
+    startProgress();
+    const { error } = await createClient()
+      .auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/calendar`,
+        },
+      })
+      .finally(() => doneProgress());
     setPending(false);
     if (error) {
       setError(error.message);
@@ -93,7 +105,8 @@ export default function SignupPage() {
               {error}
             </p>
           )}
-          <Button type="submit" disabled={pending} className="mt-1 w-full py-3 text-[15px]">
+          <Button type="submit" disabled={pending} aria-busy={pending} className="mt-1 w-full py-3 text-[15px]">
+            {pending && <Spinner />}
             {t("submit")}
           </Button>
         </form>

@@ -3,14 +3,17 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
+import { useProgressRouter } from "@/components/feedback/use-progress-router";
+import { doneProgress, startProgress } from "@/components/feedback/progress-store";
+import { Spinner } from "@/components/ui/submit-button";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
-  const router = useRouter();
+  const router = useProgressRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +23,10 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setPending(true);
-    const { error } = await createClient().auth.signInWithPassword({ email, password });
+    startProgress();
+    const { error } = await createClient()
+      .auth.signInWithPassword({ email, password })
+      .finally(() => doneProgress());
     if (error) {
       setError(error.message);
       setPending(false);
@@ -64,7 +70,8 @@ export default function LoginPage() {
               {error}
             </p>
           )}
-          <Button type="submit" disabled={pending} className="mt-1 w-full py-3 text-[15px]">
+          <Button type="submit" disabled={pending} aria-busy={pending} className="mt-1 w-full py-3 text-[15px]">
+            {pending && <Spinner />}
             {t("submit")}
           </Button>
         </form>

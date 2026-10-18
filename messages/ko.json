@@ -49,7 +49,14 @@
     "emptyHint": "첫 내역을 함께 기록해 보세요 💕",
     "back": "뒤로",
     "newTitle": "내역 추가",
-    "editTitle": "내역 수정"
+    "editTitle": "내역 수정",
+    "addCategory": "+ 추가",
+    "addCategorySubmit": "추가",
+    "categoryName": "카테고리 이름",
+    "categoryNamePlaceholder": "카테고리 이름 (최대 12자)",
+    "categoryNameRequired": "카테고리 이름을 입력해 주세요",
+    "categoryIcon": "아이콘",
+    "deleteConfirm": "한 번 더 누르면 삭제돼요"
   },
   "calendar": {
     "monthView": "달력",
@@ -78,7 +85,10 @@
     "when": "언제",
     "newTitle": "새 일정",
     "editTitle": "일정 수정",
-    "back": "뒤로"
+    "back": "뒤로",
+    "saving": "저장 중…",
+    "deleting": "삭제 중…",
+    "deleteConfirm": "정말 삭제할까요?"
   },
   "connections": {
     "searchLabel": "이메일로 상대방 찾기",
@@ -95,7 +105,12 @@
     "connected": "연결됨",
     "notConnected": "연결 안 됨",
     "connectButton": "연결하기",
-    "disconnectButton": "연결 해제"
+    "disconnectButton": "연결 해제",
+    "explain": "알림을 받으려면 내 텔레그램을 다붓 봇과 연결해요. '연결하기'를 누르면 텔레그램이 열리고, 봇 화면에서 시작(START)을 누르면 끝!",
+    "connectedNote": "상대방이 일정·가계부를 바꾸면 이 텔레그램으로 알려드려요",
+    "bannerText": "텔레그램을 연결하면 상대방 소식을 바로 받아요",
+    "bannerCta": "연결하러 가기",
+    "bannerDismiss": "닫기"
   },
   "settings": {
     "themeSection": "테마",
@@ -104,5 +119,19 @@
     "customColor": "직접 고르기",
     "connectionSection": "연결",
     "signOut": "로그아웃"
+  },
+  "common": {
+    "loading": "불러오는 중…"
+  },
+  "toast": {
+    "eventCreated": "일정을 저장했어요",
+    "eventUpdated": "일정을 수정했어요",
+    "eventDeleted": "일정을 삭제했어요",
+    "transactionCreated": "내역을 저장했어요",
+    "transactionUpdated": "내역을 수정했어요",
+    "transactionDeleted": "내역을 삭제했어요",
+    "categoryCreated": "카테고리를 추가했어요",
+    "emailConfirmed": "이메일 인증이 완료됐어요! 다붓에 오신 걸 환영해요",
+    "emailConfirmedLogin": "이메일 인증 완료! 로그인해 주세요"
   }
 }

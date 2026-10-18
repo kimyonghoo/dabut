@@ -7,14 +7,14 @@ export type Database = {
           Tables: {
             "categories": {
                   Row: {
-                    "connection_id": string | null,"created_at": string,"icon": string | null,"id": string,"name": string,"type": string
+                    "connection_id": string | null,"created_at": string,"icon": string | null,"id": string,"name": string,"owner_id": string | null,"type": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "connection_id"?: string | null,"created_at"?: string,"icon"?: string | null,"id"?: string,"name": string,"type": string
+                    "connection_id"?: string | null,"created_at"?: string,"icon"?: string | null,"id"?: string,"name": string,"owner_id"?: string | null,"type": string
                   }
                   Update: {
-                    "connection_id"?: string | null,"created_at"?: string,"icon"?: string | null,"id"?: string,"name"?: string,"type"?: string
+                    "connection_id"?: string | null,"created_at"?: string,"icon"?: string | null,"id"?: string,"name"?: string,"owner_id"?: string | null,"type"?: string
                   }
                   Relationships: [
                     {
@@ -22,6 +22,12 @@ export type Database = {
       columns: ["connection_id"]
 isOneToOne: false
       referencedRelation: "connections"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "categories_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -159,14 +165,14 @@ isOneToOne: true
                   ]
                 },"transactions": {
                   Row: {
-                    "amount": number,"category_id": string,"connection_id": string,"created_at": string,"created_by": string,"id": string,"memo": string | null,"occurred_at": string,"owner_id": string,"type": string,"updated_at": string
+                    "amount": number,"category_id": string,"connection_id": string | null,"created_at": string,"created_by": string,"id": string,"memo": string | null,"occurred_at": string,"owner_id": string,"type": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"category_id": string,"connection_id": string,"created_at"?: string,"created_by": string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id": string,"type": string,"updated_at"?: string
+                    "amount": number,"category_id": string,"connection_id"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id": string,"type": string,"updated_at"?: string
                   }
                   Update: {
-                    "amount"?: number,"category_id"?: string,"connection_id"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id"?: string,"type"?: string,"updated_at"?: string
+                    "amount"?: number,"category_id"?: string,"connection_id"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id"?: string,"type"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {

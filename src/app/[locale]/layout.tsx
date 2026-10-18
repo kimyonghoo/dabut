@@ -4,6 +4,8 @@ import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { TopProgress } from "@/components/feedback/top-progress";
+import { Toaster } from "@/components/feedback/toaster";
 import "../globals.css";
 
 export const viewport: Viewport = {
@@ -37,7 +39,11 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className="min-h-dvh bg-bg text-ink antialiased [-webkit-tap-highlight-color:transparent] selection:bg-brand-soft">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider messages={messages}>
+            <TopProgress />
+            <Toaster />
+            {children}
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

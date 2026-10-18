@@ -2,7 +2,8 @@
 
 import { motion, useReducedMotion, type PanInfo } from "framer-motion";
 import { useState, type ReactNode } from "react";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { useProgressRouter } from "@/components/feedback/use-progress-router";
 import { resolveSwipeDirection } from "./resolve-swipe-direction";
 
 const TAB_ORDER = ["calendar", "ledger", "settings"] as const;
@@ -15,7 +16,7 @@ function tabIndex(pathname: string) {
 
 export function SwipeableTabs({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const router = useProgressRouter();
   const reduceMotion = useReducedMotion();
 
   // Remember the previous tab so the entering page slides in from the correct side.

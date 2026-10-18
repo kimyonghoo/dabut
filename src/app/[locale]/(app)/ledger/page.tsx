@@ -25,7 +25,7 @@ export default async function LedgerPage() {
 
   const { data: transactions } = await supabase
     .from("transactions")
-    .select("*, categories(name)")
+    .select("*, categories(name, icon)")
     .gte("occurred_at", monthStart)
     .lte("occurred_at", monthEnd);
 
@@ -97,7 +97,9 @@ export default async function LedgerPage() {
               <h2 className="mb-2 px-1 text-xs font-semibold text-ink-muted">{dayFormat.format(toUtcDate(date))}</h2>
               <ul className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
                 {items.map((row) => {
-                  const name = (row as unknown as { categories: { name: string } | null }).categories?.name;
+                  const category = (row as unknown as { categories: { name: string; icon: string | null } | null })
+                    .categories;
+                  const name = category?.name;
                   const isIncome = row.type === "income";
                   return (
                     <li key={row.id} className="border-b border-line last:border-b-0">
@@ -111,7 +113,7 @@ export default async function LedgerPage() {
                             isIncome ? "bg-shared-soft" : "bg-brand-soft"
                           }`}
                         >
-                          {categoryEmoji(name)}
+                          {categoryEmoji(category)}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block text-[15px] font-semibold text-ink">{name}</span>

@@ -49,7 +49,14 @@
     "emptyHint": "Add your first entry together 💕",
     "back": "Back",
     "newTitle": "New entry",
-    "editTitle": "Edit entry"
+    "editTitle": "Edit entry",
+    "addCategory": "+ Add",
+    "addCategorySubmit": "Add",
+    "categoryName": "Category name",
+    "categoryNamePlaceholder": "Category name (max 12)",
+    "categoryNameRequired": "Enter a category name",
+    "categoryIcon": "Icon",
+    "deleteConfirm": "Tap again to delete"
   },
   "calendar": {
     "monthView": "Month",
@@ -78,7 +85,10 @@
     "when": "When",
     "newTitle": "New event",
     "editTitle": "Edit event",
-    "back": "Back"
+    "back": "Back",
+    "saving": "Saving…",
+    "deleting": "Deleting…",
+    "deleteConfirm": "Delete this event?"
   },
   "connections": {
     "searchLabel": "Find your partner by email",
@@ -95,7 +105,12 @@
     "connected": "Connected",
     "notConnected": "Not connected",
     "connectButton": "Connect",
-    "disconnectButton": "Disconnect"
+    "disconnectButton": "Disconnect",
+    "explain": "To get notifications, link your own Telegram to the Dabut bot. Tap \"Connect\" to open Telegram, then press START in the bot chat — that's it!",
+    "connectedNote": "We'll notify this Telegram when your partner changes events or the ledger",
+    "bannerText": "Connect Telegram to get your partner's updates right away",
+    "bannerCta": "Go connect",
+    "bannerDismiss": "Dismiss"
   },
   "settings": {
     "themeSection": "Theme",
@@ -104,5 +119,19 @@
     "customColor": "Custom",
     "connectionSection": "Connection",
     "signOut": "Sign out"
+  },
+  "common": {
+    "loading": "Loading…"
+  },
+  "toast": {
+    "eventCreated": "Event saved",
+    "eventUpdated": "Event updated",
+    "eventDeleted": "Event deleted",
+    "transactionCreated": "Entry saved",
+    "transactionUpdated": "Entry updated",
+    "transactionDeleted": "Entry deleted",
+    "categoryCreated": "Category added",
+    "emailConfirmed": "Email confirmed! Welcome to Dabut",
+    "emailConfirmedLogin": "Email confirmed! Please log in"
   }
 }

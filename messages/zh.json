@@ -49,7 +49,14 @@
     "emptyHint": "一起记下第一笔吧 💕",
     "back": "返回",
     "newTitle": "添加记录",
-    "editTitle": "编辑记录"
+    "editTitle": "编辑记录",
+    "addCategory": "+ 添加",
+    "addCategorySubmit": "添加",
+    "categoryName": "分类名称",
+    "categoryNamePlaceholder": "分类名称（最多12字）",
+    "categoryNameRequired": "请输入分类名称",
+    "categoryIcon": "图标",
+    "deleteConfirm": "再点一次即可删除"
   },
   "calendar": {
     "monthView": "日历",
@@ -78,7 +85,10 @@
     "when": "何时",
     "newTitle": "新日程",
     "editTitle": "编辑日程",
-    "back": "返回"
+    "back": "返回",
+    "saving": "保存中…",
+    "deleting": "删除中…",
+    "deleteConfirm": "确定要删除吗？"
   },
   "connections": {
     "searchLabel": "通过邮箱查找对方",
@@ -95,7 +105,12 @@
     "connected": "已连接",
     "notConnected": "未连接",
     "connectButton": "连接",
-    "disconnectButton": "断开连接"
+    "disconnectButton": "断开连接",
+    "explain": "要接收通知，请将你自己的 Telegram 连接到 Dabut 机器人。点击\"连接\"会打开 Telegram，在机器人界面点击开始(START)即可！",
+    "connectedNote": "对方修改日程或账本时，我们会通过这个 Telegram 通知你",
+    "bannerText": "连接 Telegram，即时获取对方的动态",
+    "bannerCta": "去连接",
+    "bannerDismiss": "关闭"
   },
   "settings": {
     "themeSection": "主题",
@@ -104,5 +119,19 @@
     "customColor": "自定义",
     "connectionSection": "连接",
     "signOut": "退出登录"
+  },
+  "common": {
+    "loading": "加载中…"
+  },
+  "toast": {
+    "eventCreated": "日程已保存",
+    "eventUpdated": "日程已更新",
+    "eventDeleted": "日程已删除",
+    "transactionCreated": "记录已保存",
+    "transactionUpdated": "记录已更新",
+    "transactionDeleted": "记录已删除",
+    "categoryCreated": "分类已添加",
+    "emailConfirmed": "邮箱验证完成！欢迎来到 Dabut",
+    "emailConfirmedLogin": "邮箱验证完成！请登录"
   }
 }

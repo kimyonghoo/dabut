@@ -2,13 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { useProgressRouter } from "@/components/feedback/use-progress-router";
 
 export function ViewToggle() {
   const t = useTranslations("calendar");
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const router = useRouter();
+  const router = useProgressRouter();
   const view = searchParams.get("view") ?? "month";
   const month = searchParams.get("month");
 

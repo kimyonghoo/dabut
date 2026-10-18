@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buildEventTimestamps } from "@/lib/events/build-event-timestamps";
 import { validateSharedSelection } from "@/lib/events/validate-shared-selection";
@@ -9,6 +11,13 @@ import { notifyConnectionMembers } from "@/lib/telegram/notify-connection";
 import { resolveActorName } from "@/lib/telegram/actor-name";
 
 export type EventActionState = { error?: string };
+
+type EventToast = "eventCreated" | "eventUpdated" | "eventDeleted";
+
+// redirect() throws NEXT_REDIRECT — must be the last call, outside try/catch.
+async function redirectToCalendar(toast: EventToast): Promise<never> {
+  return redirect({ href: { pathname: "/calendar", query: { toast } }, locale: await getLocale() });
+}
 
 async function parseAndBuild(formData: FormData): Promise<ReturnType<typeof buildEventTimestamps>> {
   const mode = formData.get("mode") as "allDay" | "timeRange" | "dateRange";
@@ -91,7 +100,7 @@ export async function createEvent(_prevState: EventActionState, formData: FormDa
   });
 
   revalidatePath("/", "layout");
-  return {};
+  return redirectToCalendar("eventCreated");
 }
 
 export async function updateEvent(
@@ -150,7 +159,7 @@ export async function updateEvent(
   }
 
   revalidatePath("/", "layout");
-  return {};
+  return redirectToCalendar("eventUpdated");
 }
 
 export async function deleteEvent(eventId: string): Promise<EventActionState> {
@@ -184,5 +193,5 @@ export async function deleteEvent(eventId: string): Promise<EventActionState> {
   }
 
   revalidatePath("/", "layout");
-  return {};
+  return redirectToCalendar("eventDeleted");
 }
