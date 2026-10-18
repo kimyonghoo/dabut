@@ -8,7 +8,10 @@ import { Card } from "@/components/ui/card";
 import { SwipeToDelete } from "@/components/swipe/swipe-to-delete";
 import { useOptimisticRemoval } from "@/components/swipe/use-optimistic-removal";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
+import { OwnershipLegend } from "@/components/ledger/ownership-legend";
+import { BORDER_CLASSNAME } from "@/components/ledger/ownership-style";
 import { calculateMonthlyTotals } from "@/lib/ledger/calculate-totals";
+import { categorizeTransaction } from "@/lib/ledger/categorize-transaction";
 import { filterByCategory, groupByOccurredAt } from "@/lib/ledger/filter-by-category";
 import { dateGroupLabel } from "@/lib/dates/relative-day";
 import { useTodayKey } from "@/lib/dates/use-today-key";
@@ -35,11 +38,23 @@ export function LedgerView({
   categories,
   currentUserId,
   serverTodayKey,
+  hasPartner = false,
+  partnerName = null,
 }: {
   rows: LedgerRow[];
   categories: LedgerCategory[];
   currentUserId: string;
   serverTodayKey: string;
+  /**
+   * Whether this ledger can plausibly contain entries from someone other
+   * than the viewer (i.e. the user has a connected partner). Transactions
+   * have no "shared" ownership the way events do — every row is either
+   * "mine" or "partner's" — so when there's no partner at all, that
+   * distinction can never occur and showing color cues for it would just
+   * be noise.
+   */
+  hasPartner?: boolean;
+  partnerName?: string | null;
 }) {
   const t = useTranslations("ledger");
   const tDates = useTranslations("dates");
@@ -158,8 +173,14 @@ export function LedgerView({
               <ul className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
                 {items.map((row) => {
                   const isIncome = row.type === "income";
+                  const ownership = categorizeTransaction(row, currentUserId);
                   return (
-                    <li key={row.id} className="border-b border-line last:border-b-0">
+                    <li
+                      key={row.id}
+                      className={`border-b border-line last:border-b-0 ${
+                        hasPartner ? `border-l-4 ${BORDER_CLASSNAME[ownership]}` : ""
+                      }`}
+                    >
                       <SwipeToDelete
                         disabled={row.ownerId !== currentUserId}
                         deleteLabel={tCommon("delete")}
@@ -198,6 +219,12 @@ export function LedgerView({
               </ul>
             </section>
           ))}
+        </div>
+      )}
+
+      {hasPartner && liveRows.length > 0 && (
+        <div className="mt-4">
+          <OwnershipLegend partnerName={partnerName} />
         </div>
       )}
     </>

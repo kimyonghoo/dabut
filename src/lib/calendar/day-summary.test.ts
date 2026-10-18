@@ -19,24 +19,45 @@ const DAY = new Date(2026, 9, 18); // TZ=UTC in vitest config
 
 describe("isDayWithinEvent", () => {
   it("includes an event that starts that day", () => {
-    expect(isDayWithinEvent(DAY, ev({ id: "a" }))).toBe(true);
+    expect(isDayWithinEvent(DAY, ev({ id: "a" }), "UTC")).toBe(true);
   });
 
   it("includes a multi-day event spanning the day", () => {
     expect(
-      isDayWithinEvent(DAY, ev({ id: "a", start_at: "2026-10-16T00:00:00.000Z", end_at: "2026-10-20T00:00:00.000Z" }))
+      isDayWithinEvent(
+        DAY,
+        ev({ id: "a", start_at: "2026-10-16T00:00:00.000Z", end_at: "2026-10-20T00:00:00.000Z" }),
+        "UTC"
+      )
     ).toBe(true);
   });
 
   it("uses start as end when end_at is null", () => {
-    expect(isDayWithinEvent(DAY, ev({ id: "a", start_at: "2026-10-17T00:00:00.000Z", end_at: null }))).toBe(false);
-    expect(isDayWithinEvent(DAY, ev({ id: "a", start_at: "2026-10-18T00:00:00.000Z", end_at: null }))).toBe(true);
+    expect(isDayWithinEvent(DAY, ev({ id: "a", start_at: "2026-10-17T00:00:00.000Z", end_at: null }), "UTC")).toBe(
+      false
+    );
+    expect(isDayWithinEvent(DAY, ev({ id: "a", start_at: "2026-10-18T00:00:00.000Z", end_at: null }), "UTC")).toBe(
+      true
+    );
   });
 
   it("excludes events on other days", () => {
     expect(
-      isDayWithinEvent(DAY, ev({ id: "a", start_at: "2026-10-19T09:00:00.000Z", end_at: "2026-10-19T10:00:00.000Z" }))
+      isDayWithinEvent(
+        DAY,
+        ev({ id: "a", start_at: "2026-10-19T09:00:00.000Z", end_at: "2026-10-19T10:00:00.000Z" }),
+        "UTC"
+      )
     ).toBe(false);
+  });
+
+  it("uses the given timezone's calendar day, not UTC's", () => {
+    // 2026-10-18T01:00:00Z is still Oct 17 in Seoul... no: Seoul is UTC+9, so
+    // 01:00 UTC is 10:00 KST the same day. Pick an instant that actually
+    // crosses the boundary instead: 2026-10-17T16:00:00Z is 2026-10-18T01:00 KST.
+    const event = ev({ id: "a", start_at: "2026-10-17T16:00:00.000Z", end_at: null });
+    expect(isDayWithinEvent(DAY, event, "UTC")).toBe(false); // Oct 17 in UTC
+    expect(isDayWithinEvent(DAY, event, "Asia/Seoul")).toBe(true); // Oct 18 in Seoul
   });
 });
 
@@ -64,18 +85,18 @@ describe("splitDayEvents", () => {
   ];
 
   it("splits the day's events by owner and sorts each section", () => {
-    const { mine, partner } = splitDayEvents(events, DAY, ME);
+    const { mine, partner } = splitDayEvents(events, DAY, ME, "UTC");
     expect(mine.map((e) => e.id)).toEqual(["mine-allday", "mine-early", "mine-late"]);
     expect(partner.map((e) => e.id)).toEqual(["partner-1"]);
   });
 
   it("returns empty sections when nothing is on that day", () => {
-    expect(splitDayEvents(events, new Date(2026, 9, 25), ME)).toEqual({ mine: [], partner: [] });
+    expect(splitDayEvents(events, new Date(2026, 9, 25), ME, "UTC")).toEqual({ mine: [], partner: [] });
   });
 
   it("does not mutate the input array", () => {
     const copy = [...events];
-    splitDayEvents(events, DAY, ME);
+    splitDayEvents(events, DAY, ME, "UTC");
     expect(events).toEqual(copy);
   });
 });

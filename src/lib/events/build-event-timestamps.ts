@@ -1,3 +1,5 @@
+import { zonedDateTimeToUtcIso } from "@/lib/dates/timezone";
+
 export type TimeMode = "allDay" | "timeRange" | "dateRange";
 
 export function buildEventTimestamps(input: {
@@ -6,27 +8,29 @@ export function buildEventTimestamps(input: {
   startTime?: string;
   endDate?: string;
   endTime?: string;
+  /** The acting user's configured timezone; naive date/time inputs are interpreted as wall-clock values here. */
+  timeZone: string;
 }): { allDay: boolean; startAt: string; endAt: string | null } | { error: string } {
-  const { mode, startDate, startTime, endDate, endTime } = input;
+  const { mode, startDate, startTime, endDate, endTime, timeZone } = input;
 
   if (mode === "allDay") {
-    const start = new Date(`${startDate}T00:00:00`);
-    return { allDay: true, startAt: start.toISOString(), endAt: null };
+    const start = zonedDateTimeToUtcIso(startDate, undefined, timeZone);
+    return { allDay: true, startAt: start, endAt: null };
   }
 
   if (mode === "timeRange") {
-    const start = new Date(`${startDate}T${startTime}:00`);
-    const end = new Date(`${startDate}T${endTime}:00`);
-    if (end.getTime() <= start.getTime()) {
+    const start = zonedDateTimeToUtcIso(startDate, startTime, timeZone);
+    const end = zonedDateTimeToUtcIso(startDate, endTime, timeZone);
+    if (new Date(end).getTime() <= new Date(start).getTime()) {
       return { error: "End time must be after start time" };
     }
-    return { allDay: false, startAt: start.toISOString(), endAt: end.toISOString() };
+    return { allDay: false, startAt: start, endAt: end };
   }
 
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-  if (end.getTime() < start.getTime()) {
+  const start = zonedDateTimeToUtcIso(startDate, undefined, timeZone);
+  const end = zonedDateTimeToUtcIso(endDate!, undefined, timeZone);
+  if (new Date(end).getTime() < new Date(start).getTime()) {
     return { error: "End date must be on or after start date" };
   }
-  return { allDay: true, startAt: start.toISOString(), endAt: end.toISOString() };
+  return { allDay: true, startAt: start, endAt: end };
 }

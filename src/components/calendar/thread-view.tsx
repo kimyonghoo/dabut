@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { CalendarHeart } from "lucide-react";
-import { format, parseISO } from "date-fns";
 import { groupEventsByDate } from "@/lib/calendar/group-by-date";
+import { toZonedTimeInputValue } from "@/lib/dates/timezone";
 import { Link } from "@/i18n/navigation";
 import type { Database } from "@/types/database.types";
 import { ThreadList, type ThreadGroup } from "./thread-list";
@@ -9,11 +9,11 @@ import { ThreadList, type ThreadGroup } from "./thread-list";
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type CategorizedEvent = EventRow & { category: "mine" | "partner" | "shared" };
 
-function timeLabel(event: EventRow, allDay: string): string {
+function timeLabel(event: EventRow, allDay: string, timeZone: string): string {
   if (event.all_day) return allDay;
-  const start = format(parseISO(event.start_at), "HH:mm");
+  const start = toZonedTimeInputValue(event.start_at, timeZone);
   if (!event.end_at) return start;
-  return `${start}–${format(parseISO(event.end_at), "HH:mm")}`;
+  return `${start}–${toZonedTimeInputValue(event.end_at, timeZone)}`;
 }
 
 /**
@@ -24,13 +24,16 @@ export function ThreadView({
   events,
   currentUserId,
   serverTodayKey,
+  timeZone,
 }: {
   events: CategorizedEvent[];
   currentUserId: string;
   serverTodayKey: string;
+  /** The viewing user's configured timezone, for day grouping and HH:mm labels. */
+  timeZone: string;
 }) {
   const t = useTranslations("calendar");
-  const groups: ThreadGroup[] = groupEventsByDate(events).map((group) => ({
+  const groups: ThreadGroup[] = groupEventsByDate(events, timeZone).map((group) => ({
     date: group.date,
     events: group.events.map((event) => ({
       id: event.id,
@@ -39,7 +42,7 @@ export function ThreadView({
       location: event.location,
       companions: event.companions,
       category: event.category,
-      timeText: timeLabel(event, t("allDay")),
+      timeText: timeLabel(event, t("allDay"), timeZone),
     })),
   }));
 

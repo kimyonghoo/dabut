@@ -131,14 +131,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "brand_color": string,"created_at": string,"display_name": string,"email": string,"id": string,"locale": string,"telegram_chat_id": string | null,"updated_at": string
+                    "brand_color": string,"created_at": string,"display_name": string,"email": string,"id": string,"locale": string,"telegram_chat_id": string | null,"timezone": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"email": string,"id": string,"locale"?: string,"telegram_chat_id"?: string | null,"updated_at"?: string
+                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"email": string,"id": string,"locale"?: string,"telegram_chat_id"?: string | null,"timezone"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"email"?: string,"id"?: string,"locale"?: string,"telegram_chat_id"?: string | null,"updated_at"?: string
+                    "brand_color"?: string,"created_at"?: string,"display_name"?: string,"email"?: string,"id"?: string,"locale"?: string,"telegram_chat_id"?: string | null,"timezone"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     

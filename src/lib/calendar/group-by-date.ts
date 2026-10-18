@@ -1,12 +1,13 @@
-import { format, parseISO } from "date-fns";
+import { toZonedDateInputValue } from "@/lib/dates/timezone";
 
 export function groupEventsByDate<T extends { start_at: string }>(
-  events: T[]
+  events: T[],
+  timeZone: string
 ): Array<{ date: string; events: T[] }> {
   const byDate = new Map<string, T[]>();
 
   for (const event of events) {
-    const key = format(parseISO(event.start_at), "yyyy-MM-dd");
+    const key = toZonedDateInputValue(event.start_at, timeZone);
     const existing = byDate.get(key);
     if (existing) {
       existing.push(event);

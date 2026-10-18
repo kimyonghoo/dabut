@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { zonedDateParts, DEFAULT_TIMEZONE } from "@/lib/dates/timezone";
 
 export type NotificationAction = "created" | "updated" | "deleted";
 
@@ -8,10 +8,34 @@ const EVENT_VERB: Record<NotificationAction, string> = {
   deleted: "삭제했어요",
 };
 
+const ACTION_EMOJI: Record<NotificationAction, string> = {
+  created: "✅",
+  updated: "✏️",
+  deleted: "🗑️",
+};
+
 const TYPE_LABEL: Record<"expense" | "income", string> = {
   expense: "지출",
   income: "수입",
 };
+
+// index 0 (Sun) - 6 (Sat); this bot's messages are Korean-only today (see
+// escapeHtml above), so the day-of-week abbreviation is too.
+const KOREAN_WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+// Telegram's "HTML" parse_mode only reserves &, <, > (plus " and ' inside
+// attributes, which we don't use but escape anyway for safety). Every piece
+// of user-controlled text (nicknames, titles, category names, memos) MUST be
+// passed through this before being interpolated into a message, since those
+// messages are sent, unreviewed, into someone else's chat.
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 export function eventNotificationMessage(input: {
   action: NotificationAction;
@@ -19,11 +43,22 @@ export function eventNotificationMessage(input: {
   title: string;
   startAt: string;
   allDay: boolean;
+  // The event owner/actor's configured timezone (this app's recipient is
+  // typically a partner in the same timezone, so we don't customize per
+  // recipient) — defaults to Asia/Seoul for callers that don't have one.
+  timeZone?: string;
 }): string {
-  const { action, actorName, title, startAt, allDay } = input;
-  const head = `${actorName}님이 일정을 ${EVENT_VERB[action]}: ${title}`;
+  const { action, actorName, title, startAt, allDay, timeZone = DEFAULT_TIMEZONE } = input;
+  const emoji = ACTION_EMOJI[action];
+  const name = escapeHtml(actorName);
+  const safeTitle = escapeHtml(title);
+  const head = `${emoji} <b>${name}</b>님이 일정을 ${EVENT_VERB[action]}: <b>${safeTitle}</b>`;
   if (action === "deleted") return head;
-  const date = format(parseISO(startAt), allDay ? "M월 d일" : "M월 d일 HH:mm");
+  const { month, day, hour, minute, weekday } = zonedDateParts(startAt, timeZone);
+  const weekdayLabel = `(${KOREAN_WEEKDAYS[weekday]})`;
+  const date = allDay
+    ? `${month}월 ${day}일 ${weekdayLabel}`
+    : `${month}월 ${day}일 ${weekdayLabel} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
   return `${head} (${date})`;
 }
 
@@ -33,10 +68,21 @@ export function transactionNotificationMessage(input: {
   type: "expense" | "income";
   amount: number;
   categoryName: string;
+  categoryIcon?: string | null;
+  memo?: string | null;
 }): string {
-  const { action, actorName, type, amount, categoryName } = input;
+  const { action, actorName, type, amount, categoryName, categoryIcon, memo } = input;
+  const emoji = ACTION_EMOJI[action];
+  const name = escapeHtml(actorName);
   const amountText = `${amount.toLocaleString("ko-KR")}원`;
-  const label = `${categoryName} ${TYPE_LABEL[type]}`;
-  if (action === "created") return `${actorName}님이 ${label} ${amountText}을 등록했어요`;
-  return `${actorName}님이 ${label} 내역을 ${EVENT_VERB[action]}: ${amountText}`;
+  const categoryLabel = categoryIcon
+    ? `${escapeHtml(categoryIcon)} ${escapeHtml(categoryName)}`
+    : escapeHtml(categoryName);
+  const label = `${categoryLabel} ${TYPE_LABEL[type]}`;
+  const trimmedMemo = memo?.trim();
+  const memoSuffix = trimmedMemo ? ` — ${escapeHtml(trimmedMemo)}` : "";
+  if (action === "created") {
+    return `${emoji} <b>${name}</b>님이 ${label} <b>${amountText}</b>을 등록했어요${memoSuffix}`;
+  }
+  return `${emoji} <b>${name}</b>님이 ${label} 내역을 ${EVENT_VERB[action]}: <b>${amountText}</b>${memoSuffix}`;
 }

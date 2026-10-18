@@ -14,6 +14,7 @@
       "email": "이메일",
       "password": "비밀번호",
       "submit": "로그인",
+      "rememberEmail": "아이디 저장",
       "noAccount": "아직 계정이 없나요?",
       "toSignup": "회원가입",
       "emailRequired": "이메일을 입력해 주세요",
@@ -85,7 +86,10 @@
     "deleteConfirm": "한 번 더 누르면 삭제돼요",
     "filterLabel": "카테고리 필터",
     "filterAll": "전체",
-    "filterEmpty": "이 카테고리의 내역이 없어요"
+    "filterEmpty": "이 카테고리의 내역이 없어요",
+    "legendMine": "내 가계부",
+    "legendPartner": "상대방 가계부",
+    "legendPartnerNamed": "{name}의 가계부"
   },
   "calendar": {
     "monthView": "달력",
@@ -162,6 +166,7 @@
     "mode": "화면 모드",
     "brandColor": "브랜드 색상",
     "customColor": "직접 고르기",
+    "timezone": "시간대",
     "connectionSection": "연결",
     "signOut": "로그아웃",
     "language": "언어",

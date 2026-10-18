@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { Languages, Moon, Sun } from "lucide-react";
+import { Clock, Languages, Moon, Sun } from "lucide-react";
 import { routing } from "@/i18n/routing";
 import { BRAND_PRESETS } from "@/components/settings/brand-color-picker";
 import { LOCALE_LABELS, useLocaleSwitcher } from "@/components/settings/use-locale-switcher";
+import { TIMEZONE_CHOICES } from "@/lib/dates/timezone";
 
-type Panel = "language" | "palette" | null;
+type Panel = "language" | "palette" | "timezone" | null;
 
 const ICON_BUTTON =
   "grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-2 text-ink transition hover:bg-brand-soft active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand";
@@ -17,19 +18,23 @@ const PANEL =
   "absolute right-0 top-full z-20 mt-2 rounded-2xl border border-line bg-surface p-2 shadow-lg";
 
 /**
- * Unified 3-icon cluster for the Settings PageHeader: language, brand color,
- * and light/dark theme — all the same circular treatment, left to right.
- * Only one popover (language or palette) is open at a time; the theme
- * button has no popover, it flips the theme directly on tap.
+ * Unified 4-icon cluster for the Settings PageHeader: language, brand color,
+ * timezone, and light/dark theme — all the same circular treatment, left to
+ * right. Only one popover (language, palette, or timezone) is open at a
+ * time; the theme button has no popover, it flips the theme directly on tap.
  */
 export function SettingsQuickControls({
   userId,
   brandColor,
   onBrandColorChange,
+  timeZone,
+  onTimezoneChange,
 }: {
   userId: string | null;
   brandColor: string;
   onBrandColorChange: (value: string) => void;
+  timeZone: string;
+  onTimezoneChange: (value: string) => void;
 }) {
   const t = useTranslations("settings");
   const tTheme = useTranslations("theme");
@@ -140,6 +145,43 @@ export function SettingsQuickControls({
                     selected ? "ring-2 ring-ink ring-offset-2 ring-offset-surface scale-110" : "hover:scale-105"
                   }`}
                 />
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="relative">
+        <button
+          type="button"
+          aria-label={t("timezone")}
+          aria-haspopup="menu"
+          aria-expanded={panel === "timezone"}
+          onClick={() => toggle("timezone")}
+          className={ICON_BUTTON}
+        >
+          <Clock aria-hidden className="size-4" strokeWidth={2} />
+        </button>
+        {panel === "timezone" && (
+          <div role="menu" aria-label={t("timezone")} className={`${PANEL} flex w-48 flex-col gap-0.5`}>
+            {TIMEZONE_CHOICES.map((choice) => {
+              const active = choice.value === timeZone;
+              return (
+                <button
+                  key={choice.value}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={active}
+                  onClick={() => {
+                    onTimezoneChange(choice.value);
+                    setPanel(null);
+                  }}
+                  className={`rounded-xl px-3 py-2 text-left text-sm font-semibold transition ${
+                    active ? "bg-brand-soft text-brand-strong" : "text-ink-muted hover:bg-surface-2 hover:text-ink"
+                  }`}
+                >
+                  {choice.label}
+                </button>
               );
             })}
           </div>

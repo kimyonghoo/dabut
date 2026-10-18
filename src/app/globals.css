@@ -87,3 +87,20 @@ body {
     transform: none;
   }
 }
+
+/* Locale switch cross-fade (see use-locale-switcher.ts): keep the browser's
+   default view-transition cross-fade short and snappy so it reads as a
+   smoothing of the content swap, not its own animation; skip it entirely
+   for reduced-motion users. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 150ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

@@ -7,7 +7,7 @@ export async function sendTelegramMessage(chatId: string, text: string): Promise
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, text }),
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
       }
     );
     if (!response.ok) {

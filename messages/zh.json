@@ -14,6 +14,7 @@
       "email": "电子邮箱",
       "password": "密码",
       "submit": "登录",
+      "rememberEmail": "记住邮箱",
       "noAccount": "还没有账号？",
       "toSignup": "注册",
       "emailRequired": "请输入邮箱",
@@ -85,7 +86,10 @@
     "deleteConfirm": "再点一次即可删除",
     "filterLabel": "分类筛选",
     "filterAll": "全部",
-    "filterEmpty": "该分类下暂无记录"
+    "filterEmpty": "该分类下暂无记录",
+    "legendMine": "我的账本",
+    "legendPartner": "对方账本",
+    "legendPartnerNamed": "{name}的账本"
   },
   "calendar": {
     "monthView": "日历",
@@ -162,6 +166,7 @@
     "mode": "显示模式",
     "brandColor": "主题色",
     "customColor": "自定义",
+    "timezone": "时区",
     "connectionSection": "连接",
     "signOut": "退出登录",
     "language": "语言",

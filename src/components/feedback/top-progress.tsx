@@ -11,11 +11,18 @@ import { resetProgress, startProgress, subscribeProgress } from "./progress-stor
  * clicks, form submits (via SubmitButton) and useProgressRouter pushes;
  * finishes when the route lands.
  */
+// Many navigations (e.g. a locale switch replaying an already-cached route)
+// land in well under this; holding off showing the bar until a navigation
+// has actually run this long avoids a bar that blinks on and off almost
+// instantly, which reads as a flicker in its own right.
+const SHOW_DELAY_MS = 150;
+
 function TopProgressInner() {
   const [visible, setVisible] = useState(false);
   const [width, setWidth] = useState(0);
   const trickle = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const hide = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const show = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -23,13 +30,19 @@ function TopProgressInner() {
     return subscribeProgress((active) => {
       clearTimeout(hide.current);
       if (active) {
-        setVisible(true);
-        setWidth((w) => (w > 0 && w < 90 ? w : 8));
+        clearTimeout(show.current);
+        show.current = setTimeout(() => {
+          setVisible(true);
+          setWidth((w) => (w > 0 && w < 90 ? w : 8));
+        }, SHOW_DELAY_MS);
         clearInterval(trickle.current);
         trickle.current = setInterval(() => {
           setWidth((w) => (w >= 90 ? w : w + (90 - w) * 0.12));
         }, 180);
       } else {
+        // Navigation finished before it ever became visible: cancel the
+        // pending show and skip the bar entirely for this one.
+        clearTimeout(show.current);
         clearInterval(trickle.current);
         setWidth(100);
         hide.current = setTimeout(() => {

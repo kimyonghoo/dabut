@@ -6,6 +6,23 @@ import type { Database } from "@/types/database.types";
  * "OO의 일정". Returns null when there is no partner or more than one
  * (callers then fall back to a generic "partner" label).
  */
+/**
+ * Whether the user has at least one connection (a linked partner), as a
+ * plain boolean — independent of whether that partner's display name is
+ * resolvable. Used to gate UI that only makes sense once a shared/partner
+ * concept exists at all (e.g. mine-vs-partner color coding), since
+ * `resolvePartnerName` returns null both when there's no connection and
+ * when a connected partner simply has no display name set.
+ */
+export async function hasConnection(supabase: SupabaseClient<Database>, userId: string): Promise<boolean> {
+  const { data: memberships } = await supabase
+    .from("connection_members")
+    .select("connection_id")
+    .eq("user_id", userId)
+    .limit(1);
+  return (memberships?.length ?? 0) > 0;
+}
+
 export async function resolvePartnerName(
   supabase: SupabaseClient<Database>,
   userId: string

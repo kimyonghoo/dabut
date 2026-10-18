@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import { EventForm } from "./event-form";
+import { TimezoneProvider } from "@/components/dates/timezone-provider";
 import type { Database } from "@/types/database.types";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
@@ -41,7 +42,9 @@ const messages = {
 function renderWithIntl(ui: React.ReactElement) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
-      {ui}
+      {/* UTC keeps these prefill assertions a direct passthrough of the stored
+          instant; timezone-specific conversion is covered in timezone.test.ts. */}
+      <TimezoneProvider initialTimeZone="UTC">{ui}</TimezoneProvider>
     </NextIntlClientProvider>
   );
 }

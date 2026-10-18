@@ -30,10 +30,11 @@ type ReturnedTransaction = {
   connection_id: string | null;
   type: string;
   amount: number;
-  categories: { name: string } | null;
+  memo: string | null;
+  categories: { name: string; icon: string | null } | null;
 };
 
-const RETURNING = "connection_id, type, amount, categories(name)";
+const RETURNING = "connection_id, type, amount, memo, categories(name, icon)";
 
 async function redirectToLedger(toast: "transactionCreated" | "transactionUpdated" | "transactionDeleted"): Promise<never> {
   return redirect({ href: { pathname: "/ledger", query: { toast } }, locale: await getLocale() });
@@ -55,6 +56,8 @@ async function notifyTransaction(
       type: row.type as "expense" | "income",
       amount: Number(row.amount),
       categoryName: row.categories?.name ?? "",
+      categoryIcon: row.categories?.icon ?? null,
+      memo: row.memo,
     }),
   });
 }

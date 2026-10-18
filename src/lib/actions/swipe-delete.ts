@@ -54,7 +54,8 @@ type DeletedTransaction = {
   connection_id: string | null;
   type: string;
   amount: number;
-  categories: { name: string } | null;
+  memo: string | null;
+  categories: { name: string; icon: string | null } | null;
 };
 
 export async function quickDeleteTransaction(transactionId: string): Promise<QuickDeleteResult> {
@@ -68,7 +69,7 @@ export async function quickDeleteTransaction(transactionId: string): Promise<Qui
     .from("transactions")
     .delete()
     .eq("id", transactionId)
-    .select("connection_id, type, amount, categories(name)")
+    .select("connection_id, type, amount, memo, categories(name, icon)")
     .maybeSingle();
   if (error) {
     console.error("quickDeleteTransaction failed:", error.message);
@@ -87,6 +88,8 @@ export async function quickDeleteTransaction(transactionId: string): Promise<Qui
         type: row.type as "expense" | "income",
         amount: Number(row.amount),
         categoryName: row.categories?.name ?? "",
+        categoryIcon: row.categories?.icon ?? null,
+        memo: row.memo,
       }),
     });
   }

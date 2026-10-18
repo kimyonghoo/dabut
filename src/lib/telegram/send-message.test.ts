@@ -17,4 +17,17 @@ describe("sendTelegramMessage", () => {
     );
     await expect(sendTelegramMessage("12345", "hello")).resolves.toBeUndefined();
   });
+
+  it("sends parse_mode: HTML so bold/italic markup in the message renders", async () => {
+    const fetchSpy = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+
+    await sendTelegramMessage("12345", "<b>hello</b>");
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [, init] = fetchSpy.mock.calls[0];
+    const body = JSON.parse(init!.body as string);
+    expect(body).toEqual({ chat_id: "12345", text: "<b>hello</b>", parse_mode: "HTML" });
+  });
 });

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useBrandColor } from "@/components/theme/brand-color-provider";
+import { useTimezone } from "@/components/dates/timezone-provider";
 import { ConnectionManager } from "@/components/connections/connection-manager";
 import { TelegramLink } from "@/components/settings/telegram-link";
 import { SignOutButton } from "@/components/settings/sign-out-button";
@@ -16,6 +17,7 @@ import { HeartHandshake, Smile } from "lucide-react";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
+  const { timeZone, setTimeZone } = useTimezone();
   const tNav = useTranslations("nav");
   const t = useTranslations("settings");
   const [userId, setUserId] = useState<string | null>(null);
@@ -135,6 +137,12 @@ export default function SettingsPage() {
     await createClient().from("profiles").update({ brand_color: value }).eq("id", userId);
   }
 
+  async function handleTimezoneChange(value: string) {
+    setTimeZone(value);
+    if (!userId) return;
+    await createClient().from("profiles").update({ timezone: value }).eq("id", userId);
+  }
+
   return (
     <main className="flex flex-col gap-4 pb-8">
       <PageHeader
@@ -144,6 +152,8 @@ export default function SettingsPage() {
             userId={userId}
             brandColor={brandColor}
             onBrandColorChange={handleBrandColorChange}
+            timeZone={timeZone}
+            onTimezoneChange={handleTimezoneChange}
           />
         }
       />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/navigation";
@@ -9,20 +9,36 @@ import { doneProgress, startProgress } from "@/components/feedback/progress-stor
 import { Spinner } from "@/components/ui/submit-button";
 import { TooltipInput } from "@/components/ui/tooltip-input";
 import { authFieldWrap, authLabelClass, authInputClass, authButtonClass, authErrorClass } from "@/components/auth/auth-field";
+import { clearRememberedEmail, getRememberedEmail, setRememberedEmail } from "@/lib/auth/remembered-email";
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
   const router = useProgressRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberEmail, setRememberEmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  // Pre-fill from a previously remembered email, if any.
+  useEffect(() => {
+    const saved = getRememberedEmail();
+    if (saved) {
+      setEmail(saved);
+      setRememberEmail(true);
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setPending(true);
     startProgress();
+    if (rememberEmail) {
+      setRememberedEmail(email);
+    } else {
+      clearRememberedEmail();
+    }
     const { error } = await createClient()
       .auth.signInWithPassword({ email, password })
       .finally(() => doneProgress());
@@ -71,6 +87,15 @@ export default function LoginPage() {
             messages={{ valueMissing: t("passwordRequired") }}
           />
         </div>
+        <label className="flex items-center gap-2 text-[13px] text-ink-muted">
+          <input
+            type="checkbox"
+            checked={rememberEmail}
+            onChange={(e) => setRememberEmail(e.target.checked)}
+            className="size-4 shrink-0 rounded-sm border-[1.5px] border-line bg-transparent accent-brand outline-none focus-visible:border-brand"
+          />
+          {t("rememberEmail")}
+        </label>
         {error && (
           <p role="alert" className={authErrorClass}>
             {error}

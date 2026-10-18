@@ -11,30 +11,19 @@ import { doneProgress, startProgress } from "@/components/feedback/progress-stor
 import { Card } from "@/components/ui/card";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
 import { CompanionPicker } from "@/components/events/companion-picker";
+import { useTimezone } from "@/components/dates/timezone-provider";
+import { toZonedDateInputValue, toZonedTimeInputValue } from "@/lib/dates/timezone";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type TimeMode = "allDay" | "timeRange" | "dateRange";
 
-function toDateInputValue(iso: string): string {
-  const d = new Date(iso);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function toTimeInputValue(iso: string): string {
-  const d = new Date(iso);
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mi = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mi}`;
-}
-
-function computeInitialTimeMode(event?: EventRow): TimeMode {
+function computeInitialTimeMode(event: EventRow | undefined, timeZone: string): TimeMode {
   if (!event) return "timeRange";
   if (!event.all_day) return "timeRange";
   if (!event.end_at) return "allDay";
-  return toDateInputValue(event.start_at) === toDateInputValue(event.end_at) ? "allDay" : "dateRange";
+  return toZonedDateInputValue(event.start_at, timeZone) === toZonedDateInputValue(event.end_at, timeZone)
+    ? "allDay"
+    : "dateRange";
 }
 
 export function EventForm({
@@ -50,9 +39,10 @@ export function EventForm({
   defaultDate?: string;
 }) {
   const t = useTranslations("events");
+  const { timeZone } = useTimezone();
   const action = mode === "create" ? createEvent : updateEvent.bind(null, event!.id);
   const [state, formAction] = useActionState<EventActionState, FormData>(action, {});
-  const [timeMode, setTimeMode] = useState<TimeMode>(computeInitialTimeMode(event));
+  const [timeMode, setTimeMode] = useState<TimeMode>(computeInitialTimeMode(event, timeZone));
   const [shared, setShared] = useState(event?.visibility === "shared");
   const [deleting, startDelete] = useTransition();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -132,7 +122,7 @@ export function EventForm({
           <input
             type="date"
             name="startDate"
-            defaultValue={event ? toDateInputValue(event.start_at) : defaultDate}
+            defaultValue={event ? toZonedDateInputValue(event.start_at, timeZone) : defaultDate}
             required
             className={inputClass}
           />
@@ -140,7 +130,7 @@ export function EventForm({
             <input
               type="date"
               name="endDate"
-              defaultValue={event?.end_at ? toDateInputValue(event.end_at) : undefined}
+              defaultValue={event?.end_at ? toZonedDateInputValue(event.end_at, timeZone) : undefined}
               required
               className={inputClass}
             />
@@ -151,7 +141,7 @@ export function EventForm({
             <input
               type="time"
               name="startTime"
-              defaultValue={event ? toTimeInputValue(event.start_at) : undefined}
+              defaultValue={event ? toZonedTimeInputValue(event.start_at, timeZone) : undefined}
               required
               className={inputClass}
             />
@@ -161,7 +151,7 @@ export function EventForm({
             <input
               type="time"
               name="endTime"
-              defaultValue={event?.end_at ? toTimeInputValue(event.end_at) : undefined}
+              defaultValue={event?.end_at ? toZonedTimeInputValue(event.end_at, timeZone) : undefined}
               required
               className={inputClass}
             />

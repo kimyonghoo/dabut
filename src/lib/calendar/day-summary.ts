@@ -1,3 +1,5 @@
+import { zonedDateTimeToUtcIso } from "@/lib/dates/timezone";
+
 export type DaySummaryEvent = {
   id: string;
   owner_id: string;
@@ -7,12 +9,23 @@ export type DaySummaryEvent = {
   end_at: string | null;
 };
 
-/** True when the event overlaps the local calendar day `day`. */
-export function isDayWithinEvent(day: Date, event: Pick<DaySummaryEvent, "start_at" | "end_at">): boolean {
+/**
+ * True when the event overlaps the calendar day `day` (a plain Y/M/D,
+ * timezone-less) as that day exists in `timeZone` — i.e. the viewing user's
+ * real-world "today", not the server's or browser's ambient offset.
+ */
+export function isDayWithinEvent(
+  day: Date,
+  event: Pick<DaySummaryEvent, "start_at" | "end_at">,
+  timeZone: string
+): boolean {
   const start = new Date(event.start_at);
   const end = event.end_at ? new Date(event.end_at) : start;
-  const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-  const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59, 999);
+  const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(
+    day.getDate()
+  ).padStart(2, "0")}`;
+  const dayStart = new Date(zonedDateTimeToUtcIso(dateStr, "00:00:00", timeZone));
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
   return start <= dayEnd && end >= dayStart;
 }
 
@@ -37,12 +50,13 @@ export function compareDayEvents(a: DaySummaryEvent, b: DaySummaryEvent): number
 export function splitDayEvents<T extends DaySummaryEvent>(
   events: readonly T[],
   day: Date,
-  currentUserId: string
+  currentUserId: string,
+  timeZone: string
 ): { mine: T[]; partner: T[] } {
   const mine: T[] = [];
   const partner: T[] = [];
   for (const event of events) {
-    if (!isDayWithinEvent(day, event)) continue;
+    if (!isDayWithinEvent(day, event, timeZone)) continue;
     (event.owner_id === currentUserId ? mine : partner).push(event);
   }
   mine.sort(compareDayEvents);

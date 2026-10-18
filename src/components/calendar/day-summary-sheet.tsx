@@ -19,6 +19,8 @@ import { Link } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { splitDayEvents, type DaySummaryEvent } from "@/lib/calendar/day-summary";
+import { useTimezone } from "@/components/dates/timezone-provider";
+import { formatInTimeZone } from "@/lib/dates/timezone";
 import { DOT_CLASSNAME } from "./category-style";
 import { getDateFnsLocale } from "./date-locale";
 
@@ -120,6 +122,7 @@ function DaySummarySheet({
   const t = useTranslations("daySummary");
   const locale = useLocale();
   const dfLocale = getDateFnsLocale(locale);
+  const { timeZone } = useTimezone();
   const reduceMotion = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   // Drag-to-dismiss starts only from the handle/header so the list can scroll.
@@ -129,8 +132,8 @@ function DaySummarySheet({
 
   const day = useMemo(() => (dateKey ? parseDateKey(dateKey) : null), [dateKey]);
   const sections = useMemo(
-    () => (day ? splitDayEvents(events, day, currentUserId) : { mine: [], partner: [] }),
-    [day, events, currentUserId]
+    () => (day ? splitDayEvents(events, day, currentUserId, timeZone) : { mine: [], partner: [] }),
+    [day, events, currentUserId, timeZone]
   );
 
   // Escape to close, lock page scroll, move focus into the sheet.
@@ -157,9 +160,9 @@ function DaySummarySheet({
 
   function timeLabel(event: DaySummaryItem): string {
     if (event.all_day) return t("allDay");
-    const start = format(new Date(event.start_at), "p", { locale: dfLocale });
+    const start = formatInTimeZone(event.start_at, timeZone, { timeStyle: "short" }, locale);
     if (!event.end_at) return start;
-    return `${start}–${format(new Date(event.end_at), "p", { locale: dfLocale })}`;
+    return `${start}–${formatInTimeZone(event.end_at, timeZone, { timeStyle: "short" }, locale)}`;
   }
 
   function renderSection(title: string, items: DaySummaryItem[], emptyText: string) {

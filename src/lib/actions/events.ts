@@ -9,6 +9,7 @@ import { validateSharedSelection } from "@/lib/events/validate-shared-selection"
 import { eventNotificationMessage } from "@/lib/telegram/messages";
 import { notifyConnectionMembers } from "@/lib/telegram/notify-connection";
 import { resolveActorName } from "@/lib/telegram/actor-name";
+import { DEFAULT_TIMEZONE } from "@/lib/dates/timezone";
 
 export type EventActionState = { error?: string };
 
@@ -19,7 +20,24 @@ async function redirectToCalendar(toast: EventToast): Promise<never> {
   return redirect({ href: { pathname: "/calendar", query: { toast } }, locale: await getLocale() });
 }
 
-async function parseAndBuild(formData: FormData): Promise<ReturnType<typeof buildEventTimestamps>> {
+// The naive date/time strings a <datetime-local>-shaped form submits carry no
+// timezone of their own; they must be interpreted as the acting user's
+// configured timezone (not the server's, which is UTC on Vercel) to land on
+// the right UTC instant. This is also the timezone used for the Telegram
+// notification's date, since the recipient is typically a partner in the
+// same timezone (see src/lib/telegram/messages.ts).
+async function resolveActorTimezone(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string
+): Promise<string> {
+  const { data } = await supabase.from("profiles").select("timezone").eq("id", userId).maybeSingle();
+  return data?.timezone ?? DEFAULT_TIMEZONE;
+}
+
+async function parseAndBuild(
+  formData: FormData,
+  timeZone: string
+): Promise<ReturnType<typeof buildEventTimestamps>> {
   const mode = formData.get("mode") as "allDay" | "timeRange" | "dateRange";
   return buildEventTimestamps({
     mode,
@@ -27,6 +45,7 @@ async function parseAndBuild(formData: FormData): Promise<ReturnType<typeof buil
     startTime: (formData.get("startTime") as string) || undefined,
     endDate: (formData.get("endDate") as string) || undefined,
     endTime: (formData.get("endTime") as string) || undefined,
+    timeZone,
   });
 }
 
@@ -56,14 +75,15 @@ async function resolveDefaultConnectionId(
 }
 
 export async function createEvent(_prevState: EventActionState, formData: FormData): Promise<EventActionState> {
-  const timestamps = await parseAndBuild(formData);
-  if ("error" in timestamps) return timestamps;
-
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+
+  const timeZone = await resolveActorTimezone(supabase, user.id);
+  const timestamps = await parseAndBuild(formData, timeZone);
+  if ("error" in timestamps) return timestamps;
 
   const title = formData.get("title") as string;
   if (!title?.trim()) return { error: "Title is required" };
@@ -96,6 +116,7 @@ export async function createEvent(_prevState: EventActionState, formData: FormDa
       title,
       startAt: timestamps.startAt,
       allDay: timestamps.allDay,
+      timeZone,
     }),
   });
 
@@ -108,14 +129,15 @@ export async function updateEvent(
   _prevState: EventActionState,
   formData: FormData
 ): Promise<EventActionState> {
-  const timestamps = await parseAndBuild(formData);
-  if ("error" in timestamps) return timestamps;
-
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+
+  const timeZone = await resolveActorTimezone(supabase, user.id);
+  const timestamps = await parseAndBuild(formData, timeZone);
+  if ("error" in timestamps) return timestamps;
 
   const title = formData.get("title") as string;
   if (!title?.trim()) return { error: "Title is required" };
@@ -154,6 +176,7 @@ export async function updateEvent(
         title,
         startAt: timestamps.startAt,
         allDay: timestamps.allDay,
+        timeZone,
       }),
     });
   }
@@ -188,6 +211,7 @@ export async function deleteEvent(eventId: string): Promise<EventActionState> {
         title: deleted.title,
         startAt: deleted.start_at,
         allDay: deleted.all_day,
+        timeZone: await resolveActorTimezone(supabase, user.id),
       }),
     });
   }

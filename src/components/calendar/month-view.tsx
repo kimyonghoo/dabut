@@ -28,11 +28,14 @@ export function MonthView({
   events,
   currentUserId,
   partnerName,
+  timeZone,
 }: {
   month: Date;
   events: CategorizedEvent[];
   currentUserId: string;
   partnerName?: string | null;
+  /** The viewing user's configured timezone — decides which calendar day each event's instant falls on. */
+  timeZone: string;
 }) {
   const t = useTranslations("calendar");
   const tSummary = useTranslations("daySummary");
@@ -64,7 +67,7 @@ export function MonthView({
       </div>
       <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-line">
         {days.map((day) => {
-          const dayEvents = events.filter((event) => isDayWithinEvent(day, event));
+          const dayEvents = events.filter((event) => isDayWithinEvent(day, event, timeZone));
           const inMonth = isSameMonth(day, month);
           const isToday = isSameDay(day, today);
           const visible = dayEvents.slice(0, MAX_CHIPS);

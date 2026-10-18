@@ -6,6 +6,7 @@ import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { PageHeader } from "@/components/ui/page-header";
 import { buttonClass } from "@/components/ui/button";
 import { LedgerView, type LedgerRow } from "@/components/ledger/ledger-view";
+import { hasConnection, resolvePartnerName } from "@/lib/calendar/partner-name";
 import { toDateKey } from "@/lib/dates/relative-day";
 
 export default async function LedgerPage() {
@@ -20,7 +21,7 @@ export default async function LedgerPage() {
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
   const monthEnd = format(endOfMonth(now), "yyyy-MM-dd");
 
-  const [{ data: transactions }, { data: categories }] = await Promise.all([
+  const [{ data: transactions }, { data: categories }, partnerName, hasPartner] = await Promise.all([
     supabase
       .from("transactions")
       .select("*, categories(name, icon)")
@@ -29,6 +30,8 @@ export default async function LedgerPage() {
       .order("occurred_at", { ascending: false })
       .order("created_at", { ascending: false }),
     supabase.from("categories").select("id, name, icon, type"),
+    user ? resolvePartnerName(supabase, user.id) : Promise.resolve(null),
+    user ? hasConnection(supabase, user.id) : Promise.resolve(false),
   ]);
 
   const rows: LedgerRow[] = (transactions ?? []).map((row) => ({
@@ -60,6 +63,8 @@ export default async function LedgerPage() {
         categories={categories ?? []}
         currentUserId={user?.id ?? ""}
         serverTodayKey={toDateKey(now)}
+        hasPartner={hasPartner}
+        partnerName={partnerName}
       />
     </main>
   );
