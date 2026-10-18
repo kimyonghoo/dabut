@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "다붓",
-    "tagline": "함께 붙어, 다정하게"
+    "tagline": "둘이 함께 쓰는 캘린더 & 가계부"
   },
   "nav": {
     "calendar": "일정",
@@ -15,10 +15,15 @@
       "password": "비밀번호",
       "submit": "로그인",
       "noAccount": "아직 계정이 없나요?",
-      "toSignup": "회원가입"
+      "toSignup": "회원가입",
+      "emailRequired": "이메일을 입력해 주세요",
+      "invalidEmail": "이메일 형식이 올바르지 않아요",
+      "passwordRequired": "비밀번호를 입력해 주세요"
     },
     "signup": {
       "title": "회원가입",
+      "step1": "STEP 1 · 계정 만들기",
+      "step2": "STEP 2 · 텔레그램 인증",
       "email": "이메일",
       "password": "비밀번호",
       "submit": "가입하기",
@@ -26,6 +31,9 @@
       "toLogin": "로그인",
       "checkEmail": "이메일을 확인해 가입을 완료해 주세요",
       "emailRequired": "이메일을 입력해 주세요",
+      "invalidEmail": "이메일 형식이 올바르지 않아요",
+      "passwordRequired": "비밀번호를 입력해 주세요",
+      "otpRequired": "인증번호를 입력해 주세요",
       "emailExists": "이미 가입된 이메일이에요. 로그인해 주세요",
       "failed": "가입 처리 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요",
       "verifyTitle": "텔레그램에서 인증하기",

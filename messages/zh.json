@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "多伏",
-    "tagline": "紧紧相依，温暖相伴"
+    "tagline": "两人共用的日历与账本"
   },
   "nav": {
     "calendar": "日程",
@@ -15,10 +15,15 @@
       "password": "密码",
       "submit": "登录",
       "noAccount": "还没有账号？",
-      "toSignup": "注册"
+      "toSignup": "注册",
+      "emailRequired": "请输入邮箱",
+      "invalidEmail": "邮箱格式不正确",
+      "passwordRequired": "请输入密码"
     },
     "signup": {
       "title": "注册",
+      "step1": "STEP 1 · 创建账号",
+      "step2": "STEP 2 · Telegram 验证",
       "email": "电子邮箱",
       "password": "密码",
       "submit": "注册",
@@ -26,6 +31,9 @@
       "toLogin": "登录",
       "checkEmail": "请查收邮件以完成注册。",
       "emailRequired": "请输入电子邮箱",
+      "invalidEmail": "邮箱格式不正确",
+      "passwordRequired": "请输入密码",
+      "otpRequired": "请输入验证码",
       "emailExists": "该邮箱已注册，请登录",
       "failed": "注册过程中出现问题，请稍后重试",
       "verifyTitle": "通过 Telegram 验证",

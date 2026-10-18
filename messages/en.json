@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Dabut",
-    "tagline": "Close together, with warmth"
+    "tagline": "A shared calendar & budget for two"
   },
   "nav": {
     "calendar": "Calendar",
@@ -15,10 +15,15 @@
       "password": "Password",
       "submit": "Log In",
       "noAccount": "Don't have an account?",
-      "toSignup": "Sign up"
+      "toSignup": "Sign up",
+      "emailRequired": "Please enter your email",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordRequired": "Please enter your password"
     },
     "signup": {
       "title": "Sign Up",
+      "step1": "STEP 1 · Create account",
+      "step2": "STEP 2 · Verify on Telegram",
       "email": "Email",
       "password": "Password",
       "submit": "Sign Up",
@@ -26,6 +31,9 @@
       "toLogin": "Log in",
       "checkEmail": "Check your email to confirm your account.",
       "emailRequired": "Please enter your email",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordRequired": "Please enter your password",
+      "otpRequired": "Please enter the verification code",
       "emailExists": "An account with this email already exists. Please log in",
       "failed": "Something went wrong while signing up. Please try again shortly",
       "verifyTitle": "Verify with Telegram",

@@ -7,9 +7,8 @@ import { Link } from "@/i18n/navigation";
 import { useProgressRouter } from "@/components/feedback/use-progress-router";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
 import { Spinner } from "@/components/ui/submit-button";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { inputClass, labelClass, errorClass } from "@/components/ui/field";
+import { TooltipInput } from "@/components/ui/tooltip-input";
+import { authFieldWrap, authLabelClass, authInputClass, authButtonClass, authErrorClass } from "@/components/auth/auth-field";
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
@@ -36,47 +35,53 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-col gap-4">
-      <Card className="p-6 shadow-[0_8px_30px_rgba(59,47,42,0.08)]">
-        <h1 className="mb-5 text-center text-xl font-bold text-ink">{t("title")}</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <label className={labelClass}>
+    <main className="flex flex-1 flex-col">
+      <h1 className="sr-only">{t("title")}</h1>
+      <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-5">
+        <div className={authFieldWrap}>
+          <label className={authLabelClass} htmlFor="login-email">
             {t("email")}
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              className={inputClass}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
           </label>
-          <label className={labelClass}>
+          <TooltipInput
+            id="login-email"
+            type="email"
+            name="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            className={authInputClass}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            messages={{ valueMissing: t("emailRequired"), typeMismatch: t("invalidEmail") }}
+          />
+        </div>
+        <div className={authFieldWrap}>
+          <label className={authLabelClass} htmlFor="login-password">
             {t("password")}
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              className={inputClass}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
           </label>
-          {error && (
-            <p role="alert" className={errorClass}>
-              {error}
-            </p>
-          )}
-          <Button type="submit" disabled={pending} aria-busy={pending} className="mt-1 w-full py-3 text-[15px]">
-            {pending && <Spinner />}
-            {t("submit")}
-          </Button>
-        </form>
-      </Card>
-      <p className="text-center text-sm text-ink-muted">
+          <TooltipInput
+            id="login-password"
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            className={authInputClass}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            messages={{ valueMissing: t("passwordRequired") }}
+          />
+        </div>
+        {error && (
+          <p role="alert" className={authErrorClass}>
+            {error}
+          </p>
+        )}
+        <button type="submit" disabled={pending} aria-busy={pending} className={`${authButtonClass} mt-1 flex items-center justify-center gap-2`}>
+          {pending && <Spinner />}
+          {t("submit")}
+        </button>
+      </form>
+      <p className="mt-6 text-center text-sm text-ink-muted">
         {t.has("noAccount") ? t("noAccount") : "Don't have an account?"}{" "}
         <Link href="/signup" className="font-semibold text-brand hover:underline">
           {t.has("toSignup") ? t("toSignup") : "Sign up"}
