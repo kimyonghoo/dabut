@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { EventForm } from "@/components/events/event-form";
 import { PageHeader } from "@/components/ui/page-header";
 import { ChevronLeft } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,6 +13,11 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  // AppLayout already redirects unauthenticated visits to /login, but its
+  // getUser() call and this one are independent requests to Supabase Auth;
+  // fail safe here too instead of crashing on user!.id if one transiently
+  // returns no session.
+  if (!user) return redirect({ href: "/login", locale: await getLocale() });
 
   const { data: event } = await supabase.from("events").select("*").eq("id", id).single();
   if (!event) notFound();
@@ -20,7 +25,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const { data: memberships } = await supabase
     .from("connection_members")
     .select("connection_id")
-    .eq("user_id", user!.id);
+    .eq("user_id", user.id);
   const connectionIds = (memberships ?? []).map((m) => m.connection_id);
 
   let connections: Array<{ id: string; partnerEmail: string }> = [];
@@ -29,7 +34,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
       .from("connection_members")
       .select("connection_id, profiles(email)")
       .in("connection_id", connectionIds)
-      .neq("user_id", user!.id);
+      .neq("user_id", user.id);
     connections = (otherMembers ?? []).map((row) => ({
       id: row.connection_id,
       partnerEmail: (row as unknown as { profiles: { email: string } }).profiles.email,

@@ -3,7 +3,7 @@ import { addMonths, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { ViewToggle } from "@/components/calendar/view-toggle";
@@ -28,12 +28,17 @@ export default async function CalendarPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  // AppLayout already redirects unauthenticated visits to /login, but its
+  // getUser() call and this one are independent requests to Supabase Auth;
+  // fail safe here too instead of crashing on user!.id if one transiently
+  // returns no session.
+  if (!user) return redirect({ href: "/login", locale });
   const { data: events } = await supabase.from("events").select("*");
-  const partnerName = view === "thread" ? null : await resolvePartnerName(supabase, user!.id);
+  const partnerName = view === "thread" ? null : await resolvePartnerName(supabase, user.id);
   const { data: profile } = await supabase
     .from("profiles")
     .select("telegram_chat_id")
-    .eq("id", user!.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const categorized = (events ?? []).map((event) => ({
@@ -43,7 +48,7 @@ export default async function CalendarPage({
     // only these two values.
     category: categorizeEvent(
       { owner_id: event.owner_id, visibility: event.visibility as "personal" | "shared" },
-      user!.id
+      user.id
     ),
   }));
 
@@ -87,10 +92,10 @@ export default async function CalendarPage({
         <ViewToggle />
       </div>
       {isThread ? (
-        <ThreadView events={categorized} currentUserId={user!.id} serverTodayKey={toDateKey(new Date())} />
+        <ThreadView events={categorized} currentUserId={user.id} serverTodayKey={toDateKey(new Date())} />
       ) : (
         <>
-          <MonthView month={month} events={categorized} currentUserId={user!.id} partnerName={partnerName} />
+          <MonthView month={month} events={categorized} currentUserId={user.id} partnerName={partnerName} />
           <CategoryLegend />
         </>
       )}
