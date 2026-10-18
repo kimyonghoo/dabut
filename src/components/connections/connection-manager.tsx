@@ -150,7 +150,21 @@ export function ConnectionManager({
                 key={connection.id}
                 className="flex items-center gap-2.5 rounded-2xl bg-shared-soft px-3 py-3"
               >
-                <span className="relative flex shrink-0 items-center">
+                <span className="relative flex h-11 w-[76px] shrink-0 items-center">
+                  {/* A dashed line keeps flowing between the two avatars —
+                      "something is always being shared" rather than a static
+                      icon. -z-10 keeps it behind the (opaque) avatars, so it
+                      only shows in the arch above where they overlap. */}
+                  <svg aria-hidden viewBox="0 0 76 16" className="absolute -top-1.5 left-0 -z-10 h-4 w-full">
+                    <path
+                      d="M6 10 Q38 -4 70 10"
+                      fill="none"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeDasharray="6 10"
+                      className="stroke-brand animate-[link-flow_1s_linear_infinite]"
+                    />
+                  </svg>
                   <Avatar label="ME" tone="brand" />
                   <span className="-ml-3">
                     <Avatar label={initials(connection.partnerName)} tone="partner" />

@@ -104,6 +104,17 @@
     "title": "Title",
     "location": "Where",
     "companions": "Who with",
+    "companionOptions": {
+      "groupLabel": "Who's this with",
+      "spouse": "Spouse",
+      "child": "Child",
+      "friend": "Friend",
+      "parents": "Parents",
+      "siblings": "Siblings",
+      "colleague": "Colleague",
+      "other": "Other",
+      "otherPlaceholder": "e.g. Uncle Min-su"
+    },
     "modeAllDay": "All day",
     "modeTimeRange": "Time range",
     "modeDateRange": "Date range (period)",
@@ -141,7 +152,7 @@
     "connectButton": "Connect",
     "disconnectButton": "Disconnect",
     "explain": "To get notifications, link your own Telegram to the Dabut bot. Tap \"Connect\" to open Telegram, then press START in the bot chat — that's it!",
-    "connectedNote": "We'll notify this Telegram when your partner changes events or the ledger",
+    "connectedNote": "We'll send your partner's updates here",
     "bannerText": "Connect Telegram to get your partner's updates right away",
     "bannerCta": "Go connect",
     "bannerDismiss": "Dismiss"

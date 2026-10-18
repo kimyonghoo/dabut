@@ -17,5 +17,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
+  // icon.svg (and favicon.ico) are Next's file-based icon convention, served
+  // only at the true root — without this exclusion the locale middleware
+  // redirected /icon.svg to /ko/icon.svg, a route that doesn't exist, which
+  // silently broke the favicon.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|api).*)"],
 };

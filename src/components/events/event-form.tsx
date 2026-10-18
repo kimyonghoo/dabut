@@ -10,6 +10,7 @@ import { SubmitButton, Spinner } from "@/components/ui/submit-button";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
 import { Card } from "@/components/ui/card";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
+import { CompanionPicker } from "@/components/events/companion-picker";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type TimeMode = "allDay" | "timeRange" | "dateRange";
@@ -181,15 +182,10 @@ export function EventForm({
       </Card>
 
       <Card className="flex flex-col gap-3">
-        <label className={labelClass}>
+        <div className={labelClass}>
           <SectionTitle icon={Users}>{t("companions")}</SectionTitle>
-          <input
-            type="text"
-            name="companions"
-            defaultValue={event?.companions ?? ""}
-            className={inputClass}
-          />
-        </label>
+          <CompanionPicker name="companions" defaultValue={event?.companions} />
+        </div>
 
         {connections.length === 0 ? (
           <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm text-ink-muted">

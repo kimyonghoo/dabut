@@ -32,7 +32,11 @@ export function BrandColorPicker({
   const gap = compact ? "gap-1.5" : "gap-3";
 
   return (
-    <div role="radiogroup" aria-label={t("brandColor")} className={`flex flex-wrap items-center ${gap}`}>
+    <div
+      role="radiogroup"
+      aria-label={t("brandColor")}
+      className={`flex items-center ${gap} ${compact ? "flex-nowrap overflow-x-auto" : "flex-wrap"}`}
+    >
       {BRAND_PRESETS.map((preset) => {
         const selected = preset.value.toLowerCase() === current;
         return (

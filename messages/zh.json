@@ -104,6 +104,17 @@
     "title": "标题",
     "location": "地点",
     "companions": "同行人",
+    "companionOptions": {
+      "groupLabel": "和谁一起",
+      "spouse": "配偶",
+      "child": "子女",
+      "friend": "朋友",
+      "parents": "父母",
+      "siblings": "兄弟姐妹",
+      "colleague": "同事",
+      "other": "其他",
+      "otherPlaceholder": "例如：民秀叔叔"
+    },
     "modeAllDay": "全天",
     "modeTimeRange": "时间段",
     "modeDateRange": "日期范围(期间)",
@@ -141,7 +152,7 @@
     "connectButton": "连接",
     "disconnectButton": "断开连接",
     "explain": "要接收通知，请将你自己的 Telegram 连接到 Dabut 机器人。点击\"连接\"会打开 Telegram，在机器人界面点击开始(START)即可！",
-    "connectedNote": "对方修改日程或账本时，我们会通过这个 Telegram 通知你",
+    "connectedNote": "对方的更新会发送到这里",
     "bannerText": "连接 Telegram，即时获取对方的动态",
     "bannerCta": "去连接",
     "bannerDismiss": "关闭"

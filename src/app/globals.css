@@ -65,3 +65,11 @@ body {
     transform: none;
   }
 }
+
+/* Settings "연결됨": a dashed line between the two avatars keeps flowing,
+   like something is continuously being shared between them. */
+@keyframes link-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}

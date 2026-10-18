@@ -104,6 +104,17 @@
     "title": "제목",
     "location": "어디서",
     "companions": "누구랑",
+    "companionOptions": {
+      "groupLabel": "누구랑 함께하나요",
+      "spouse": "배우자",
+      "child": "자녀",
+      "friend": "친구",
+      "parents": "부모님",
+      "siblings": "형제자매",
+      "colleague": "동료",
+      "other": "기타",
+      "otherPlaceholder": "예: 민수삼촌"
+    },
     "modeAllDay": "하루 종일",
     "modeTimeRange": "시간 단위",
     "modeDateRange": "날짜 단위(기간)",
@@ -141,7 +152,7 @@
     "connectButton": "연결하기",
     "disconnectButton": "연결 해제",
     "explain": "알림을 받으려면 내 텔레그램을 다붓 봇과 연결해요. '연결하기'를 누르면 텔레그램이 열리고, 봇 화면에서 시작(START)을 누르면 끝!",
-    "connectedNote": "상대방이 일정·가계부를 바꾸면 이 텔레그램으로 알려드려요",
+    "connectedNote": "상대방 변경 내용을 바로 알려드려요",
     "bannerText": "텔레그램을 연결하면 상대방 소식을 바로 받아요",
     "bannerCta": "연결하러 가기",
     "bannerDismiss": "닫기"

@@ -173,10 +173,7 @@ export default function SettingsPage() {
           </h2>
           <ThemeToggle compact />
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-ink-muted">{t("brandColor")}</span>
-          <BrandColorPicker compact value={brandColor} onChange={handleBrandColorChange} />
-        </div>
+        <BrandColorPicker compact value={brandColor} onChange={handleBrandColorChange} />
       </Card>
 
       <Card>
