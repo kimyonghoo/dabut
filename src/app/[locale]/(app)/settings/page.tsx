@@ -27,7 +27,9 @@ export default function SettingsPage() {
   const [sentInvitations, setSentInvitations] = useState<
     Array<{ id: string; inviteeEmail: string }>
   >([]);
-  const [connections, setConnections] = useState<Array<{ id: string; partnerEmail: string }>>([]);
+  const [connections, setConnections] = useState<Array<{ id: string; partnerEmail: string; partnerName: string }>>(
+    []
+  );
   const [telegramConnected, setTelegramConnected] = useState<boolean>(false);
   const [displayName, setDisplayName] = useState<string>("");
 
@@ -79,15 +81,22 @@ export default function SettingsPage() {
 
         const { data: otherMembers } = await supabase
           .from("connection_members")
-          .select("connection_id, profiles(email)")
+          .select("connection_id, profiles(email, display_name)")
           .in("connection_id", connectionIds)
           .neq("user_id", userId);
 
         setConnections(
-          (otherMembers ?? []).map((row) => ({
-            id: row.connection_id,
-            partnerEmail: (row as unknown as { profiles: { email: string } }).profiles.email,
-          }))
+          (otherMembers ?? []).map((row) => {
+            const profile = (row as unknown as { profiles: { email: string; display_name: string } }).profiles;
+            return {
+              id: row.connection_id,
+              partnerEmail: profile.email,
+              // Nickname is required going forward, but older/untested rows
+              // may still have "" — fall back to the email's local part so
+              // this never renders blank.
+              partnerName: profile.display_name || profile.email.split("@")[0],
+            };
+          })
         );
       });
   }, [userId]);

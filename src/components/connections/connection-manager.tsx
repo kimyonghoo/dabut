@@ -51,7 +51,7 @@ export function ConnectionManager({
 }: {
   receivedInvitations: Array<{ id: string; inviterEmail: string }>;
   sentInvitations: Array<{ id: string; inviteeEmail: string }>;
-  connections: Array<{ id: string; partnerEmail: string }>;
+  connections: Array<{ id: string; partnerEmail: string; partnerName: string }>;
 }) {
   const t = useTranslations("connections");
   const [query, setQuery] = useState("");
@@ -148,12 +148,12 @@ export function ConnectionManager({
             {connections.map((connection) => (
               <li
                 key={connection.id}
-                className="flex items-center gap-3 rounded-2xl bg-shared-soft px-3 py-3"
+                className="flex items-center gap-2.5 rounded-2xl bg-shared-soft px-3 py-3"
               >
                 <span className="relative flex shrink-0 items-center">
                   <Avatar label="ME" tone="brand" />
                   <span className="-ml-3">
-                    <Avatar label={initials(connection.partnerEmail)} tone="partner" />
+                    <Avatar label={initials(connection.partnerName)} tone="partner" />
                   </span>
                   <span
                     aria-hidden
@@ -163,7 +163,7 @@ export function ConnectionManager({
                   </span>
                 </span>
                 <span className="min-w-0 truncate text-sm font-medium text-ink">
-                  {connection.partnerEmail}
+                  {connection.partnerName}
                 </span>
               </li>
             ))}

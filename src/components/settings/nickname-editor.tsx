@@ -22,14 +22,18 @@ export function NicknameEditor({
   onSaved?: (name: string) => void;
 }) {
   const t = useTranslations("nickname");
-  const [current, setCurrent] = useState(initialName);
+  // `initialName` arrives as "" on first render (the parent fetches it
+  // asynchronously) and updates once the fetch resolves. Reading it directly
+  // here — instead of copying it into state once at mount — means the
+  // display always reflects the latest fetched/saved value instead of
+  // freezing at whatever it was when this component first mounted.
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(initialName);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function startEdit() {
-    setValue(current);
+    setValue(initialName);
     setError(null);
     setEditing(true);
   }
@@ -38,7 +42,7 @@ export function NicknameEditor({
     if (pending) return;
     setEditing(false);
     setError(null);
-    setValue(current);
+    setValue(initialName);
   }
 
   function save() {
@@ -49,8 +53,6 @@ export function NicknameEditor({
         setError(t.has(result.error) ? t(result.error) : t("failed"));
         return;
       }
-      setCurrent(result.displayName);
-      setValue(result.displayName);
       onSaved?.(result.displayName);
       setEditing(false);
     });
@@ -59,7 +61,7 @@ export function NicknameEditor({
   if (!editing) {
     return (
       <div className="flex items-center justify-between gap-3">
-        <span className="min-w-0 truncate text-sm font-medium text-ink">{current || t("placeholder")}</span>
+        <span className="min-w-0 truncate text-sm font-medium text-ink">{initialName || t("placeholder")}</span>
         <button type="button" onClick={startEdit} className={buttonClass("secondary", "shrink-0 px-3 py-1.5 text-xs")}>
           <Pencil aria-hidden className="size-3.5" strokeWidth={2} /> {t("edit")}
         </button>
