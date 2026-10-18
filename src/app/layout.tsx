@@ -2,7 +2,6 @@ import type { Viewport } from "next";
 import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { TopProgress } from "@/components/feedback/top-progress";
-import { Toaster } from "@/components/feedback/toaster";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -18,8 +17,13 @@ export const viewport: Viewport = {
 /**
  * True root layout — outside the [locale] segment on purpose. Switching
  * locale only swaps the segment below this, so <html>/<body>, the theme
- * provider, the toaster and the progress bar all stay mounted instead of
- * flashing on every language change.
+ * provider and the progress bar all stay mounted instead of flashing on
+ * every language change.
+ *
+ * Toaster is NOT rendered here even though it's also locale-independent in
+ * spirit: it calls useTranslations, which needs NextIntlClientProvider —
+ * that only wraps [locale]/layout.tsx's children, not this root. It's
+ * rendered there instead.
  */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
@@ -29,7 +33,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-dvh bg-bg text-ink antialiased [-webkit-tap-highlight-color:transparent] selection:bg-brand-soft">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TopProgress />
-          <Toaster />
           {children}
         </ThemeProvider>
       </body>
