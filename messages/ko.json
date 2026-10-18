@@ -24,7 +24,25 @@
       "submit": "가입하기",
       "haveAccount": "이미 계정이 있나요?",
       "toLogin": "로그인",
-      "checkEmail": "이메일을 확인해 가입을 완료해 주세요"
+      "checkEmail": "이메일을 확인해 가입을 완료해 주세요",
+      "emailRequired": "이메일을 입력해 주세요",
+      "emailExists": "이미 가입된 이메일이에요. 로그인해 주세요",
+      "failed": "가입 처리 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요",
+      "verifyTitle": "텔레그램에서 인증하기",
+      "verifyInstructions": "아래 버튼으로 텔레그램을 열고 시작(START)을 누르면 인증번호 6자리를 보내드려요",
+      "openTelegramButton": "텔레그램 열기",
+      "otpLabel": "인증번호",
+      "otpPlaceholder": "6자리 숫자",
+      "verifySubmit": "확인",
+      "resendHint": "인증번호가 오지 않았거나 만료됐다면 텔레그램 버튼을 다시 눌러주세요",
+      "backButton": "다른 이메일로 다시 시도",
+      "verifyError": {
+        "expired": "인증번호가 만료됐어요. 텔레그램 버튼을 다시 눌러 새 번호를 받아주세요",
+        "notFound": "인증 정보를 찾을 수 없어요. 처음부터 다시 시도해 주세요",
+        "tooManyAttempts": "시도 횟수를 초과했어요. 처음부터 다시 시도해 주세요",
+        "invalid": "인증번호가 올바르지 않아요",
+        "failed": "문제가 발생했어요. 잠시 후 다시 시도해 주세요"
+      }
     }
   },
   "theme": {
@@ -141,7 +159,8 @@
     "emailConfirmed": "이메일 인증이 완료됐어요! 다붓에 오신 걸 환영해요",
     "emailConfirmedLogin": "이메일 인증 완료! 로그인해 주세요",
     "deleteFailed": "삭제하지 못했어요. 다시 시도해 주세요",
-    "accountDeleted": "계정을 삭제했어요. 그동안 고마웠어요"
+    "accountDeleted": "계정을 삭제했어요. 그동안 고마웠어요",
+    "telegramSignupVerified": "텔레그램 인증이 완료됐어요! 다붓에 오신 걸 환영해요"
   },
   "daySummary": {
     "mine": "내 일정",

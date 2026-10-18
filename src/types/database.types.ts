@@ -143,6 +143,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"signup_verifications": {
+                  Row: {
+                    "attempts": number,"created_at": string,"last_sent_at": string | null,"link_expires_at": string,"otp_expires_at": string | null,"otp_hash": string | null,"telegram_chat_id": string | null,"token": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempts"?: number,"created_at"?: string,"last_sent_at"?: string | null,"link_expires_at": string,"otp_expires_at"?: string | null,"otp_hash"?: string | null,"telegram_chat_id"?: string | null,"token": string,"user_id": string
+                  }
+                  Update: {
+                    "attempts"?: number,"created_at"?: string,"last_sent_at"?: string | null,"link_expires_at"?: string,"otp_expires_at"?: string | null,"otp_hash"?: string | null,"telegram_chat_id"?: string | null,"token"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+
+                  ]
                 },"telegram_link_codes": {
                   Row: {
                     "code": string,"created_at": string,"user_id": string

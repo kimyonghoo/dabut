@@ -2,6 +2,9 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { isValidWebhookSecret } from "@/lib/telegram/webhook-auth";
 import { parseStartCommand } from "@/lib/telegram/parse-start-command";
 import { sendTelegramMessage } from "@/lib/telegram/send-message";
+import { handleSignupStart } from "@/lib/telegram/handle-signup-start";
+
+const SIGNUP_START_PREFIX = "signup_";
 
 type TelegramUpdate = { message?: { text?: string; chat?: { id?: number } } };
 
@@ -29,6 +32,15 @@ export async function POST(request: Request) {
     }
 
     const supabase = createServiceClient();
+
+    // Signup verification deep link (?start=signup_<token>), distinct from
+    // the partner-link flow below — handled separately so one never leaks
+    // into the other's lookup.
+    if (code.startsWith(SIGNUP_START_PREFIX)) {
+      await handleSignupStart(supabase, code.slice(SIGNUP_START_PREFIX.length), String(chatId));
+      return new Response("ok", { status: 200 });
+    }
+
     const { data: linkRow } = await supabase
       .from("telegram_link_codes")
       .select("user_id")

@@ -24,7 +24,25 @@
       "submit": "Sign Up",
       "haveAccount": "Already have an account?",
       "toLogin": "Log in",
-      "checkEmail": "Check your email to confirm your account."
+      "checkEmail": "Check your email to confirm your account.",
+      "emailRequired": "Please enter your email",
+      "emailExists": "An account with this email already exists. Please log in",
+      "failed": "Something went wrong while signing up. Please try again shortly",
+      "verifyTitle": "Verify with Telegram",
+      "verifyInstructions": "Open Telegram below and tap Start — we will send you a 6-digit code",
+      "openTelegramButton": "Open Telegram",
+      "otpLabel": "Verification code",
+      "otpPlaceholder": "6-digit code",
+      "verifySubmit": "Verify",
+      "resendHint": "If the code did not arrive or expired, tap the Telegram button again",
+      "backButton": "Try a different email",
+      "verifyError": {
+        "expired": "The code expired. Tap the Telegram button again for a new one",
+        "notFound": "We could not find this verification. Please start over",
+        "tooManyAttempts": "Too many attempts. Please start over",
+        "invalid": "That code is not correct",
+        "failed": "Something went wrong. Please try again shortly"
+      }
     }
   },
   "theme": {
@@ -141,7 +159,8 @@
     "emailConfirmed": "Email confirmed! Welcome to Dabut",
     "emailConfirmedLogin": "Email confirmed! Please log in",
     "deleteFailed": "Couldn't delete. Please try again",
-    "accountDeleted": "Your account has been deleted. Thank you for everything"
+    "accountDeleted": "Your account has been deleted. Thank you for everything",
+    "telegramSignupVerified": "Telegram verification complete! Welcome to Dabut"
   },
   "daySummary": {
     "mine": "My events",

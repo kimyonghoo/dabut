@@ -24,7 +24,25 @@
       "submit": "注册",
       "haveAccount": "已有账号？",
       "toLogin": "登录",
-      "checkEmail": "请查收邮件以完成注册。"
+      "checkEmail": "请查收邮件以完成注册。",
+      "emailRequired": "请输入电子邮箱",
+      "emailExists": "该邮箱已注册，请登录",
+      "failed": "注册过程中出现问题，请稍后重试",
+      "verifyTitle": "通过 Telegram 验证",
+      "verifyInstructions": "点击下方按钮打开 Telegram 并按 Start，我们会发送 6 位验证码",
+      "openTelegramButton": "打开 Telegram",
+      "otpLabel": "验证码",
+      "otpPlaceholder": "6 位数字",
+      "verifySubmit": "确认",
+      "resendHint": "如果没有收到验证码或验证码已过期，请再次点击 Telegram 按钮",
+      "backButton": "换一个邮箱重试",
+      "verifyError": {
+        "expired": "验证码已过期，请再次点击 Telegram 按钮获取新验证码",
+        "notFound": "找不到验证信息，请重新开始",
+        "tooManyAttempts": "尝试次数过多，请重新开始",
+        "invalid": "验证码不正确",
+        "failed": "出现问题，请稍后重试"
+      }
     }
   },
   "theme": {
@@ -141,7 +159,8 @@
     "emailConfirmed": "邮箱验证完成！欢迎来到 Dabut",
     "emailConfirmedLogin": "邮箱验证完成！请登录",
     "deleteFailed": "删除失败，请重试",
-    "accountDeleted": "账户已删除，感谢一路相伴"
+    "accountDeleted": "账户已删除，感谢一路相伴",
+    "telegramSignupVerified": "Telegram 验证完成！欢迎来到 Dabut"
   },
   "daySummary": {
     "mine": "我的日程",
