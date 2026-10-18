@@ -6,14 +6,37 @@ import { useTheme } from "next-themes";
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const t = useTranslations("theme");
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
       type="button"
-      aria-label={resolvedTheme === "dark" ? t("light") : t("dark")}
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      aria-label={isDark ? t("light") : t("dark")}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="relative inline-flex h-10 w-[148px] shrink-0 items-center rounded-full border border-line bg-surface-2 p-1 text-sm font-semibold transition"
     >
-      {resolvedTheme === "dark" ? "☀️" : "🌙"}
+      <span
+        aria-hidden
+        className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-surface shadow-sm transition-all duration-300 ${
+          isDark ? "left-[calc(50%+0px)]" : "left-1"
+        }`}
+      />
+      <span
+        aria-hidden
+        className={`relative z-10 flex flex-1 items-center justify-center gap-1 transition ${
+          isDark ? "text-ink-muted" : "text-ink"
+        }`}
+      >
+        ☀️ <span>{t("light")}</span>
+      </span>
+      <span
+        aria-hidden
+        className={`relative z-10 flex flex-1 items-center justify-center gap-1 transition ${
+          isDark ? "text-ink" : "text-ink-muted"
+        }`}
+      >
+        🌙 <span>{t("dark")}</span>
+      </span>
     </button>
   );
 }

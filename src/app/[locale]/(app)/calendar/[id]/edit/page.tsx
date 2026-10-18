@@ -1,10 +1,14 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { EventForm } from "@/components/events/event-form";
+import { PageHeader } from "@/components/ui/page-header";
+import { Link } from "@/i18n/navigation";
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const t = await getTranslations("events");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -31,5 +35,23 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     }));
   }
 
-  return <EventForm mode="edit" event={event} connections={connections} />;
+  return (
+    <>
+      <PageHeader
+        title={
+          <span className="flex items-center gap-2">
+            <Link
+              href="/calendar"
+              aria-label={t.has("back") ? t("back") : "Back"}
+              className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-2xl leading-none text-ink-muted transition hover:bg-surface-2"
+            >
+              ‹
+            </Link>
+            {t.has("editTitle") ? t("editTitle") : "일정 수정"}
+          </span>
+        }
+      />
+      <EventForm mode="edit" event={event} connections={connections} />
+    </>
+  );
 }

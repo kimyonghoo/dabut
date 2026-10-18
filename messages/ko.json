@@ -1,11 +1,36 @@
 {
-  "app": { "name": "다붓", "tagline": "함께 붙어, 다정하게" },
-  "nav": { "calendar": "일정", "ledger": "가계부", "settings": "설정" },
-  "auth": {
-    "login": { "title": "로그인", "email": "이메일", "password": "비밀번호", "submit": "로그인" },
-    "signup": { "title": "회원가입", "email": "이메일", "password": "비밀번호", "submit": "가입하기" }
+  "app": {
+    "name": "다붓",
+    "tagline": "함께 붙어, 다정하게"
   },
-  "theme": { "light": "라이트", "dark": "다크" },
+  "nav": {
+    "calendar": "일정",
+    "ledger": "가계부",
+    "settings": "설정"
+  },
+  "auth": {
+    "login": {
+      "title": "로그인",
+      "email": "이메일",
+      "password": "비밀번호",
+      "submit": "로그인",
+      "noAccount": "아직 계정이 없나요?",
+      "toSignup": "회원가입"
+    },
+    "signup": {
+      "title": "회원가입",
+      "email": "이메일",
+      "password": "비밀번호",
+      "submit": "가입하기",
+      "haveAccount": "이미 계정이 있나요?",
+      "toLogin": "로그인",
+      "checkEmail": "이메일을 확인해 가입을 완료해 주세요 💌"
+    }
+  },
+  "theme": {
+    "light": "라이트",
+    "dark": "다크"
+  },
   "ledger": {
     "type": "수입/지출",
     "expense": "지출",
@@ -19,7 +44,12 @@
     "newTransaction": "+ 내역 추가",
     "income_total": "수입 합계",
     "expense_total": "지출 합계",
-    "net_total": "순액"
+    "net_total": "순액",
+    "empty": "아직 이번 달 내역이 없어요",
+    "emptyHint": "첫 내역을 함께 기록해 보세요 💕",
+    "back": "뒤로",
+    "newTitle": "내역 추가",
+    "editTitle": "내역 수정"
   },
   "calendar": {
     "monthView": "달력",
@@ -27,7 +57,12 @@
     "newEvent": "+ 일정 추가",
     "categoryMine": "내 일정",
     "categoryPartner": "상대방 일정",
-    "categoryShared": "공통 일정"
+    "categoryShared": "공통 일정",
+    "prevMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "allDay": "하루 종일",
+    "emptyTitle": "아직 일정이 없어요",
+    "emptyHint": "함께할 첫 일정을 추가해 볼까요?"
   },
   "events": {
     "title": "제목",
@@ -39,7 +74,11 @@
     "shared": "같이 하는 일정",
     "noConnection": "연결된 상대가 없습니다. 설정에서 먼저 연결하세요.",
     "save": "저장",
-    "delete": "삭제"
+    "delete": "삭제",
+    "when": "언제",
+    "newTitle": "새 일정",
+    "editTitle": "일정 수정",
+    "back": "뒤로"
   },
   "connections": {
     "searchLabel": "이메일로 상대방 찾기",
@@ -51,5 +90,19 @@
     "accept": "수락",
     "connectedWith": "연결됨"
   },
-  "telegram": {"title": "텔레그램 연동", "connected": "연결됨", "notConnected": "연결 안 됨", "connectButton": "연결하기", "disconnectButton": "연결 해제"}
+  "telegram": {
+    "title": "텔레그램 연동",
+    "connected": "연결됨",
+    "notConnected": "연결 안 됨",
+    "connectButton": "연결하기",
+    "disconnectButton": "연결 해제"
+  },
+  "settings": {
+    "themeSection": "테마",
+    "mode": "화면 모드",
+    "brandColor": "브랜드 색상",
+    "customColor": "직접 고르기",
+    "connectionSection": "연결",
+    "signOut": "로그아웃"
+  }
 }

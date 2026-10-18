@@ -4,6 +4,9 @@ import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createEvent, updateEvent, deleteEvent, type EventActionState } from "@/lib/actions/events";
 import type { Database } from "@/types/database.types";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { inputClass, labelClass, errorClass } from "@/components/ui/field";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type TimeMode = "allDay" | "timeRange" | "dateRange";
@@ -45,118 +48,185 @@ export function EventForm({
   const [timeMode, setTimeMode] = useState<TimeMode>(computeInitialTimeMode(event));
   const [shared, setShared] = useState(event?.visibility === "shared");
 
+  const modes: Array<{ value: TimeMode; label: string }> = [
+    { value: "allDay", label: t("modeAllDay") },
+    { value: "timeRange", label: t("modeTimeRange") },
+    { value: "dateRange", label: t("modeDateRange") },
+  ];
+  const txt = (key: string, fallback: string) => (t.has(key) ? t(key) : fallback);
+
   return (
-    <form action={formAction}>
-      <label>
-        {t("title")}
-        <input type="text" name="title" defaultValue={event?.title} required />
-      </label>
-      <label>
-        {t("location")}
-        <input type="text" name="location" defaultValue={event?.location ?? ""} />
-      </label>
-      <label>
-        {t("companions")}
-        <input type="text" name="companions" defaultValue={event?.companions ?? ""} />
-      </label>
-
-      <fieldset>
-        <label>
+    <form action={formAction} className="flex flex-col gap-4 pb-24">
+      <Card className="flex flex-col gap-3">
+        <label className={labelClass}>
+          {t("title")}
           <input
-            type="radio"
-            name="mode"
-            value="allDay"
-            checked={timeMode === "allDay"}
-            onChange={() => setTimeMode("allDay")}
-          />
-          {t("modeAllDay")}
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="mode"
-            value="timeRange"
-            checked={timeMode === "timeRange"}
-            onChange={() => setTimeMode("timeRange")}
-          />
-          {t("modeTimeRange")}
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="mode"
-            value="dateRange"
-            checked={timeMode === "dateRange"}
-            onChange={() => setTimeMode("dateRange")}
-          />
-          {t("modeDateRange")}
-        </label>
-      </fieldset>
-
-      <input
-        type="date"
-        name="startDate"
-        defaultValue={event ? toDateInputValue(event.start_at) : undefined}
-        required
-      />
-      {timeMode === "timeRange" && (
-        <>
-          <input
-            type="time"
-            name="startTime"
-            defaultValue={event ? toTimeInputValue(event.start_at) : undefined}
+            type="text"
+            name="title"
+            defaultValue={event?.title}
             required
+            className={`${inputClass} text-base font-semibold`}
           />
-          <input
-            type="time"
-            name="endTime"
-            defaultValue={event?.end_at ? toTimeInputValue(event.end_at) : undefined}
-            required
-          />
-        </>
-      )}
-      {timeMode === "dateRange" && (
-        <input
-          type="date"
-          name="endDate"
-          defaultValue={event?.end_at ? toDateInputValue(event.end_at) : undefined}
-          required
-        />
-      )}
+        </label>
+      </Card>
 
-      {connections.length === 0 ? (
-        <p>{t("noConnection")}</p>
-      ) : (
-        <>
-          <label>
+      <Card className="flex flex-col gap-3">
+        <SectionTitle icon="🗓️">{txt("when", "When")}</SectionTitle>
+
+        <fieldset className="grid grid-cols-3 gap-1 rounded-full bg-surface-2 p-1">
+          {modes.map((m) => (
+            <label
+              key={m.value}
+              className="cursor-pointer rounded-full px-2 py-2 text-center text-xs font-semibold text-ink-muted transition has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:shadow-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-soft"
+            >
+              <input
+                type="radio"
+                name="mode"
+                value={m.value}
+                checked={timeMode === m.value}
+                onChange={() => setTimeMode(m.value)}
+                className="sr-only"
+              />
+              {m.label}
+            </label>
+          ))}
+        </fieldset>
+
+        <div className={timeMode === "dateRange" ? "grid grid-cols-2 gap-2" : ""}>
+          <input
+            type="date"
+            name="startDate"
+            defaultValue={event ? toDateInputValue(event.start_at) : undefined}
+            required
+            className={inputClass}
+          />
+          {timeMode === "dateRange" && (
             <input
-              type="checkbox"
-              name="shared"
-              checked={shared}
-              onChange={(e) => setShared(e.target.checked)}
+              type="date"
+              name="endDate"
+              defaultValue={event?.end_at ? toDateInputValue(event.end_at) : undefined}
+              required
+              className={inputClass}
             />
-            {t("shared")}
-          </label>
-          {shared && (
-            <select name="connectionId" defaultValue={event?.connection_id ?? ""} required>
-              {connections.map((connection) => (
-                <option key={connection.id} value={connection.id}>
-                  {connection.partnerEmail}
-                </option>
-              ))}
-            </select>
           )}
-        </>
+        </div>
+        {timeMode === "timeRange" && (
+          <div className="flex items-center gap-2">
+            <input
+              type="time"
+              name="startTime"
+              defaultValue={event ? toTimeInputValue(event.start_at) : undefined}
+              required
+              className={inputClass}
+            />
+            <span className="text-ink-muted" aria-hidden>
+              ~
+            </span>
+            <input
+              type="time"
+              name="endTime"
+              defaultValue={event?.end_at ? toTimeInputValue(event.end_at) : undefined}
+              required
+              className={inputClass}
+            />
+          </div>
+        )}
+      </Card>
+
+      <Card className="flex flex-col gap-3">
+        <label className={labelClass}>
+          <SectionTitle icon="📍">{t("location")}</SectionTitle>
+          <input
+            type="text"
+            name="location"
+            defaultValue={event?.location ?? ""}
+            className={inputClass}
+          />
+        </label>
+      </Card>
+
+      <Card className="flex flex-col gap-3">
+        <label className={labelClass}>
+          <SectionTitle icon="💞">{t("companions")}</SectionTitle>
+          <input
+            type="text"
+            name="companions"
+            defaultValue={event?.companions ?? ""}
+            className={inputClass}
+          />
+        </label>
+
+        {connections.length === 0 ? (
+          <p className="rounded-xl bg-surface-2 px-3 py-2.5 text-sm text-ink-muted">
+            {t("noConnection")}
+          </p>
+        ) : (
+          <>
+            <label
+              className={`flex cursor-pointer items-center justify-between gap-3 rounded-2xl px-3.5 py-3 transition ${
+                shared ? "bg-shared-soft" : "bg-surface-2"
+              }`}
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+                <span aria-hidden>{shared ? "🤝" : "🙂"}</span>
+                {t("shared")}
+              </span>
+              <input
+                type="checkbox"
+                name="shared"
+                checked={shared}
+                onChange={(e) => setShared(e.target.checked)}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className="relative h-7 w-12 shrink-0 rounded-full bg-line transition peer-checked:bg-shared peer-focus-visible:ring-2 peer-focus-visible:ring-shared-soft after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"
+              />
+            </label>
+            {shared && (
+              <select
+                name="connectionId"
+                defaultValue={event?.connection_id ?? ""}
+                required
+                className={inputClass}
+              >
+                {connections.map((connection) => (
+                  <option key={connection.id} value={connection.id}>
+                    {connection.partnerEmail}
+                  </option>
+                ))}
+              </select>
+            )}
+          </>
+        )}
+      </Card>
+
+      {state.error && (
+        <p role="alert" className={errorClass}>
+          {state.error}
+        </p>
       )}
 
-      {state.error && <p role="alert">{state.error}</p>}
-
-      <button type="submit">{t("save")}</button>
       {mode === "edit" && (
-        <button type="button" onClick={() => deleteEvent(event!.id)}>
+        <Button type="button" variant="danger" onClick={() => deleteEvent(event!.id)}>
           {t("delete")}
-        </button>
+        </Button>
       )}
+
+      <div className="sticky bottom-24 z-10 -mx-1 mt-2 rounded-full bg-bg/80 p-1 backdrop-blur">
+        <Button type="submit" className="w-full py-3.5 text-base">
+          {t("save")}
+        </Button>
+      </div>
     </form>
+  );
+}
+
+function SectionTitle({ icon, children }: { icon: string; children: React.ReactNode }) {
+  return (
+    <span className="flex items-center gap-1.5 text-sm font-bold text-ink">
+      <span aria-hidden>{icon}</span>
+      {children}
+    </span>
   );
 }

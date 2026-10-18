@@ -1,11 +1,36 @@
 {
-  "app": { "name": "多伏", "tagline": "紧紧相依，温暖相伴" },
-  "nav": { "calendar": "日程", "ledger": "账本", "settings": "设置" },
-  "auth": {
-    "login": { "title": "登录", "email": "电子邮箱", "password": "密码", "submit": "登录" },
-    "signup": { "title": "注册", "email": "电子邮箱", "password": "密码", "submit": "注册" }
+  "app": {
+    "name": "多伏",
+    "tagline": "紧紧相依，温暖相伴"
   },
-  "theme": { "light": "浅色", "dark": "深色" },
+  "nav": {
+    "calendar": "日程",
+    "ledger": "账本",
+    "settings": "设置"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "email": "电子邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "noAccount": "还没有账号？",
+      "toSignup": "注册"
+    },
+    "signup": {
+      "title": "注册",
+      "email": "电子邮箱",
+      "password": "密码",
+      "submit": "注册",
+      "haveAccount": "已有账号？",
+      "toLogin": "登录",
+      "checkEmail": "请查收邮件以完成注册。"
+    }
+  },
+  "theme": {
+    "light": "浅色",
+    "dark": "深色"
+  },
   "ledger": {
     "type": "收支类型",
     "expense": "支出",
@@ -19,7 +44,12 @@
     "newTransaction": "+ 添加记录",
     "income_total": "收入合计",
     "expense_total": "支出合计",
-    "net_total": "净额"
+    "net_total": "净额",
+    "empty": "本月还没有记录",
+    "emptyHint": "一起记下第一笔吧 💕",
+    "back": "返回",
+    "newTitle": "添加记录",
+    "editTitle": "编辑记录"
   },
   "calendar": {
     "monthView": "日历",
@@ -27,7 +57,12 @@
     "newEvent": "+ 添加日程",
     "categoryMine": "我的日程",
     "categoryPartner": "对方的日程",
-    "categoryShared": "共同日程"
+    "categoryShared": "共同日程",
+    "prevMonth": "上个月",
+    "nextMonth": "下个月",
+    "allDay": "全天",
+    "emptyTitle": "还没有日程",
+    "emptyHint": "来添加第一个共同日程吧？"
   },
   "events": {
     "title": "标题",
@@ -39,7 +74,11 @@
     "shared": "共同日程",
     "noConnection": "还没有连接的对象。请先在设置中连接。",
     "save": "保存",
-    "delete": "删除"
+    "delete": "删除",
+    "when": "何时",
+    "newTitle": "新日程",
+    "editTitle": "编辑日程",
+    "back": "返回"
   },
   "connections": {
     "searchLabel": "通过邮箱查找对方",
@@ -51,5 +90,19 @@
     "accept": "接受",
     "connectedWith": "已连接"
   },
-  "telegram": {"title": "Telegram 关联", "connected": "已连接", "notConnected": "未连接", "connectButton": "连接", "disconnectButton": "断开连接"}
+  "telegram": {
+    "title": "Telegram 关联",
+    "connected": "已连接",
+    "notConnected": "未连接",
+    "connectButton": "连接",
+    "disconnectButton": "断开连接"
+  },
+  "settings": {
+    "themeSection": "主题",
+    "mode": "显示模式",
+    "brandColor": "主题色",
+    "customColor": "自定义",
+    "connectionSection": "连接",
+    "signOut": "退出登录"
+  }
 }

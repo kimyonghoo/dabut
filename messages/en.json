@@ -1,11 +1,36 @@
 {
-  "app": { "name": "Dabut", "tagline": "Close together, with warmth" },
-  "nav": { "calendar": "Calendar", "ledger": "Ledger", "settings": "Settings" },
-  "auth": {
-    "login": { "title": "Log In", "email": "Email", "password": "Password", "submit": "Log In" },
-    "signup": { "title": "Sign Up", "email": "Email", "password": "Password", "submit": "Sign Up" }
+  "app": {
+    "name": "Dabut",
+    "tagline": "Close together, with warmth"
   },
-  "theme": { "light": "Light", "dark": "Dark" },
+  "nav": {
+    "calendar": "Calendar",
+    "ledger": "Ledger",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log In",
+      "noAccount": "Don't have an account?",
+      "toSignup": "Sign up"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "toLogin": "Log in",
+      "checkEmail": "Check your email to confirm your account."
+    }
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
   "ledger": {
     "type": "Type",
     "expense": "Expense",
@@ -19,7 +44,12 @@
     "newTransaction": "+ Add transaction",
     "income_total": "Income total",
     "expense_total": "Expense total",
-    "net_total": "Net"
+    "net_total": "Net",
+    "empty": "No entries this month yet",
+    "emptyHint": "Add your first entry together 💕",
+    "back": "Back",
+    "newTitle": "New entry",
+    "editTitle": "Edit entry"
   },
   "calendar": {
     "monthView": "Month",
@@ -27,7 +57,12 @@
     "newEvent": "+ Add event",
     "categoryMine": "My events",
     "categoryPartner": "Partner's events",
-    "categoryShared": "Shared events"
+    "categoryShared": "Shared events",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "allDay": "All day",
+    "emptyTitle": "No plans yet",
+    "emptyHint": "How about adding your first plan together?"
   },
   "events": {
     "title": "Title",
@@ -39,7 +74,11 @@
     "shared": "Shared event",
     "noConnection": "No connection yet. Connect with someone in Settings first.",
     "save": "Save",
-    "delete": "Delete"
+    "delete": "Delete",
+    "when": "When",
+    "newTitle": "New event",
+    "editTitle": "Edit event",
+    "back": "Back"
   },
   "connections": {
     "searchLabel": "Find your partner by email",
@@ -51,5 +90,19 @@
     "accept": "Accept",
     "connectedWith": "Connected"
   },
-  "telegram": {"title": "Telegram", "connected": "Connected", "notConnected": "Not connected", "connectButton": "Connect", "disconnectButton": "Disconnect"}
+  "telegram": {
+    "title": "Telegram",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "connectButton": "Connect",
+    "disconnectButton": "Disconnect"
+  },
+  "settings": {
+    "themeSection": "Theme",
+    "mode": "Appearance",
+    "brandColor": "Brand color",
+    "customColor": "Custom",
+    "connectionSection": "Connection",
+    "signOut": "Sign out"
+  }
 }

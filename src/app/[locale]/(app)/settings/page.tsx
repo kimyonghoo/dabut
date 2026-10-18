@@ -6,9 +6,16 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useBrandColor } from "@/components/theme/brand-color-provider";
 import { ConnectionManager } from "@/components/connections/connection-manager";
 import { TelegramLink } from "@/components/settings/telegram-link";
+import { BrandColorPicker } from "@/components/settings/brand-color-picker";
+import { SignOutButton } from "@/components/settings/sign-out-button";
+import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
+  const tNav = useTranslations("nav");
+  const t = useTranslations("settings");
   const [userId, setUserId] = useState<string | null>(null);
   const [receivedInvitations, setReceivedInvitations] = useState<
     Array<{ id: string; inviterEmail: string }>
@@ -90,19 +97,42 @@ export default function SettingsPage() {
     };
   }, [userId]);
 
-  async function handleBrandColorChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
+  async function handleBrandColorChange(value: string) {
     setBrandColor(value);
     if (!userId) return;
     await createClient().from("profiles").update({ brand_color: value }).eq("id", userId);
   }
 
   return (
-    <main>
-      <ThemeToggle />
-      <input type="color" value={brandColor} onChange={handleBrandColorChange} />
-      <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
-      <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
+    <main className="flex flex-col gap-4 pb-8">
+      <PageHeader title={tNav("settings")} />
+
+      <Card className="flex flex-col gap-5">
+        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+          <span aria-hidden>🎨</span> {t("themeSection")}
+        </h2>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-medium text-ink-muted">{t("mode")}</span>
+          <ThemeToggle />
+        </div>
+        <div className="flex flex-col gap-3">
+          <span className="text-sm font-medium text-ink-muted">{t("brandColor")}</span>
+          <BrandColorPicker value={brandColor} onChange={handleBrandColorChange} />
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-4">
+        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+          <span aria-hidden>💞</span> {t("connectionSection")}
+        </h2>
+        <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
+      </Card>
+
+      <Card>
+        <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
+      </Card>
+
+      <SignOutButton />
     </main>
   );
 }

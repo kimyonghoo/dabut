@@ -1,5 +1,56 @@
 @import "tailwindcss";
 
+/* next-themes toggles `.dark` on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --color-brand: var(--brand-color, #FF6F61);
+  /* Dynamic, user-picked brand color (BrandColorProvider sets --brand-color) */
+  --color-brand: var(--brand-color, #ff6f61);
+  --color-brand-soft: color-mix(in oklab, var(--brand-color, #ff6f61) 16%, transparent);
+  --color-brand-strong: color-mix(in oklab, var(--brand-color, #ff6f61) 82%, black);
+
+  /* Semantic surface tokens (light values; dark overrides below) */
+  --color-bg: #fffaf5;
+  --color-surface: #ffffff;
+  --color-surface-2: #fff3ea;
+  --color-ink: #3b2f2a;
+  --color-ink-muted: #8a7a72;
+  --color-line: #f1e4da;
+
+  /* Event categories: mine = brand, partner = sky, shared = honey */
+  --color-partner: #7cb8f2;
+  --color-partner-soft: #e3f0fd;
+  --color-shared: #f5b94a;
+  --color-shared-soft: #fdf1d8;
+
+  /* Money */
+  --color-income: #3fae7a;
+  --color-expense: #e2645a;
+
+  --radius-card: 1.25rem;
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui,
+    sans-serif;
+}
+
+.dark {
+  --color-bg: #1c1715;
+  --color-surface: #26201d;
+  --color-surface-2: #2f2824;
+  --color-ink: #f4ebe5;
+  --color-ink-muted: #a9998f;
+  --color-line: #3a312c;
+  --color-partner-soft: #1f3347;
+  --color-shared-soft: #3d311b;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100dvh;
 }

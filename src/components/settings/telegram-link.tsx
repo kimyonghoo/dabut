@@ -3,6 +3,16 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { generateTelegramLinkCode, unlinkTelegram } from "@/lib/actions/telegram";
+import { buttonClass } from "@/components/ui/button";
+import { errorClass } from "@/components/ui/field";
+
+function PaperPlane({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M21.4 3.2a1 1 0 0 0-1.05-.17L2.9 10.1a1 1 0 0 0 .06 1.88l4.66 1.55 1.8 5.4a1 1 0 0 0 1.7.36l2.57-2.87 4.38 3.2a1 1 0 0 0 1.57-.6l3.1-14.8a1 1 0 0 0-.34-1.02ZM9.9 13.4l-.63 3.1-1.05-3.15 9.2-6.4-7.52 6.45Z" />
+    </svg>
+  );
+}
 
 export function TelegramLink({
   connected,
@@ -42,19 +52,48 @@ export function TelegramLink({
   }
 
   return (
-    <section>
-      <h2>{t("title")}</h2>
-      <p>{connected ? t("connected") : t("notConnected")}</p>
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#2AABEE]/15 text-[#2AABEE]"
+        >
+          <PaperPlane className="h-5 w-5" />
+        </span>
+        <h2 className="min-w-0 flex-1 text-base font-bold text-ink">{t("title")}</h2>
+        <p
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            connected ? "bg-income/15 text-income" : "bg-surface-2 text-ink-muted"
+          }`}
+        >
+          <span
+            aria-hidden
+            className={`h-2 w-2 rounded-full ${connected ? "bg-income animate-pulse" : "bg-ink-muted/50"}`}
+          />
+          {connected ? t("connected") : t("notConnected")}
+        </p>
+      </div>
       {connected ? (
-        <button type="button" onClick={handleDisconnect} disabled={pending}>
+        <button
+          type="button"
+          onClick={handleDisconnect}
+          disabled={pending}
+          className={buttonClass("danger", "self-start")}
+        >
           {t("disconnectButton")}
         </button>
       ) : (
-        <button type="button" onClick={handleConnect} disabled={pending}>
+        <button
+          type="button"
+          onClick={handleConnect}
+          disabled={pending}
+          className={buttonClass("primary", "w-full")}
+        >
+          <PaperPlane className="h-4 w-4" />
           {t("connectButton")}
         </button>
       )}
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert" className={errorClass}>{error}</p>}
     </section>
   );
 }

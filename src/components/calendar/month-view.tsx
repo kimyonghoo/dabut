@@ -1,15 +1,16 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { format, isSameDay, isSameMonth } from "date-fns";
 import { getMonthGridDays } from "@/lib/calendar/month-grid";
+import { Link } from "@/i18n/navigation";
+import { Card } from "@/components/ui/card";
 import type { Database } from "@/types/database.types";
+import { CATEGORY_KEY, CHIP_CLASSNAME, DOT_CLASSNAME } from "./category-style";
+import { getDateFnsLocale } from "./date-locale";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type CategorizedEvent = EventRow & { category: "mine" | "partner" | "shared" };
 
-const CATEGORY_CLASSNAME: Record<CategorizedEvent["category"], string> = {
-  mine: "bg-brand",
-  partner: "bg-blue-200",
-  shared: "bg-amber-200",
-};
+const MAX_CHIPS = 2;
 
 function isDayWithinEvent(day: Date, event: EventRow): boolean {
   const start = new Date(event.start_at);
@@ -19,31 +20,75 @@ function isDayWithinEvent(day: Date, event: EventRow): boolean {
   return start <= dayEnd && end >= dayStart;
 }
 
-export function MonthView({ month, events }: { month: Date; events: CategorizedEvent[] }) {
-  const t = useTranslations("calendar");
-  const days = getMonthGridDays(month);
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
-      {days.map((day) => {
-        const dayEvents = events.filter((event) => isDayWithinEvent(day, event));
-        return (
-          <div key={day.toISOString()}>
-            <span>{day.getDate()}</span>
-            <ul>
-              {dayEvents.map((event) => (
-                <li key={event.id} className={CATEGORY_CLASSNAME[event.category]} title={t(`category${capitalize(event.category)}` as "categoryMine")}>
-                  {event.title}
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
-    </div>
-  );
+function weekdayColor(dayOfWeek: number): string {
+  if (dayOfWeek === 0) return "text-expense";
+  if (dayOfWeek === 6) return "text-partner";
+  return "text-ink-muted";
 }
 
-function capitalize<S extends string>(value: S): Capitalize<S> {
-  return (value.charAt(0).toUpperCase() + value.slice(1)) as Capitalize<S>;
+export function MonthView({ month, events }: { month: Date; events: CategorizedEvent[] }) {
+  const t = useTranslations("calendar");
+  const locale = useLocale();
+  const dfLocale = getDateFnsLocale(locale);
+  const days = getMonthGridDays(month);
+  const today = new Date();
+  const weekdays = days.slice(0, 7);
+
+  return (
+    <Card className="!p-2 sm:!p-3">
+      <div className="grid grid-cols-7 pb-1.5 text-center text-[11px] font-semibold">
+        {weekdays.map((day) => (
+          <div key={day.getDay()} className={weekdayColor(day.getDay())}>
+            {format(day, locale === "en" ? "EEE" : "EEEEE", { locale: dfLocale })}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-line">
+        {days.map((day) => {
+          const dayEvents = events.filter((event) => isDayWithinEvent(day, event));
+          const inMonth = isSameMonth(day, month);
+          const isToday = isSameDay(day, today);
+          const visible = dayEvents.slice(0, MAX_CHIPS);
+          const hidden = dayEvents.length - visible.length;
+          return (
+            <div
+              key={day.toISOString()}
+              className={`flex min-h-[4.75rem] min-w-0 flex-col gap-0.5 p-0.5 ${
+                inMonth ? "bg-surface" : "bg-surface-2/60 opacity-45"
+              }`}
+            >
+              <span
+                aria-current={isToday ? "date" : undefined}
+                className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                  isToday
+                    ? "bg-brand font-bold text-white shadow-sm"
+                    : `font-medium ${day.getDay() === 0 ? "text-expense" : day.getDay() === 6 ? "text-partner" : "text-ink"}`
+                }`}
+              >
+                {day.getDate()}
+              </span>
+              <ul className="flex min-w-0 flex-col gap-0.5">
+                {visible.map((event) => (
+                  <li key={event.id} className="min-w-0" title={t(CATEGORY_KEY[event.category])}>
+                    <Link
+                      href={`/calendar/${event.id}/edit`}
+                      className={`flex min-w-0 items-center gap-0.5 rounded-md px-1 py-px text-[10px] font-medium leading-tight transition hover:brightness-95 ${CHIP_CLASSNAME[event.category]}`}
+                    >
+                      {event.category === "partner" && (
+                        <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT_CLASSNAME.partner}`} />
+                      )}
+                      <span className="truncate">{event.title}</span>
+                    </Link>
+                  </li>
+                ))}
+                {hidden > 0 && (
+                  <li className="px-1 text-[10px] font-semibold text-ink-muted">+{hidden}</li>
+                )}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
 }
