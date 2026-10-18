@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { CalendarDays, HeartHandshake, MapPin, Trash2, User, Users, type LucideIcon } from "lucide-react";
 import { createEvent, updateEvent, deleteEvent, type EventActionState } from "@/lib/actions/events";
 import type { Database } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
@@ -102,7 +103,7 @@ export function EventForm({
       </Card>
 
       <Card className="flex flex-col gap-3">
-        <SectionTitle icon="🗓️">{txt("when", "When")}</SectionTitle>
+        <SectionTitle icon={CalendarDays}>{txt("when", "When")}</SectionTitle>
 
         <fieldset className="grid grid-cols-3 gap-1 rounded-full bg-surface-2 p-1">
           {modes.map((m) => (
@@ -166,7 +167,7 @@ export function EventForm({
 
       <Card className="flex flex-col gap-3">
         <label className={labelClass}>
-          <SectionTitle icon="📍">{t("location")}</SectionTitle>
+          <SectionTitle icon={MapPin}>{t("location")}</SectionTitle>
           <input
             type="text"
             name="location"
@@ -178,7 +179,7 @@ export function EventForm({
 
       <Card className="flex flex-col gap-3">
         <label className={labelClass}>
-          <SectionTitle icon="💞">{t("companions")}</SectionTitle>
+          <SectionTitle icon={Users}>{t("companions")}</SectionTitle>
           <input
             type="text"
             name="companions"
@@ -199,7 +200,11 @@ export function EventForm({
               }`}
             >
               <span className="flex items-center gap-2 text-sm font-semibold text-ink">
-                <span aria-hidden>{shared ? "🤝" : "🙂"}</span>
+                {shared ? (
+                  <HeartHandshake aria-hidden className="size-4 text-brand" />
+                ) : (
+                  <User aria-hidden className="size-4 text-ink-muted" />
+                )}
                 {t("shared")}
               </span>
               <input
@@ -247,7 +252,7 @@ export function EventForm({
           aria-busy={deleting}
           aria-live="polite"
         >
-          {deleting && <Spinner />}
+          {deleting ? <Spinner /> : <Trash2 aria-hidden className="size-4" />}
           {deleting
             ? txt("deleting", "Deleting…")
             : confirmingDelete
@@ -269,10 +274,10 @@ export function EventForm({
   );
 }
 
-function SectionTitle({ icon, children }: { icon: string; children: React.ReactNode }) {
+function SectionTitle({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
     <span className="flex items-center gap-1.5 text-sm font-bold text-ink">
-      <span aria-hidden>{icon}</span>
+      <Icon aria-hidden className="size-4 text-brand" />
       {children}
     </span>
   );

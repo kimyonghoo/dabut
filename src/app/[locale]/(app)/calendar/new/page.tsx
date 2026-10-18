@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { EventForm } from "@/components/events/event-form";
 import { PageHeader } from "@/components/ui/page-header";
+import { ChevronLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 
 export default async function NewEventPage() {
@@ -38,9 +39,9 @@ export default async function NewEventPage() {
             <Link
               href="/calendar"
               aria-label={t.has("back") ? t("back") : "Back"}
-              className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-2xl leading-none text-ink-muted transition hover:bg-surface-2"
+              className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-ink-muted transition hover:bg-surface-2"
             >
-              ‹
+              <ChevronLeft aria-hidden className="size-5" />
             </Link>
             {t.has("newTitle") ? t("newTitle") : "새 일정"}
           </span>

@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { AlignJustify, CalendarDays } from "lucide-react";
 import { usePathname } from "@/i18n/navigation";
 import { useProgressRouter } from "@/components/feedback/use-progress-router";
 
@@ -17,7 +18,7 @@ export function ViewToggle() {
     router.push({ pathname, query: month ? { view: next, month } : { view: next } });
 
   const itemClass = (active: boolean) =>
-    `flex-1 rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-[0.97] ${
+    `flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-[0.97] ${
       active ? "bg-surface text-brand shadow-sm" : "text-ink-muted hover:text-ink"
     }`;
 
@@ -29,7 +30,8 @@ export function ViewToggle() {
         className={itemClass(view === "month")}
         onClick={() => go("month")}
       >
-        📅 {t("monthView")}
+        <CalendarDays aria-hidden className="size-4" />
+        {t("monthView")}
       </button>
       <button
         type="button"
@@ -37,7 +39,8 @@ export function ViewToggle() {
         className={itemClass(view === "thread")}
         onClick={() => go("thread")}
       >
-        🧵 {t("threadView")}
+        <AlignJustify aria-hidden className="size-4" />
+        {t("threadView")}
       </button>
     </nav>
   );

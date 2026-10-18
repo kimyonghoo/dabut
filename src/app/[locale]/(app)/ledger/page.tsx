@@ -7,7 +7,8 @@ import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { buttonClass } from "@/components/ui/button";
-import { categoryEmoji, formatWon } from "@/components/ledger/category-emoji";
+import { PiggyBank } from "lucide-react";
+import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
 
 function toUtcDate(ymd: string) {
   const [y, m, d] = ymd.split("-").map(Number);
@@ -84,8 +85,8 @@ export default async function LedgerPage() {
 
       {rows.length === 0 ? (
         <div className="mt-10 flex flex-col items-center gap-2 text-center">
-          <span className="grid h-16 w-16 place-items-center rounded-full bg-brand-soft text-3xl" aria-hidden>
-            🐷
+          <span className="grid size-14 place-items-center rounded-full bg-brand-soft text-brand">
+            <PiggyBank aria-hidden className="size-7" strokeWidth={1.75} />
           </span>
           <p className="font-semibold text-ink">{t("empty")}</p>
           <p className="text-sm text-ink-muted">{t("emptyHint")}</p>
@@ -108,12 +109,11 @@ export default async function LedgerPage() {
                         className="flex items-center gap-3 px-4 py-3 transition hover:bg-surface-2 active:bg-surface-2"
                       >
                         <span
-                          aria-hidden
-                          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg ${
-                            isIncome ? "bg-shared-soft" : "bg-brand-soft"
+                          className={`grid size-10 shrink-0 place-items-center rounded-full ${
+                            isIncome ? "bg-income/10 text-income" : "bg-brand-soft text-brand"
                           }`}
                         >
-                          {categoryEmoji(category)}
+                          <CategoryIcon category={category} className="size-5" />
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block text-[15px] font-semibold text-ink">{name}</span>

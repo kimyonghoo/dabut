@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Heart, Mail, Search, Send } from "lucide-react";
 import {
   searchProfileByEmail,
   sendConnectionInvitation,
@@ -74,9 +75,9 @@ export function ConnectionManager({
                   </span>
                   <span
                     aria-hidden
-                    className="absolute left-1/2 top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-surface text-[11px] shadow-sm"
+                    className="absolute left-1/2 top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-surface text-brand shadow-sm"
                   >
-                    💗
+                    <Heart aria-hidden className="size-3 fill-current" strokeWidth={2} />
                   </span>
                 </span>
                 <span className="min-w-0 truncate text-sm font-medium text-ink">
@@ -101,10 +102,7 @@ export function ConnectionManager({
             />
           </label>
           <button type="submit" className={buttonClass("primary", "shrink-0")}>
-            <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2}>
-              <circle cx="9" cy="9" r="5.5" />
-              <path d="M13.2 13.2L17 17" strokeLinecap="round" />
-            </svg>
+            <Search aria-hidden className="size-4" strokeWidth={2} />
             {t("searchButton")}
           </button>
         </div>
@@ -126,7 +124,7 @@ export function ConnectionManager({
                 onClick={() => handleInvite(result.id)}
                 className={buttonClass("secondary", "shrink-0 px-3 py-1.5 text-xs")}
               >
-                💌 {t("invite")}
+                <Send aria-hidden className="size-4" strokeWidth={2} /> {t("invite")}
               </button>
             </li>
           ))}
@@ -142,7 +140,9 @@ export function ConnectionManager({
                 key={invitation.id}
                 className="flex items-center gap-3 rounded-2xl border border-dashed border-brand/40 bg-brand-soft px-3 py-2.5"
               >
-                <span aria-hidden className="text-xl">💌</span>
+                <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
+                  <Mail className="size-5" strokeWidth={2} />
+                </span>
                 <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
                   {invitation.inviterEmail}
                 </span>

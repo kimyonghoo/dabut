@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ArrowRight, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { PaperPlane } from "./telegram-link";
 
@@ -46,8 +47,8 @@ export function TelegramOnboardingBanner() {
         <p className="text-sm font-medium text-ink">
           {t.has("bannerText") ? t("bannerText") : "텔레그램을 연결하면 상대방 소식을 바로 받아요"}
         </p>
-        <Link href="/settings" className="self-start text-sm font-semibold text-[#2AABEE] hover:underline">
-          {t.has("bannerCta") ? t("bannerCta") : "연결하러 가기"} →
+        <Link href="/settings" className="inline-flex items-center gap-1 self-start text-sm font-semibold text-[#2AABEE] hover:underline">
+          {t.has("bannerCta") ? t("bannerCta") : "연결하러 가기"} <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
         </Link>
       </div>
       <button
@@ -56,7 +57,7 @@ export function TelegramOnboardingBanner() {
         aria-label={t.has("bannerDismiss") ? t("bannerDismiss") : "닫기"}
         className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-muted transition hover:bg-surface-2 hover:text-ink"
       >
-        ✕
+        <X aria-hidden className="size-4" strokeWidth={2} />
       </button>
     </aside>
   );

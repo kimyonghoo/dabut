@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { addMonths, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -64,11 +65,11 @@ export default async function CalendarPage({
           ) : (
             <span className="inline-flex items-center gap-1">
               <Link href={monthHref(addMonths(month, -1))} aria-label={t("prevMonth")} className={navClass}>
-                ‹
+                <ChevronLeft aria-hidden className="size-5" />
               </Link>
               <span>{monthTitle}</span>
               <Link href={monthHref(addMonths(month, 1))} aria-label={t("nextMonth")} className={navClass}>
-                ›
+                <ChevronRight aria-hidden className="size-5" />
               </Link>
             </span>
           )

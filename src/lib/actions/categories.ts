@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { CATEGORY_ICONS } from "@/components/ledger/category-icon";
 
 export type CreatedCategory = {
   id: string;
@@ -30,6 +31,7 @@ export async function createCategory(input: {
 
   const icon = (input.icon ?? "").trim();
   if (icon.length > MAX_ICON_LENGTH) return { error: "Invalid icon" };
+  const iconKey = Object.prototype.hasOwnProperty.call(CATEGORY_ICONS, icon) ? icon : null;
 
   const supabase = await createClient();
   const {
@@ -51,7 +53,7 @@ export async function createCategory(input: {
     .insert({
       type,
       name,
-      icon: icon || null,
+      icon: iconKey,
       connection_id: connectionId,
       owner_id: user.id,
     })

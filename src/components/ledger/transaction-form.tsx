@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { ArrowDownRight, ArrowUpRight, ChevronLeft, Trash2 } from "lucide-react";
 import {
   createTransaction,
   updateTransaction,
@@ -96,9 +97,9 @@ export function TransactionForm({
         <Link
           href="/ledger"
           aria-label={t("back")}
-          className="grid h-9 w-9 place-items-center rounded-full text-lg text-ink-muted transition hover:bg-surface-2"
+          className="grid h-9 w-9 place-items-center rounded-full text-ink-muted transition hover:bg-surface-2"
         >
-          ←
+          <ChevronLeft aria-hidden className="size-5" />
         </Link>
         <h1 className="text-xl font-bold tracking-tight text-ink">
           {mode === "create" ? t("newTitle") : t("editTitle")}
@@ -112,7 +113,7 @@ export function TransactionForm({
           return (
             <label
               key={value}
-              className={`cursor-pointer rounded-full py-2 text-center text-sm font-semibold transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand ${
+              className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-full py-2 text-center text-sm font-semibold transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand ${
                 active
                   ? `bg-surface shadow-sm ${value === "income" ? "text-income" : "text-expense"}`
                   : "text-ink-muted"
@@ -126,6 +127,11 @@ export function TransactionForm({
                 onChange={() => setType(value)}
                 className="sr-only"
               />
+              {value === "income" ? (
+                <ArrowUpRight aria-hidden className="size-4" />
+              ) : (
+                <ArrowDownRight aria-hidden className="size-4" />
+              )}
               {t(value)}
             </label>
           );
@@ -202,7 +208,7 @@ export function TransactionForm({
               disabled={deletePending}
               aria-busy={deletePending}
             >
-              {deletePending && <Spinner />}
+              {deletePending ? <Spinner /> : <Trash2 aria-hidden className="size-4" />}
               {confirmingDelete ? t("deleteConfirm") : t("delete")}
             </Button>
             {deleteError && (

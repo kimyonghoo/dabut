@@ -2,16 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Send } from "lucide-react";
 import { generateTelegramLinkCode, unlinkTelegram } from "@/lib/actions/telegram";
 import { buttonClass } from "@/components/ui/button";
 import { errorClass } from "@/components/ui/field";
 
 export function PaperPlane({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className={className} fill="currentColor">
-      <path d="M21.4 3.2a1 1 0 0 0-1.05-.17L2.9 10.1a1 1 0 0 0 .06 1.88l4.66 1.55 1.8 5.4a1 1 0 0 0 1.7.36l2.57-2.87 4.38 3.2a1 1 0 0 0 1.57-.6l3.1-14.8a1 1 0 0 0-.34-1.02ZM9.9 13.4l-.63 3.1-1.05-3.15 9.2-6.4-7.52 6.45Z" />
-    </svg>
-  );
+  return <Send aria-hidden className={className} />;
 }
 
 export function TelegramLink({

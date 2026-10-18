@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
+import { Heart } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { resetProgress, startProgress, subscribeProgress } from "./progress-store";
 
@@ -74,9 +75,7 @@ function TopProgressInner() {
           boxShadow: "0 0 10px var(--color-brand-soft), 0 0 4px var(--color-brand)",
         }}
       >
-        <span className="absolute -right-2 -top-[7px] text-[12px] leading-none text-brand animate-pulse">
-          ♥
-        </span>
+        <Heart aria-hidden className="absolute -right-2 -top-[5px] size-3 fill-current text-brand animate-pulse" strokeWidth={2} />
       </div>
     </div>
   );

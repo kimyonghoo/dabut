@@ -24,7 +24,7 @@
       "submit": "가입하기",
       "haveAccount": "이미 계정이 있나요?",
       "toLogin": "로그인",
-      "checkEmail": "이메일을 확인해 가입을 완료해 주세요 💌"
+      "checkEmail": "이메일을 확인해 가입을 완료해 주세요"
     }
   },
   "theme": {
@@ -46,7 +46,7 @@
     "expense_total": "지출 합계",
     "net_total": "순액",
     "empty": "아직 이번 달 내역이 없어요",
-    "emptyHint": "첫 내역을 함께 기록해 보세요 💕",
+    "emptyHint": "첫 내역을 함께 기록해 보세요",
     "back": "뒤로",
     "newTitle": "내역 추가",
     "editTitle": "내역 수정",

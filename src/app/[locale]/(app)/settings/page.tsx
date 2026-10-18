@@ -11,6 +11,7 @@ import { SignOutButton } from "@/components/settings/sign-out-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
+import { HeartHandshake, Palette } from "lucide-react";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
@@ -109,7 +110,7 @@ export default function SettingsPage() {
 
       <Card className="flex flex-col gap-5">
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">
-          <span aria-hidden>🎨</span> {t("themeSection")}
+          <Palette aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("themeSection")}
         </h2>
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm font-medium text-ink-muted">{t("mode")}</span>
@@ -123,7 +124,7 @@ export default function SettingsPage() {
 
       <Card className="flex flex-col gap-4">
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">
-          <span aria-hidden>💞</span> {t("connectionSection")}
+          <HeartHandshake aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("connectionSection")}
         </h2>
         <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
       </Card>

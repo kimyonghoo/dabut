@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useProgressRouter } from "@/components/feedback/use-progress-router";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
@@ -30,7 +31,7 @@ export function SignOutButton() {
       disabled={pending}
       className={buttonClass("ghost", "mx-auto mt-2")}
     >
-      {pending ? <Spinner /> : "👋"} {t("signOut")}
+      {pending ? <Spinner /> : <LogOut aria-hidden className="size-4" strokeWidth={2} />} {t("signOut")}
     </button>
   );
 }

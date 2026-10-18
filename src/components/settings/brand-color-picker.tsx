@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Check } from "lucide-react";
 
 export const BRAND_PRESETS = [
   { value: "#FF6F61", name: "Coral" },
@@ -45,9 +46,7 @@ export function BrandColorPicker({
             style={{ backgroundColor: preset.value }}
           >
             {selected && (
-              <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth={3}>
-                <path d="M5 10.5l3.2 3L15 7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Check aria-hidden className="size-4 text-white" strokeWidth={3} />
             )}
           </button>
         );

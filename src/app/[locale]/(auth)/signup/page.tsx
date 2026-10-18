@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { MailCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
@@ -56,9 +57,9 @@ export default function SignupPage() {
         <Card className="flex flex-col items-center gap-3 p-6 text-center shadow-[0_8px_30px_rgba(59,47,42,0.08)]">
           <span
             aria-hidden="true"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-2xl"
+            className="grid size-14 place-items-center rounded-full bg-brand-soft text-brand"
           >
-            💌
+            <MailCheck className="size-7" strokeWidth={1.75} />
           </span>
           <p role="status" className="text-[15px] font-medium text-ink">
             {t.has("checkEmail") ? t("checkEmail") : "Check your email to confirm your account."}

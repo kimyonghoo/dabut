@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
+import { CalendarHeart, Clock, MapPin, Users } from "lucide-react";
 import { format, isToday, parseISO } from "date-fns";
 import { groupEventsByDate } from "@/lib/calendar/group-by-date";
 import { Link } from "@/i18n/navigation";
@@ -31,7 +32,9 @@ export function ThreadView({ events }: { events: CategorizedEvent[] }) {
   if (grouped.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 rounded-[var(--radius-card)] border border-dashed border-line bg-surface px-6 py-12 text-center">
-        <span aria-hidden className="text-5xl">🗓️</span>
+        <span className="grid size-14 place-items-center rounded-full bg-brand-soft text-brand">
+          <CalendarHeart aria-hidden className="size-7" strokeWidth={1.75} />
+        </span>
         <p className="font-semibold text-ink">{t("emptyTitle")}</p>
         <p className="text-sm text-ink-muted">{t("emptyHint")}</p>
         <Link
@@ -80,12 +83,21 @@ export function ThreadView({ events }: { events: CategorizedEvent[] }) {
                         {t(CATEGORY_KEY[event.category])}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-ink-muted">🕒 {timeLabel(event, t("allDay"))}</p>
+                    <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-muted">
+                      <Clock aria-hidden className="size-3.5 shrink-0" />
+                      {timeLabel(event, t("allDay"))}
+                    </p>
                     {event.location && (
-                      <p className="mt-0.5 truncate text-sm text-ink-muted">📍 {event.location}</p>
+                      <p className="mt-0.5 flex items-center gap-1.5 text-sm text-ink-muted">
+                        <MapPin aria-hidden className="size-3.5 shrink-0" />
+                        <span className="truncate">{event.location}</span>
+                      </p>
                     )}
                     {event.companions && (
-                      <p className="mt-0.5 truncate text-sm text-ink-muted">👫 {event.companions}</p>
+                      <p className="mt-0.5 flex items-center gap-1.5 text-sm text-ink-muted">
+                        <Users aria-hidden className="size-3.5 shrink-0" />
+                        <span className="truncate">{event.companions}</span>
+                      </p>
                     )}
                   </Link>
                 </li>

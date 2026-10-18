@@ -7,7 +7,8 @@ import { Spinner } from "@/components/ui/submit-button";
 import { buttonClass } from "@/components/ui/button";
 import { inputClass, errorClass } from "@/components/ui/field";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
-import { CATEGORY_EMOJI_CHOICES, categoryEmoji } from "@/components/ledger/category-emoji";
+import { Plus } from "lucide-react";
+import { CATEGORY_ICON_CHOICES, CategoryIcon } from "@/components/ledger/category-icon";
 
 export type PickerCategory = { id: string; name: string; type: string; icon: string | null };
 
@@ -36,7 +37,7 @@ export function CategoryPicker({
   const t = useTranslations("ledger");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [icon, setIcon] = useState<string>(CATEGORY_EMOJI_CHOICES[0]);
+  const [icon, setIcon] = useState<string>(CATEGORY_ICON_CHOICES[0]);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const nameRef = useRef<HTMLInputElement>(null);
@@ -70,7 +71,7 @@ export function CategoryPicker({
         }
         onCreated(result.category);
         setName("");
-        setIcon(CATEGORY_EMOJI_CHOICES[0]);
+        setIcon(CATEGORY_ICON_CHOICES[0]);
         setOpen(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
@@ -109,7 +110,7 @@ export function CategoryPicker({
             <span
               className={`${chipClass} border-line bg-surface text-ink peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand-strong peer-focus-visible:ring-2 peer-focus-visible:ring-brand`}
             >
-              <span aria-hidden>{categoryEmoji(category)}</span>
+              <CategoryIcon category={category} className="size-4" />
               {category.name}
             </span>
           </label>
@@ -125,6 +126,7 @@ export function CategoryPicker({
             open ? "border-brand bg-brand-soft text-brand-strong" : "border-line text-ink-muted hover:bg-surface-2"
           } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand`}
         >
+          <Plus aria-hidden className="size-4" />
           {t("addCategory")}
         </button>
       </div>
@@ -132,7 +134,7 @@ export function CategoryPicker({
       {open && (
         <div className="mt-1 flex flex-col gap-3 rounded-2xl border border-line bg-surface-2 p-3">
           <div role="radiogroup" aria-label={t("categoryIcon")} className="grid grid-cols-6 gap-1.5">
-            {CATEGORY_EMOJI_CHOICES.map((choice) => {
+            {CATEGORY_ICON_CHOICES.map((choice) => {
               const active = choice === icon;
               return (
                 <button
@@ -140,13 +142,13 @@ export function CategoryPicker({
                   type="button"
                   role="radio"
                   aria-checked={active}
+                  aria-label={choice}
                   onClick={() => setIcon(choice)}
-                  className={`grid h-10 place-items-center rounded-xl text-xl transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                  className={`grid h-10 place-items-center rounded-xl text-ink transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                     active ? "bg-brand-soft ring-2 ring-brand" : "bg-surface hover:bg-surface"
                   }`}
                 >
-                  <span aria-hidden>{choice}</span>
-                  <span className="sr-only">{choice}</span>
+                  <CategoryIcon iconKey={choice} className="size-5" />
                 </button>
               );
             })}

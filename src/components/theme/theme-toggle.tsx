@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -27,7 +28,7 @@ export function ThemeToggle() {
           isDark ? "text-ink-muted" : "text-ink"
         }`}
       >
-        ☀️ <span>{t("light")}</span>
+        <Sun aria-hidden className="size-4" strokeWidth={2} /> <span>{t("light")}</span>
       </span>
       <span
         aria-hidden
@@ -35,7 +36,7 @@ export function ThemeToggle() {
           isDark ? "text-ink" : "text-ink-muted"
         }`}
       >
-        🌙 <span>{t("dark")}</span>
+        <Moon aria-hidden className="size-4" strokeWidth={2} /> <span>{t("dark")}</span>
       </span>
     </button>
   );
