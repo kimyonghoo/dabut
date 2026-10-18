@@ -56,7 +56,10 @@
     "categoryNamePlaceholder": "카테고리 이름 (최대 12자)",
     "categoryNameRequired": "카테고리 이름을 입력해 주세요",
     "categoryIcon": "아이콘",
-    "deleteConfirm": "한 번 더 누르면 삭제돼요"
+    "deleteConfirm": "한 번 더 누르면 삭제돼요",
+    "filterLabel": "카테고리 필터",
+    "filterAll": "전체",
+    "filterEmpty": "이 카테고리의 내역이 없어요"
   },
   "calendar": {
     "monthView": "달력",
@@ -118,10 +121,14 @@
     "brandColor": "브랜드 색상",
     "customColor": "직접 고르기",
     "connectionSection": "연결",
-    "signOut": "로그아웃"
+    "signOut": "로그아웃",
+    "language": "언어",
+    "accountSection": "계정",
+    "accountDeleteHint": "계정을 삭제하면 내 일정·가계부 내역과 카테고리가 모두 지워지고, 연결된 상대방과의 연결도 해제돼요. 상대방이 작성한 내역은 상대방 계정에 그대로 남아요."
   },
   "common": {
-    "loading": "불러오는 중…"
+    "loading": "불러오는 중…",
+    "delete": "삭제"
   },
   "toast": {
     "eventCreated": "일정을 저장했어요",
@@ -132,6 +139,43 @@
     "transactionDeleted": "내역을 삭제했어요",
     "categoryCreated": "카테고리를 추가했어요",
     "emailConfirmed": "이메일 인증이 완료됐어요! 다붓에 오신 걸 환영해요",
-    "emailConfirmedLogin": "이메일 인증 완료! 로그인해 주세요"
+    "emailConfirmedLogin": "이메일 인증 완료! 로그인해 주세요",
+    "deleteFailed": "삭제하지 못했어요. 다시 시도해 주세요",
+    "accountDeleted": "계정을 삭제했어요. 그동안 고마웠어요"
+  },
+  "daySummary": {
+    "mine": "내 일정",
+    "mineEmpty": "이날 내 일정이 없어요",
+    "partner": "상대 일정",
+    "partnerNamed": "{name}의 일정",
+    "partnerEmpty": "이날 상대 일정이 없어요",
+    "allDay": "종일",
+    "addEvent": "이날 일정 추가",
+    "close": "닫기",
+    "openDay": "{date}, {count, plural, =0 {일정 없음} other {일정 #개}}"
+  },
+  "passwordPolicy": {
+    "minLength": "{min}자 이상",
+    "digit": "숫자 1개 이상",
+    "symbol": "특수문자 1개 이상",
+    "met": "충족",
+    "unmet": "미충족",
+    "invalid": "비밀번호가 조건을 만족하지 않아요"
+  },
+  "dates": {
+    "today": "오늘",
+    "yesterday": "어제",
+    "tomorrow": "내일"
+  },
+  "account": {
+    "deleteButton": "계정 삭제",
+    "dialogTitle": "정말 계정을 삭제할까요?",
+    "dialogBody": "삭제한 계정과 내 데이터는 되돌릴 수 없어요. 상대방과의 연결도 해제돼요.",
+    "typeToConfirm": "확인을 위해 \"{word}\"를 입력해 주세요",
+    "confirmWord": "삭제",
+    "confirmButton": "영구 삭제",
+    "cancel": "취소",
+    "mismatch": "확인 문구가 일치하지 않아요",
+    "failed": "계정을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요"
   }
 }

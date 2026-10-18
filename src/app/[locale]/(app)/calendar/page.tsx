@@ -12,6 +12,8 @@ import { ThreadView } from "@/components/calendar/thread-view";
 import { CategoryLegend } from "@/components/calendar/category-legend";
 import { getDateFnsLocale, monthTitlePattern, parseMonthParam } from "@/components/calendar/date-locale";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
+import { resolvePartnerName } from "@/lib/calendar/partner-name";
+import { toDateKey } from "@/lib/dates/relative-day";
 import { TelegramOnboardingBanner } from "@/components/settings/telegram-onboarding-banner";
 
 export default async function CalendarPage({
@@ -27,6 +29,7 @@ export default async function CalendarPage({
     data: { user },
   } = await supabase.auth.getUser();
   const { data: events } = await supabase.from("events").select("*");
+  const partnerName = view === "thread" ? null : await resolvePartnerName(supabase, user!.id);
   const { data: profile } = await supabase
     .from("profiles")
     .select("telegram_chat_id")
@@ -84,10 +87,10 @@ export default async function CalendarPage({
         <ViewToggle />
       </div>
       {isThread ? (
-        <ThreadView events={categorized} />
+        <ThreadView events={categorized} currentUserId={user!.id} serverTodayKey={toDateKey(new Date())} />
       ) : (
         <>
-          <MonthView month={month} events={categorized} />
+          <MonthView month={month} events={categorized} currentUserId={user!.id} partnerName={partnerName} />
           <CategoryLegend />
         </>
       )}

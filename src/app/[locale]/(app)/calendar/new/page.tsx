@@ -5,7 +5,14 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 
-export default async function NewEventPage() {
+export default async function NewEventPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>;
+}) {
+  const { date } = await searchParams;
+  // Only accept a plain yyyy-MM-dd (prefill from the calendar day summary).
+  const defaultDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined;
   const supabase = await createClient();
   const t = await getTranslations("events");
   const {
@@ -47,7 +54,7 @@ export default async function NewEventPage() {
           </span>
         }
       />
-      <EventForm mode="create" connections={connections} />
+      <EventForm mode="create" connections={connections} defaultDate={defaultDate} />
     </>
   );
 }

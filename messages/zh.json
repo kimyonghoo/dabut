@@ -56,7 +56,10 @@
     "categoryNamePlaceholder": "分类名称（最多12字）",
     "categoryNameRequired": "请输入分类名称",
     "categoryIcon": "图标",
-    "deleteConfirm": "再点一次即可删除"
+    "deleteConfirm": "再点一次即可删除",
+    "filterLabel": "分类筛选",
+    "filterAll": "全部",
+    "filterEmpty": "该分类下暂无记录"
   },
   "calendar": {
     "monthView": "日历",
@@ -118,10 +121,14 @@
     "brandColor": "主题色",
     "customColor": "自定义",
     "connectionSection": "连接",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "language": "语言",
+    "accountSection": "账户",
+    "accountDeleteHint": "删除账户后，你的日程、账本记录和分类都会被删除，并解除与对方的连接。对方创建的记录会保留在对方账户中。"
   },
   "common": {
-    "loading": "加载中…"
+    "loading": "加载中…",
+    "delete": "删除"
   },
   "toast": {
     "eventCreated": "日程已保存",
@@ -132,6 +139,43 @@
     "transactionDeleted": "记录已删除",
     "categoryCreated": "分类已添加",
     "emailConfirmed": "邮箱验证完成！欢迎来到 Dabut",
-    "emailConfirmedLogin": "邮箱验证完成！请登录"
+    "emailConfirmedLogin": "邮箱验证完成！请登录",
+    "deleteFailed": "删除失败，请重试",
+    "accountDeleted": "账户已删除，感谢一路相伴"
+  },
+  "daySummary": {
+    "mine": "我的日程",
+    "mineEmpty": "这天没有我的日程",
+    "partner": "对方日程",
+    "partnerNamed": "{name}的日程",
+    "partnerEmpty": "这天没有对方的日程",
+    "allDay": "全天",
+    "addEvent": "在这天添加日程",
+    "close": "关闭",
+    "openDay": "{date}，{count, plural, =0 {无日程} other {# 个日程}}"
+  },
+  "passwordPolicy": {
+    "minLength": "至少 {min} 个字符",
+    "digit": "至少 1 个数字",
+    "symbol": "至少 1 个特殊符号",
+    "met": "已满足",
+    "unmet": "未满足",
+    "invalid": "密码不符合要求"
+  },
+  "dates": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "tomorrow": "明天"
+  },
+  "account": {
+    "deleteButton": "删除账户",
+    "dialogTitle": "确定要删除账户吗？",
+    "dialogBody": "账户和数据删除后无法恢复，同时会解除与对方的连接。",
+    "typeToConfirm": "请输入“{word}”以确认",
+    "confirmWord": "删除",
+    "confirmButton": "永久删除",
+    "cancel": "取消",
+    "mismatch": "确认文字不一致",
+    "failed": "无法删除账户，请稍后再试"
   }
 }

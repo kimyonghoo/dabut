@@ -1,6 +1,18 @@
 {
-    "permissions": {
-      "defaultMode": "bypassPermissions",
-      "skipDangerousModePermissionPrompt": true
-    }
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "PowerShell",
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Agent"
+    ]
   }
+}

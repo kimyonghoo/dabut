@@ -40,10 +40,13 @@ export function EventForm({
   mode,
   event,
   connections,
+  defaultDate,
 }: {
   mode: "create" | "edit";
   event?: EventRow;
   connections: Array<{ id: string; partnerEmail: string }>;
+  /** yyyy-MM-dd to prefill the start date when creating. */
+  defaultDate?: string;
 }) {
   const t = useTranslations("events");
   const action = mode === "create" ? createEvent : updateEvent.bind(null, event!.id);
@@ -128,7 +131,7 @@ export function EventForm({
           <input
             type="date"
             name="startDate"
-            defaultValue={event ? toDateInputValue(event.start_at) : undefined}
+            defaultValue={event ? toDateInputValue(event.start_at) : defaultDate}
             required
             className={inputClass}
           />

@@ -1,45 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { startTransition, useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { MailCheck } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { signUp, type SignUpState } from "@/lib/actions/auth";
+import { isPasswordValid } from "@/lib/auth/password-policy";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/submit-button";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
+import { PasswordRequirements } from "@/components/auth/password-requirements";
 
 export default function SignupPage() {
   const t = useTranslations("auth.signup");
-  const locale = useLocale();
+  const tp = useTranslations("passwordPolicy");
+  const [state, formAction, pending] = useActionState<SignUpState, FormData>(signUp, {});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [pending, setPending] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const submitted = state.ok === true;
+  const passwordValid = isPasswordValid(password);
+  // Server-side rejections are shown even if the client check was bypassed.
+  const serverRejectedPassword = (state.passwordViolations?.length ?? 0) > 0;
+  const showPasswordError = (attempted && !passwordValid) || serverRejectedPassword;
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setPending(true);
+  useEffect(() => {
+    if (!pending) return;
     startProgress();
-    const { error } = await createClient()
-      .auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/calendar`,
-        },
-      })
-      .finally(() => doneProgress());
-    setPending(false);
-    if (error) {
-      setError(error.message);
-      return;
-    }
-    setSubmitted(true);
+    return () => doneProgress();
+  }, [pending]);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // Submit via a transition so React does not reset the (controlled) fields.
+    e.preventDefault();
+    setAttempted(true);
+    if (!passwordValid) return;
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => formAction(formData));
   }
 
   const toLogin = (
@@ -64,7 +63,7 @@ export default function SignupPage() {
           <p role="status" className="text-[15px] font-medium text-ink">
             {t.has("checkEmail") ? t("checkEmail") : "Check your email to confirm your account."}
           </p>
-          {email && <p className="text-sm text-ink-muted">{email}</p>}
+          {state.email && <p className="text-sm text-ink-muted">{state.email}</p>}
         </Card>
         {toLogin}
       </main>
@@ -98,12 +97,24 @@ export default function SignupPage() {
               className={inputClass}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={showPasswordError || undefined}
+              aria-describedby="password-requirements"
               required
             />
           </label>
-          {error && (
+          <PasswordRequirements
+            id="password-requirements"
+            password={password}
+            showErrors={attempted || serverRejectedPassword}
+          />
+          {showPasswordError && (
             <p role="alert" className={errorClass}>
-              {error}
+              {tp("invalid")}
+            </p>
+          )}
+          {state.error && (
+            <p role="alert" className={errorClass}>
+              {state.error}
             </p>
           )}
           <Button type="submit" disabled={pending} aria-busy={pending} className="mt-1 w-full py-3 text-[15px]">

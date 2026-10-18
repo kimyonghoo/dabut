@@ -210,6 +210,9 @@ isOneToOne: false
             "accept_connection_invitation":
 { Args: { "target_invitation_id": string }; Returns: string
                            },
+"prepare_account_deletion":
+{ Args: { "target_user_id": string }; Returns: undefined
+                           },
 "is_connection_member":
 { Args: { "target_connection_id": string }; Returns: boolean
                            },

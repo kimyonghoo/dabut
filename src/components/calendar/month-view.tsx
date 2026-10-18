@@ -1,23 +1,20 @@
 import { useLocale, useTranslations } from "next-intl";
 import { format, isSameDay, isSameMonth } from "date-fns";
 import { getMonthGridDays } from "@/lib/calendar/month-grid";
-import { Link } from "@/i18n/navigation";
+import { isDayWithinEvent } from "@/lib/calendar/day-summary";
 import { Card } from "@/components/ui/card";
 import type { Database } from "@/types/database.types";
 import { CATEGORY_KEY, CHIP_CLASSNAME, DOT_CLASSNAME } from "./category-style";
 import { getDateFnsLocale } from "./date-locale";
+import { DayCellButton, DaySummaryProvider } from "./day-summary-sheet";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type CategorizedEvent = EventRow & { category: "mine" | "partner" | "shared" };
 
 const MAX_CHIPS = 2;
 
-function isDayWithinEvent(day: Date, event: EventRow): boolean {
-  const start = new Date(event.start_at);
-  const end = event.end_at ? new Date(event.end_at) : start;
-  const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
-  const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59, 999);
-  return start <= dayEnd && end >= dayStart;
+function dateKey(day: Date): string {
+  return format(day, "yyyy-MM-dd");
 }
 
 function weekdayColor(dayOfWeek: number): string {
@@ -26,15 +23,37 @@ function weekdayColor(dayOfWeek: number): string {
   return "text-ink-muted";
 }
 
-export function MonthView({ month, events }: { month: Date; events: CategorizedEvent[] }) {
+export function MonthView({
+  month,
+  events,
+  currentUserId,
+  partnerName,
+}: {
+  month: Date;
+  events: CategorizedEvent[];
+  currentUserId: string;
+  partnerName?: string | null;
+}) {
   const t = useTranslations("calendar");
+  const tSummary = useTranslations("daySummary");
   const locale = useLocale();
   const dfLocale = getDateFnsLocale(locale);
   const days = getMonthGridDays(month);
   const today = new Date();
   const weekdays = days.slice(0, 7);
 
+  const summaryEvents = events.map(({ id, owner_id, title, all_day, start_at, end_at, visibility }) => ({
+    id,
+    owner_id,
+    title,
+    all_day,
+    start_at,
+    end_at,
+    visibility,
+  }));
+
   return (
+    <DaySummaryProvider events={summaryEvents} currentUserId={currentUserId} partnerName={partnerName}>
     <Card className="!p-2 sm:!p-3">
       <div className="grid grid-cols-7 pb-1.5 text-center text-[11px] font-semibold">
         {weekdays.map((day) => (
@@ -51,8 +70,13 @@ export function MonthView({ month, events }: { month: Date; events: CategorizedE
           const visible = dayEvents.slice(0, MAX_CHIPS);
           const hidden = dayEvents.length - visible.length;
           return (
-            <div
+            <DayCellButton
               key={day.toISOString()}
+              dateKey={dateKey(day)}
+              label={tSummary("openDay", {
+                date: format(day, "PPP", { locale: dfLocale }),
+                count: dayEvents.length,
+              })}
               className={`flex min-h-[4.75rem] min-w-0 flex-col gap-0.5 p-0.5 ${
                 inMonth ? "bg-surface" : "bg-surface-2/60 opacity-45"
               }`}
@@ -70,25 +94,25 @@ export function MonthView({ month, events }: { month: Date; events: CategorizedE
               <ul className="flex min-w-0 flex-col gap-0.5">
                 {visible.map((event) => (
                   <li key={event.id} className="min-w-0" title={t(CATEGORY_KEY[event.category])}>
-                    <Link
-                      href={`/calendar/${event.id}/edit`}
-                      className={`flex min-w-0 items-center gap-0.5 rounded-md px-1 py-px text-[10px] font-medium leading-tight transition hover:brightness-95 ${CHIP_CLASSNAME[event.category]}`}
+                    <span
+                      className={`flex min-w-0 items-center gap-0.5 rounded-md px-1 py-px text-[10px] font-medium leading-tight ${CHIP_CLASSNAME[event.category]}`}
                     >
                       {event.category === "partner" && (
                         <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT_CLASSNAME.partner}`} />
                       )}
                       <span className="truncate">{event.title}</span>
-                    </Link>
+                    </span>
                   </li>
                 ))}
                 {hidden > 0 && (
                   <li className="px-1 text-[10px] font-semibold text-ink-muted">+{hidden}</li>
                 )}
               </ul>
-            </div>
+            </DayCellButton>
           );
         })}
       </div>
     </Card>
+    </DaySummaryProvider>
   );
 }

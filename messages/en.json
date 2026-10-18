@@ -56,7 +56,10 @@
     "categoryNamePlaceholder": "Category name (max 12)",
     "categoryNameRequired": "Enter a category name",
     "categoryIcon": "Icon",
-    "deleteConfirm": "Tap again to delete"
+    "deleteConfirm": "Tap again to delete",
+    "filterLabel": "Category filter",
+    "filterAll": "All",
+    "filterEmpty": "No entries in this category"
   },
   "calendar": {
     "monthView": "Month",
@@ -118,10 +121,14 @@
     "brandColor": "Brand color",
     "customColor": "Custom",
     "connectionSection": "Connection",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "language": "Language",
+    "accountSection": "Account",
+    "accountDeleteHint": "Deleting your account removes your events, ledger entries and categories, and unlinks you from your partner. Entries your partner created stay in their account."
   },
   "common": {
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "delete": "Delete"
   },
   "toast": {
     "eventCreated": "Event saved",
@@ -132,6 +139,43 @@
     "transactionDeleted": "Entry deleted",
     "categoryCreated": "Category added",
     "emailConfirmed": "Email confirmed! Welcome to Dabut",
-    "emailConfirmedLogin": "Email confirmed! Please log in"
+    "emailConfirmedLogin": "Email confirmed! Please log in",
+    "deleteFailed": "Couldn't delete. Please try again",
+    "accountDeleted": "Your account has been deleted. Thank you for everything"
+  },
+  "daySummary": {
+    "mine": "My events",
+    "mineEmpty": "No events of yours on this day",
+    "partner": "Partner's events",
+    "partnerNamed": "{name}'s events",
+    "partnerEmpty": "No partner events on this day",
+    "allDay": "All day",
+    "addEvent": "Add event on this day",
+    "close": "Close",
+    "openDay": "{date}, {count, plural, =0 {no events} one {# event} other {# events}}"
+  },
+  "passwordPolicy": {
+    "minLength": "At least {min} characters",
+    "digit": "At least 1 number",
+    "symbol": "At least 1 symbol",
+    "met": "met",
+    "unmet": "not met",
+    "invalid": "Password doesn't meet the requirements"
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
+  },
+  "account": {
+    "deleteButton": "Delete account",
+    "dialogTitle": "Delete your account?",
+    "dialogBody": "Your account and data can't be recovered. You'll also be unlinked from your partner.",
+    "typeToConfirm": "Type \"{word}\" to confirm",
+    "confirmWord": "DELETE",
+    "confirmButton": "Delete forever",
+    "cancel": "Cancel",
+    "mismatch": "The confirmation text doesn't match",
+    "failed": "Couldn't delete your account. Please try again later"
   }
 }

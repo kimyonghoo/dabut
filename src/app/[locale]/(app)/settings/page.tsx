@@ -8,10 +8,12 @@ import { ConnectionManager } from "@/components/connections/connection-manager";
 import { TelegramLink } from "@/components/settings/telegram-link";
 import { BrandColorPicker } from "@/components/settings/brand-color-picker";
 import { SignOutButton } from "@/components/settings/sign-out-button";
+import { LanguageSelect } from "@/components/settings/language-select";
+import { DeleteAccount } from "@/components/settings/delete-account";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { HeartHandshake, Palette } from "lucide-react";
+import { HeartHandshake, Languages, Palette, UserX } from "lucide-react";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
@@ -124,6 +126,13 @@ export default function SettingsPage() {
 
       <Card className="flex flex-col gap-4">
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+          <Languages aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("language")}
+        </h2>
+        <LanguageSelect userId={userId} />
+      </Card>
+
+      <Card className="flex flex-col gap-4">
+        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
           <HeartHandshake aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("connectionSection")}
         </h2>
         <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
@@ -134,6 +143,14 @@ export default function SettingsPage() {
       </Card>
 
       <SignOutButton />
+
+      <Card className="flex flex-col gap-3">
+        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+          <UserX aria-hidden className="size-5 text-expense" strokeWidth={2} /> {t("accountSection")}
+        </h2>
+        <p className="text-sm leading-relaxed text-ink-muted">{t("accountDeleteHint")}</p>
+        <DeleteAccount />
+      </Card>
     </main>
   );
 }

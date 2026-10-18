@@ -1,55 +1,48 @@
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { calculateMonthlyTotals } from "@/lib/ledger/calculate-totals";
 import { Link } from "@/i18n/navigation";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { PageHeader } from "@/components/ui/page-header";
-import { Card } from "@/components/ui/card";
 import { buttonClass } from "@/components/ui/button";
-import { PiggyBank } from "lucide-react";
-import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
-
-function toUtcDate(ymd: string) {
-  const [y, m, d] = ymd.split("-").map(Number);
-  return new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1));
-}
+import { LedgerView, type LedgerRow } from "@/components/ledger/ledger-view";
+import { toDateKey } from "@/lib/dates/relative-day";
 
 export default async function LedgerPage() {
   const t = await getTranslations("ledger");
   const locale = await getLocale();
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const now = new Date();
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
   const monthEnd = format(endOfMonth(now), "yyyy-MM-dd");
 
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select("*, categories(name, icon)")
-    .gte("occurred_at", monthStart)
-    .lte("occurred_at", monthEnd);
+  const [{ data: transactions }, { data: categories }] = await Promise.all([
+    supabase
+      .from("transactions")
+      .select("*, categories(name, icon)")
+      .gte("occurred_at", monthStart)
+      .lte("occurred_at", monthEnd)
+      .order("occurred_at", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase.from("categories").select("id, name, icon, type"),
+  ]);
 
-  const rows = transactions ?? [];
-  const totals = calculateMonthlyTotals(
-    rows.map((row) => ({ type: row.type as "expense" | "income", amount: row.amount }))
-  );
+  const rows: LedgerRow[] = (transactions ?? []).map((row) => ({
+    id: row.id,
+    ownerId: row.owner_id,
+    type: row.type as "expense" | "income",
+    amount: Number(row.amount),
+    memo: row.memo,
+    occurredAt: row.occurred_at,
+    categoryId: row.category_id,
+    category: (row as unknown as { categories: { name: string; icon: string | null } | null }).categories,
+  }));
 
   const monthTitle = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(now);
-  const dayFormat = new Intl.DateTimeFormat(locale, {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-    timeZone: "UTC",
-  });
-
-  // Group by occurred_at (newest first).
-  const groups = new Map<string, typeof rows>();
-  for (const row of [...rows].sort((a, b) => (a.occurred_at < b.occurred_at ? 1 : -1))) {
-    const list = groups.get(row.occurred_at) ?? [];
-    list.push(row);
-    groups.set(row.occurred_at, list);
-  }
 
   return (
     <main className="pb-24">
@@ -62,80 +55,12 @@ export default async function LedgerPage() {
           </Link>
         }
       />
-
-      <Card className="relative overflow-hidden bg-brand-soft p-5">
-        <div aria-hidden className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand/15" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-8 right-10 h-16 w-16 rounded-full bg-partner/15" />
-        <p className="text-sm font-medium text-ink-muted">{t("net_total")}</p>
-        <p className="mt-1 text-3xl font-extrabold tracking-tight text-ink">
-          {totals.net < 0 ? "-" : ""}
-          {formatWon(totals.net)}
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
-            <p className="text-xs text-ink-muted">{t("income_total")}</p>
-            <p className="mt-0.5 text-base font-bold text-income">+{formatWon(totals.income)}</p>
-          </div>
-          <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
-            <p className="text-xs text-ink-muted">{t("expense_total")}</p>
-            <p className="mt-0.5 text-base font-bold text-expense">-{formatWon(totals.expense)}</p>
-          </div>
-        </div>
-      </Card>
-
-      {rows.length === 0 ? (
-        <div className="mt-10 flex flex-col items-center gap-2 text-center">
-          <span className="grid size-14 place-items-center rounded-full bg-brand-soft text-brand">
-            <PiggyBank aria-hidden className="size-7" strokeWidth={1.75} />
-          </span>
-          <p className="font-semibold text-ink">{t("empty")}</p>
-          <p className="text-sm text-ink-muted">{t("emptyHint")}</p>
-        </div>
-      ) : (
-        <div className="mt-6 flex flex-col gap-5">
-          {[...groups.entries()].map(([date, items]) => (
-            <section key={date}>
-              <h2 className="mb-2 px-1 text-xs font-semibold text-ink-muted">{dayFormat.format(toUtcDate(date))}</h2>
-              <ul className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
-                {items.map((row) => {
-                  const category = (row as unknown as { categories: { name: string; icon: string | null } | null })
-                    .categories;
-                  const name = category?.name;
-                  const isIncome = row.type === "income";
-                  return (
-                    <li key={row.id} className="border-b border-line last:border-b-0">
-                      <Link
-                        href={`/ledger/${row.id}/edit`}
-                        className="flex items-center gap-3 px-4 py-3 transition hover:bg-surface-2 active:bg-surface-2"
-                      >
-                        <span
-                          className={`grid size-10 shrink-0 place-items-center rounded-full ${
-                            isIncome ? "bg-income/10 text-income" : "bg-brand-soft text-brand"
-                          }`}
-                        >
-                          <CategoryIcon category={category} className="size-5" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-[15px] font-semibold text-ink">{name}</span>
-                          {row.memo && <span className="block truncate text-xs text-ink-muted">{row.memo}</span>}
-                        </span>
-                        <span
-                          className={`shrink-0 text-[15px] font-bold tabular-nums ${
-                            isIncome ? "text-income" : "text-expense"
-                          }`}
-                        >
-                          {isIncome ? "+" : "-"}
-                          {formatWon(row.amount)}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
-        </div>
-      )}
+      <LedgerView
+        rows={rows}
+        categories={categories ?? []}
+        currentUserId={user?.id ?? ""}
+        serverTodayKey={toDateKey(now)}
+      />
     </main>
   );
 }
