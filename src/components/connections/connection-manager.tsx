@@ -7,6 +7,8 @@ import {
   searchProfileByEmail,
   sendConnectionInvitation,
   acceptConnectionInvitation,
+  declineConnectionInvitation,
+  cancelConnectionInvitation,
   type SearchState,
 } from "@/lib/actions/connections";
 import { buttonClass } from "@/components/ui/button";
@@ -34,28 +36,65 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{children}</h3>;
 }
 
+// Error codes returned by the connections Server Actions that map to a
+// translated message; any other error string is shown as-is (unexpected
+// DB errors we haven't special-cased).
+const LOCALIZED_ERROR_KEYS = new Set(["duplicateInvite", "pendingFromTarget", "alreadyConnected"]);
+
 export function ConnectionManager({
   receivedInvitations,
+  sentInvitations,
   connections,
 }: {
   receivedInvitations: Array<{ id: string; inviterEmail: string }>;
+  sentInvitations: Array<{ id: string; inviteeEmail: string }>;
   connections: Array<{ id: string; partnerEmail: string }>;
 }) {
   const t = useTranslations("connections");
   const [state, formAction] = useActionState<SearchState, FormData>(searchProfileByEmail, {});
   const [actionError, setActionError] = useState<string | null>(null);
+  const [pendingInviteId, setPendingInviteId] = useState<string | null>(null);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  function showError(error: string) {
+    setActionError(LOCALIZED_ERROR_KEYS.has(error) ? t(error) : error);
+  }
 
   async function handleInvite(inviteeId: string) {
+    if (pendingInviteId) return; // guard against a double-click firing two inserts
     setActionError(null);
-    const result = await sendConnectionInvitation(inviteeId);
-    if (result.error) setActionError(result.error);
+    setPendingInviteId(inviteeId);
+    try {
+      const result = await sendConnectionInvitation(inviteeId);
+      if (result.error) showError(result.error);
+    } finally {
+      setPendingInviteId(null);
+    }
   }
 
   async function handleAccept(invitationId: string) {
     setActionError(null);
     const result = await acceptConnectionInvitation(invitationId);
-    if (result.error) setActionError(result.error);
+    if (result.error) showError(result.error);
+    else setDismissedIds((prev) => new Set(prev).add(invitationId));
   }
+
+  async function handleDecline(invitationId: string) {
+    setActionError(null);
+    const result = await declineConnectionInvitation(invitationId);
+    if (result.error) showError(result.error);
+    else setDismissedIds((prev) => new Set(prev).add(invitationId));
+  }
+
+  async function handleCancel(invitationId: string) {
+    setActionError(null);
+    const result = await cancelConnectionInvitation(invitationId);
+    if (result.error) showError(result.error);
+    else setDismissedIds((prev) => new Set(prev).add(invitationId));
+  }
+
+  const visibleReceived = receivedInvitations.filter((i) => !dismissedIds.has(i.id));
+  const visibleSent = sentInvitations.filter((i) => !dismissedIds.has(i.id));
 
   return (
     <div className="flex flex-col gap-5">
@@ -122,6 +161,7 @@ export function ConnectionManager({
               <button
                 type="button"
                 onClick={() => handleInvite(result.id)}
+                disabled={pendingInviteId === result.id}
                 className={buttonClass("secondary", "shrink-0 px-3 py-1.5 text-xs")}
               >
                 <Send aria-hidden className="size-4" strokeWidth={2} /> {t("invite")}
@@ -131,11 +171,11 @@ export function ConnectionManager({
         </ul>
       )}
 
-      {receivedInvitations.length > 0 && (
+      {visibleReceived.length > 0 && (
         <div>
           <SectionTitle>{t("pendingReceived")}</SectionTitle>
           <ul className="flex flex-col gap-2">
-            {receivedInvitations.map((invitation) => (
+            {visibleReceived.map((invitation) => (
               <li
                 key={invitation.id}
                 className="flex items-center gap-3 rounded-2xl border border-dashed border-brand/40 bg-brand-soft px-3 py-2.5"
@@ -148,10 +188,45 @@ export function ConnectionManager({
                 </span>
                 <button
                   type="button"
+                  onClick={() => handleDecline(invitation.id)}
+                  className={buttonClass("secondary", "shrink-0 px-3 py-1.5 text-xs")}
+                >
+                  {t("decline")}
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleAccept(invitation.id)}
                   className={buttonClass("primary", "shrink-0 px-3 py-1.5 text-xs")}
                 >
                   {t("accept")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {visibleSent.length > 0 && (
+        <div>
+          <SectionTitle>{t("pendingSent")}</SectionTitle>
+          <ul className="flex flex-col gap-2">
+            {visibleSent.map((invitation) => (
+              <li
+                key={invitation.id}
+                className="flex items-center gap-3 rounded-2xl border border-dashed border-line bg-surface px-3 py-2.5"
+              >
+                <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-full bg-shared-soft text-ink-muted">
+                  <Send className="size-5" strokeWidth={2} />
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
+                  {invitation.inviteeEmail}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCancel(invitation.id)}
+                  className={buttonClass("secondary", "shrink-0 px-3 py-1.5 text-xs")}
+                >
+                  {t("cancelInvite")}
                 </button>
               </li>
             ))}

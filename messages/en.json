@@ -119,7 +119,12 @@
     "pendingReceived": "Received invitations",
     "pendingSent": "Sent invitations",
     "accept": "Accept",
-    "connectedWith": "Connected"
+    "decline": "Decline",
+    "cancelInvite": "Cancel invite",
+    "connectedWith": "Connected",
+    "duplicateInvite": "You already sent this person an invite",
+    "pendingFromTarget": "They already invited you — accept it from your received invitations",
+    "alreadyConnected": "You're already connected"
   },
   "telegram": {
     "title": "Telegram",

@@ -119,7 +119,12 @@
     "pendingReceived": "받은 초대",
     "pendingSent": "보낸 초대",
     "accept": "수락",
-    "connectedWith": "연결됨"
+    "decline": "거절",
+    "cancelInvite": "초대 취소",
+    "connectedWith": "연결됨",
+    "duplicateInvite": "이미 보낸 초대가 있어요",
+    "pendingFromTarget": "상대방이 이미 초대를 보냈어요. 받은 초대에서 수락해 주세요",
+    "alreadyConnected": "이미 연결되어 있어요"
   },
   "telegram": {
     "title": "텔레그램 연동",

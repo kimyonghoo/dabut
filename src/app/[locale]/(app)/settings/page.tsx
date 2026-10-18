@@ -23,6 +23,9 @@ export default function SettingsPage() {
   const [receivedInvitations, setReceivedInvitations] = useState<
     Array<{ id: string; inviterEmail: string }>
   >([]);
+  const [sentInvitations, setSentInvitations] = useState<
+    Array<{ id: string; inviteeEmail: string }>
+  >([]);
   const [connections, setConnections] = useState<Array<{ id: string; partnerEmail: string }>>([]);
   const [telegramConnected, setTelegramConnected] = useState<boolean>(false);
 
@@ -46,6 +49,20 @@ export default function SettingsPage() {
           (data ?? []).map((row) => ({
             id: row.id,
             inviterEmail: (row as unknown as { profiles: { email: string } }).profiles.email,
+          }))
+        );
+      });
+
+    supabase
+      .from("connection_invitations")
+      .select("id, profiles!connection_invitations_invitee_id_fkey(email)")
+      .eq("status", "pending")
+      .eq("inviter_id", userId)
+      .then(({ data }) => {
+        setSentInvitations(
+          (data ?? []).map((row) => ({
+            id: row.id,
+            inviteeEmail: (row as unknown as { profiles: { email: string } }).profiles.email,
           }))
         );
       });
@@ -135,7 +152,11 @@ export default function SettingsPage() {
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">
           <HeartHandshake aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("connectionSection")}
         </h2>
-        <ConnectionManager receivedInvitations={receivedInvitations} connections={connections} />
+        <ConnectionManager
+          receivedInvitations={receivedInvitations}
+          sentInvitations={sentInvitations}
+          connections={connections}
+        />
       </Card>
 
       <Card>

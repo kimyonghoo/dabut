@@ -119,7 +119,12 @@
     "pendingReceived": "收到的邀请",
     "pendingSent": "发出的邀请",
     "accept": "接受",
-    "connectedWith": "已连接"
+    "decline": "拒绝",
+    "cancelInvite": "取消邀请",
+    "connectedWith": "已连接",
+    "duplicateInvite": "你已经向对方发送过邀请了",
+    "pendingFromTarget": "对方已经邀请了你，请在收到的邀请中接受",
+    "alreadyConnected": "你们已经连接了"
   },
   "telegram": {
     "title": "Telegram 关联",
