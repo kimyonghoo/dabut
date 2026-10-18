@@ -89,14 +89,17 @@
     "filterEmpty": "该分类下暂无记录",
     "legendMine": "我的账本",
     "legendPartner": "对方账本",
-    "legendPartnerNamed": "{name}的账本"
+    "legendPartnerNamed": "{name}的账本",
+    "paymentMethod": "支付方式",
+    "cardPerformance": "卡片业绩"
   },
   "calendar": {
     "monthView": "日历",
-    "threadView": "时间线",
+    "threadView": "日程列表",
     "newEvent": "+ 添加日程",
     "categoryMine": "我的日程",
     "categoryPartner": "对方的日程",
+    "categoryPartnerNamed": "{name}的日程",
     "categoryShared": "共同日程",
     "prevMonth": "上个月",
     "nextMonth": "下个月",
@@ -172,7 +175,37 @@
     "language": "语言",
     "accountSection": "账户",
     "accountDeleteHint": "删除账户后，你的日程、账本记录和分类都会被删除，并解除与对方的连接。对方创建的记录会保留在对方账户中。",
-    "nicknameSection": "昵称"
+    "nicknameSection": "昵称",
+    "paymentMethodsSection": "支付方式"
+  },
+  "paymentMethods": {
+    "empty": "还没有添加支付方式",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "再点一次即可删除",
+    "addButton": "+ 添加支付方式",
+    "iconLabel": "图标",
+    "noIcon": "无图标",
+    "namePlaceholder": "名称（例如：新韩卡）",
+    "nameLabel": "支付方式名称",
+    "goalLabel": "月目标",
+    "goalPlaceholder": "目标金额（可选）",
+    "cancel": "取消",
+    "save": "保存",
+    "noGoal": "未设置目标",
+    "nameRequired": "请输入名称",
+    "nameTooLong": "名称过长",
+    "invalidIcon": "无法使用该图标",
+    "invalidGoal": "请输入正确的金额",
+    "notAuthenticated": "请先登录",
+    "notFound": "找不到该支付方式",
+    "failed": "处理失败"
+  },
+  "cardGoals": {
+    "title": "卡片业绩",
+    "achieved": "已达成",
+    "empty": "还没有设置目标",
+    "close": "关闭"
   },
   "common": {
     "loading": "加载中…",

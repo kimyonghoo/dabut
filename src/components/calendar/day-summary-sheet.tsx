@@ -19,7 +19,6 @@ import { Link } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { splitDayEvents, type DaySummaryEvent } from "@/lib/calendar/day-summary";
-import { useTimezone } from "@/components/dates/timezone-provider";
 import { formatInTimeZone } from "@/lib/dates/timezone";
 import { DOT_CLASSNAME } from "./category-style";
 import { getDateFnsLocale } from "./date-locale";
@@ -50,11 +49,23 @@ export function DaySummaryProvider({
   events,
   currentUserId,
   partnerName,
+  timeZone,
   children,
 }: {
   events: DaySummaryItem[];
   currentUserId: string;
   partnerName?: string | null;
+  /**
+   * The viewing user's configured timezone, threaded straight from the
+   * server-rendered page (same value the month grid uses to decide which
+   * calendar day each event falls on). Deliberately NOT read from
+   * `useTimezone()`'s context here: that context is seeded once when the
+   * `(app)` layout mounts and does not re-sync on client-side navigation, so
+   * it can silently drift from the fresh per-request value this page just
+   * fetched — which would make the grid and this sheet disagree on which
+   * day a near-midnight event belongs to.
+   */
+  timeZone: string;
   children: ReactNode;
 }) {
   const [dateKey, setDateKey] = useState<string | null>(null);
@@ -70,6 +81,7 @@ export function DaySummaryProvider({
         events={events}
         currentUserId={currentUserId}
         partnerName={partnerName}
+        timeZone={timeZone}
       />
     </DaySummaryContext.Provider>
   );
@@ -112,17 +124,18 @@ function DaySummarySheet({
   events,
   currentUserId,
   partnerName,
+  timeZone,
 }: {
   dateKey: string | null;
   onClose: () => void;
   events: DaySummaryItem[];
   currentUserId: string;
   partnerName?: string | null;
+  timeZone: string;
 }) {
   const t = useTranslations("daySummary");
   const locale = useLocale();
   const dfLocale = getDateFnsLocale(locale);
-  const { timeZone } = useTimezone();
   const reduceMotion = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   // Drag-to-dismiss starts only from the handle/header so the list can scroll.

@@ -40,6 +40,49 @@ describe("buildEventTimestamps", () => {
     });
   });
 
+  it("builds a time range that crosses midnight given a separate endDate", () => {
+    const result = buildEventTimestamps({
+      mode: "timeRange",
+      startDate: "2026-10-15",
+      startTime: "23:00",
+      endDate: "2026-10-16",
+      endTime: "01:00",
+      timeZone: "UTC",
+    });
+    expect(result).toEqual({
+      allDay: false,
+      startAt: "2026-10-15T23:00:00.000Z",
+      endAt: "2026-10-16T01:00:00.000Z",
+    });
+  });
+
+  it("defaults endDate to startDate when omitted, preserving same-day behavior", () => {
+    const result = buildEventTimestamps({
+      mode: "timeRange",
+      startDate: "2026-10-15",
+      startTime: "09:00",
+      endTime: "10:30",
+      timeZone: "UTC",
+    });
+    expect(result).toEqual({
+      allDay: false,
+      startAt: "2026-10-15T09:00:00.000Z",
+      endAt: "2026-10-15T10:30:00.000Z",
+    });
+  });
+
+  it("rejects a 'midnight-crossing' time range that isn't actually after start (same date picked for both)", () => {
+    const result = buildEventTimestamps({
+      mode: "timeRange",
+      startDate: "2026-10-15",
+      startTime: "23:00",
+      endDate: "2026-10-15",
+      endTime: "01:00",
+      timeZone: "UTC",
+    });
+    expect(result).toEqual({ error: "End time must be after start time" });
+  });
+
   it("rejects a time range where end is before start", () => {
     const result = buildEventTimestamps({
       mode: "timeRange",

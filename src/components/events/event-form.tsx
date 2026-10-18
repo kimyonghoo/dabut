@@ -118,7 +118,7 @@ export function EventForm({
           ))}
         </fieldset>
 
-        <div className={timeMode === "dateRange" ? "grid grid-cols-2 gap-2" : ""}>
+        <div className={timeMode === "allDay" ? "" : "grid grid-cols-2 gap-2"}>
           <input
             type="date"
             name="startDate"
@@ -131,6 +131,20 @@ export function EventForm({
               type="date"
               name="endDate"
               defaultValue={event?.end_at ? toZonedDateInputValue(event.end_at, timeZone) : undefined}
+              required
+              className={inputClass}
+            />
+          )}
+          {/* A timed event can cross midnight (e.g. 11pm–1am), so it needs its
+              own end date rather than reusing startDate. Defaults to the start
+              date (the common same-day case) but stays editable. */}
+          {timeMode === "timeRange" && (
+            <input
+              type="date"
+              name="endDate"
+              defaultValue={
+                event ? toZonedDateInputValue(event.end_at ?? event.start_at, timeZone) : defaultDate
+              }
               required
               className={inputClass}
             />

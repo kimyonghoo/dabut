@@ -10,10 +10,12 @@ import { SignOutButton } from "@/components/settings/sign-out-button";
 import { SettingsQuickControls } from "@/components/settings/settings-quick-controls";
 import { DeleteAccount } from "@/components/settings/delete-account";
 import { NicknameEditor } from "@/components/settings/nickname-editor";
+import { PaymentMethodsManager } from "@/components/settings/payment-methods-manager";
+import type { PaymentMethod } from "@/lib/actions/payment-methods";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { HeartHandshake, Smile } from "lucide-react";
+import { CreditCard, HeartHandshake, Smile } from "lucide-react";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
@@ -32,6 +34,7 @@ export default function SettingsPage() {
   );
   const [telegramConnected, setTelegramConnected] = useState<boolean>(false);
   const [displayName, setDisplayName] = useState<string>("");
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
   useEffect(() => {
     createClient()
@@ -131,6 +134,26 @@ export default function SettingsPage() {
     };
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId) return;
+    // RLS restricts this to the signed-in user's own payment methods —
+    // personal, never partner-shared (see 0018_payment_method_goals.sql).
+    createClient()
+      .from("payment_methods")
+      .select("id, name, icon, monthly_goal")
+      .order("created_at", { ascending: true })
+      .then(({ data }) => {
+        setPaymentMethods(
+          (data ?? []).map((row) => ({
+            id: row.id,
+            name: row.name,
+            icon: row.icon,
+            monthlyGoal: row.monthly_goal == null ? null : Number(row.monthly_goal),
+          }))
+        );
+      });
+  }, [userId]);
+
   async function handleBrandColorChange(value: string) {
     setBrandColor(value);
     if (!userId) return;
@@ -174,6 +197,13 @@ export default function SettingsPage() {
           sentInvitations={sentInvitations}
           connections={connections}
         />
+      </Card>
+
+      <Card className="flex flex-col gap-4">
+        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+          <CreditCard aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("paymentMethodsSection")}
+        </h2>
+        <PaymentMethodsManager initialMethods={paymentMethods} />
       </Card>
 
       <Card>

@@ -26,10 +26,12 @@ export function ThreadList({
   groups,
   currentUserId,
   serverTodayKey,
+  partnerName,
 }: {
   groups: ThreadGroup[];
   currentUserId: string;
   serverTodayKey: string;
+  partnerName?: string | null;
 }) {
   const t = useTranslations("calendar");
   const tDates = useTranslations("dates");
@@ -37,6 +39,14 @@ export function ThreadList({
   const locale = useLocale();
   const todayKey = useTodayKey(serverTodayKey);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteEvent, "eventDeleted");
+
+  // Prefer the partner's real nickname over the generic "상대방 일정" label
+  // when we have one (same precedent as the ledger's OwnershipLegend and
+  // Settings' nickname threading); fall back to the generic label otherwise.
+  function categoryLabel(category: ThreadEvent["category"]): string {
+    if (category === "partner" && partnerName) return t("categoryPartnerNamed", { name: partnerName });
+    return t(CATEGORY_KEY[category]);
+  }
 
   const visible = groups
     .map((group) => ({ ...group, events: group.events.filter((event) => !isRemoved(event.id)) }))
@@ -73,7 +83,7 @@ export function ThreadList({
                   >
                     <Link
                       href={`/calendar/${event.id}/edit`}
-                      title={t(CATEGORY_KEY[event.category])}
+                      title={categoryLabel(event.category)}
                       draggable={false}
                       className="block rounded-2xl border border-line bg-surface p-3 shadow-[0_2px_10px_rgba(59,47,42,0.05)] transition hover:border-brand/40 active:scale-[0.99]"
                     >
@@ -82,7 +92,7 @@ export function ThreadList({
                         <span
                           className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${BADGE_CLASSNAME[event.category]}`}
                         >
-                          {t(CATEGORY_KEY[event.category])}
+                          {categoryLabel(event.category)}
                         </span>
                       </div>
                       <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-muted">

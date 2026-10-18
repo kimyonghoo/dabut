@@ -86,3 +86,38 @@ export function transactionNotificationMessage(input: {
   }
   return `${emoji} <b>${name}</b>님이 ${label} 내역을 ${EVENT_VERB[action]}: <b>${amountText}</b>${memoSuffix}`;
 }
+
+const MILESTONE_EMOJI: Record<50 | 80 | 100, string> = {
+  50: "🔸",
+  80: "🔶",
+  100: "🎉",
+};
+
+/**
+ * Achievement-framed message for a payment method ("카드실적") crossing one of
+ * the 50/80/100% monthly-goal thresholds. This is sent only to the payment
+ * method's own owner (never a connected partner — the goal is private), so
+ * unlike the other builders here there's no `actorName`: the recipient is
+ * always the one who just made progress toward their own goal.
+ *
+ * 50%/80% use a plain progress tone; 100%+ is deliberately a distinct,
+ * celebratory tone rather than a "you went over" warning — this is an
+ * achievement tracker, not a budget cap.
+ */
+export function paymentMethodMilestoneMessage(input: {
+  threshold: 50 | 80 | 100;
+  cardName: string;
+  spent: number;
+  goal: number;
+}): string {
+  const { threshold, cardName, spent, goal } = input;
+  const emoji = MILESTONE_EMOJI[threshold];
+  const name = escapeHtml(cardName);
+  const spentText = `${spent.toLocaleString("ko-KR")}원`;
+  const goalText = `${goal.toLocaleString("ko-KR")}원`;
+  const progress = `${spentText} / ${goalText}`;
+  if (threshold === 100) {
+    return `${emoji} <b>${name}</b> 이번 달 목표 달성! ${progress}`;
+  }
+  return `${emoji} <b>${name}</b> 이번 달 ${threshold}% 돌파! ${progress}`;
+}

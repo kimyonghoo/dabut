@@ -89,14 +89,17 @@
     "filterEmpty": "이 카테고리의 내역이 없어요",
     "legendMine": "내 가계부",
     "legendPartner": "상대방 가계부",
-    "legendPartnerNamed": "{name}의 가계부"
+    "legendPartnerNamed": "{name}의 가계부",
+    "paymentMethod": "결제 수단",
+    "cardPerformance": "카드실적"
   },
   "calendar": {
     "monthView": "달력",
-    "threadView": "스레드",
+    "threadView": "일정목록",
     "newEvent": "+ 일정 추가",
     "categoryMine": "내 일정",
     "categoryPartner": "상대방 일정",
+    "categoryPartnerNamed": "{name}의 일정",
     "categoryShared": "공통 일정",
     "prevMonth": "이전 달",
     "nextMonth": "다음 달",
@@ -172,7 +175,37 @@
     "language": "언어",
     "accountSection": "계정",
     "accountDeleteHint": "계정을 삭제하면 내 일정·가계부 내역과 카테고리가 모두 지워지고, 연결된 상대방과의 연결도 해제돼요. 상대방이 작성한 내역은 상대방 계정에 그대로 남아요.",
-    "nicknameSection": "닉네임"
+    "nicknameSection": "닉네임",
+    "paymentMethodsSection": "지출수단"
+  },
+  "paymentMethods": {
+    "empty": "등록된 지출수단이 없어요",
+    "edit": "수정",
+    "delete": "삭제",
+    "deleteConfirm": "한 번 더 누르면 삭제돼요",
+    "addButton": "+ 지출수단 추가",
+    "iconLabel": "아이콘",
+    "noIcon": "아이콘 없음",
+    "namePlaceholder": "이름 (예: 신한카드)",
+    "nameLabel": "지출수단 이름",
+    "goalLabel": "월 목표",
+    "goalPlaceholder": "목표 금액 (선택)",
+    "cancel": "취소",
+    "save": "저장",
+    "noGoal": "목표 미설정",
+    "nameRequired": "이름을 입력해 주세요",
+    "nameTooLong": "이름이 너무 길어요",
+    "invalidIcon": "사용할 수 없는 아이콘이에요",
+    "invalidGoal": "올바른 금액을 입력해 주세요",
+    "notAuthenticated": "로그인이 필요해요",
+    "notFound": "지출수단을 찾을 수 없어요",
+    "failed": "처리에 실패했어요"
+  },
+  "cardGoals": {
+    "title": "카드실적",
+    "achieved": "달성",
+    "empty": "설정된 목표가 없어요",
+    "close": "닫기"
   },
   "common": {
     "loading": "불러오는 중…",

@@ -89,14 +89,17 @@
     "filterEmpty": "No entries in this category",
     "legendMine": "My ledger",
     "legendPartner": "Partner's ledger",
-    "legendPartnerNamed": "{name}'s ledger"
+    "legendPartnerNamed": "{name}'s ledger",
+    "paymentMethod": "Payment method",
+    "cardPerformance": "Card goals"
   },
   "calendar": {
     "monthView": "Month",
-    "threadView": "Thread",
+    "threadView": "List",
     "newEvent": "+ Add event",
     "categoryMine": "My events",
     "categoryPartner": "Partner's events",
+    "categoryPartnerNamed": "{name}'s events",
     "categoryShared": "Shared events",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
@@ -172,7 +175,37 @@
     "language": "Language",
     "accountSection": "Account",
     "accountDeleteHint": "Deleting your account removes your events, ledger entries and categories, and unlinks you from your partner. Entries your partner created stay in their account.",
-    "nicknameSection": "Nickname"
+    "nicknameSection": "Nickname",
+    "paymentMethodsSection": "Payment methods"
+  },
+  "paymentMethods": {
+    "empty": "No payment methods yet",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Tap again to delete",
+    "addButton": "+ Add payment method",
+    "iconLabel": "Icon",
+    "noIcon": "No icon",
+    "namePlaceholder": "Name (e.g. Shinhan Card)",
+    "nameLabel": "Payment method name",
+    "goalLabel": "Monthly goal",
+    "goalPlaceholder": "Goal amount (optional)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "noGoal": "No goal set",
+    "nameRequired": "Enter a name",
+    "nameTooLong": "Name is too long",
+    "invalidIcon": "That icon isn't usable",
+    "invalidGoal": "Enter a valid amount",
+    "notAuthenticated": "Please sign in",
+    "notFound": "Payment method not found",
+    "failed": "Something went wrong"
+  },
+  "cardGoals": {
+    "title": "Card goals",
+    "achieved": "Achieved",
+    "empty": "No goals set yet",
+    "close": "Close"
   },
   "common": {
     "loading": "Loading…",

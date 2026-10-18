@@ -3,7 +3,25 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Database = {
   
-  "public": {
+  "graphql_public": {
+          Tables: {
+            [_ in never]: never
+          }
+          Views: {
+            [_ in never]: never
+          }
+          Functions: {
+            "graphql":
+{ Args: { "extensions"?: Json,"operationName"?: string,"query"?: string,"variables"?: Json }; Returns: Json
+                           }
+          }
+          Enums: {
+            [_ in never]: never
+          }
+          CompositeTypes: {
+            [_ in never]: never
+          }
+        },"public": {
           Tables: {
             "categories": {
                   Row: {
@@ -129,6 +147,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"payment_method_milestone_log": {
+                  Row: {
+                    "notified_at": string,"payment_method_id": string,"threshold": number,"year_month": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "notified_at"?: string,"payment_method_id": string,"threshold": number,"year_month": string
+                  }
+                  Update: {
+                    "notified_at"?: string,"payment_method_id"?: string,"threshold"?: number,"year_month"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_method_milestone_log_payment_method_id_fkey"
+      columns: ["payment_method_id"]
+isOneToOne: false
+      referencedRelation: "payment_methods"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payment_methods": {
+                  Row: {
+                    "created_at": string,"icon": string | null,"id": string,"monthly_goal": number | null,"name": string,"owner_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"icon"?: string | null,"id"?: string,"monthly_goal"?: number | null,"name": string,"owner_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"icon"?: string | null,"id"?: string,"monthly_goal"?: number | null,"name"?: string,"owner_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_methods_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "brand_color": string,"created_at": string,"display_name": string,"email": string,"id": string,"locale": string,"telegram_chat_id": string | null,"timezone": string,"updated_at": string
@@ -155,7 +213,7 @@ isOneToOne: false
                     "attempts"?: number,"created_at"?: string,"last_sent_at"?: string | null,"link_expires_at"?: string,"otp_expires_at"?: string | null,"otp_hash"?: string | null,"telegram_chat_id"?: string | null,"token"?: string,"user_id"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"telegram_link_codes": {
                   Row: {
@@ -179,14 +237,14 @@ isOneToOne: true
                   ]
                 },"transactions": {
                   Row: {
-                    "amount": number,"category_id": string,"connection_id": string | null,"created_at": string,"created_by": string,"id": string,"memo": string | null,"occurred_at": string,"owner_id": string,"type": string,"updated_at": string
+                    "amount": number,"category_id": string,"connection_id": string | null,"created_at": string,"created_by": string,"id": string,"memo": string | null,"occurred_at": string,"owner_id": string,"payment_method_id": string | null,"type": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount": number,"category_id": string,"connection_id"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id": string,"type": string,"updated_at"?: string
+                    "amount": number,"category_id": string,"connection_id"?: string | null,"created_at"?: string,"created_by": string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id": string,"payment_method_id"?: string | null,"type": string,"updated_at"?: string
                   }
                   Update: {
-                    "amount"?: number,"category_id"?: string,"connection_id"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id"?: string,"type"?: string,"updated_at"?: string
+                    "amount"?: number,"category_id"?: string,"connection_id"?: string | null,"created_at"?: string,"created_by"?: string,"id"?: string,"memo"?: string | null,"occurred_at"?: string,"owner_id"?: string,"payment_method_id"?: string | null,"type"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -213,6 +271,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transactions_payment_method_id_fkey"
+      columns: ["payment_method_id"]
+isOneToOne: false
+      referencedRelation: "payment_methods"
+      referencedColumns: ["id"]
     }
                   ]
                 }
@@ -224,11 +288,11 @@ isOneToOne: false
             "accept_connection_invitation":
 { Args: { "target_invitation_id": string }; Returns: string
                            },
-"prepare_account_deletion":
-{ Args: { "target_user_id": string }; Returns: undefined
-                           },
 "is_connection_member":
 { Args: { "target_connection_id": string }; Returns: boolean
+                           },
+"prepare_account_deletion":
+{ Args: { "target_user_id": string }; Returns: undefined
                            },
 "search_profile_by_email":
 { Args: { "target_email": string }; Returns: {
@@ -351,7 +415,11 @@ export type CompositeTypes<
   : never
 
 export const Constants = {
-  "public": {
+  "graphql_public": {
+          Enums: {
+            
+          }
+        },"public": {
           Enums: {
             
           }

@@ -56,7 +56,7 @@ export function MonthView({
   }));
 
   return (
-    <DaySummaryProvider events={summaryEvents} currentUserId={currentUserId} partnerName={partnerName}>
+    <DaySummaryProvider events={summaryEvents} currentUserId={currentUserId} partnerName={partnerName} timeZone={timeZone}>
     <Card className="!p-2 sm:!p-3">
       <div className="grid grid-cols-7 pb-1.5 text-center text-[11px] font-semibold">
         {weekdays.map((day) => (

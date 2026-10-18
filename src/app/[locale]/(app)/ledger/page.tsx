@@ -21,18 +21,28 @@ export default async function LedgerPage() {
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
   const monthEnd = format(endOfMonth(now), "yyyy-MM-dd");
 
-  const [{ data: transactions }, { data: categories }, partnerName, hasPartner] = await Promise.all([
-    supabase
-      .from("transactions")
-      .select("*, categories(name, icon)")
-      .gte("occurred_at", monthStart)
-      .lte("occurred_at", monthEnd)
-      .order("occurred_at", { ascending: false })
-      .order("created_at", { ascending: false }),
-    supabase.from("categories").select("id, name, icon, type"),
-    user ? resolvePartnerName(supabase, user.id) : Promise.resolve(null),
-    user ? hasConnection(supabase, user.id) : Promise.resolve(false),
-  ]);
+  const [{ data: transactions }, { data: categories }, { data: paymentMethodGoalRows }, partnerName, hasPartner] =
+    await Promise.all([
+      supabase
+        .from("transactions")
+        .select("*, categories(name, icon)")
+        .gte("occurred_at", monthStart)
+        .lte("occurred_at", monthEnd)
+        .order("occurred_at", { ascending: false })
+        .order("created_at", { ascending: false }),
+      supabase.from("categories").select("id, name, icon, type"),
+      // Only the signed-in user's own payment methods that have a goal set
+      // (RLS already restricts this table to owner-only — see
+      // 0018_payment_method_goals.sql); this feeds the ledger hero's
+      // "카드실적" button/sheet, which is personal and never partner-visible.
+      supabase
+        .from("payment_methods")
+        .select("id, name, icon, monthly_goal")
+        .not("monthly_goal", "is", null)
+        .order("created_at", { ascending: true }),
+      user ? resolvePartnerName(supabase, user.id) : Promise.resolve(null),
+      user ? hasConnection(supabase, user.id) : Promise.resolve(false),
+    ]);
 
   const rows: LedgerRow[] = (transactions ?? []).map((row) => ({
     id: row.id,
@@ -42,7 +52,15 @@ export default async function LedgerPage() {
     memo: row.memo,
     occurredAt: row.occurred_at,
     categoryId: row.category_id,
+    paymentMethodId: row.payment_method_id,
     category: (row as unknown as { categories: { name: string; icon: string | null } | null }).categories,
+  }));
+
+  const paymentMethodGoals = (paymentMethodGoalRows ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    icon: row.icon,
+    monthlyGoal: Number(row.monthly_goal),
   }));
 
   const monthTitle = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(now);
@@ -65,6 +83,7 @@ export default async function LedgerPage() {
         serverTodayKey={toDateKey(now)}
         hasPartner={hasPartner}
         partnerName={partnerName}
+        paymentMethodGoals={paymentMethodGoals}
       />
     </main>
   );

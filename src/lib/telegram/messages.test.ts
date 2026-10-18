@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { escapeHtml, eventNotificationMessage, transactionNotificationMessage } from "./messages";
+import {
+  escapeHtml,
+  eventNotificationMessage,
+  transactionNotificationMessage,
+  paymentMethodMilestoneMessage,
+} from "./messages";
 
 describe("escapeHtml", () => {
   it("leaves plain text untouched", () => {
@@ -193,5 +198,44 @@ describe("transactionNotificationMessage", () => {
     ).toBe(
       "✅ <b>민지&lt;i&gt;</b>님이 기타&amp;특별 지출 <b>5,000원</b>을 등록했어요 — &lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"
     );
+  });
+});
+
+describe("paymentMethodMilestoneMessage", () => {
+  it("builds a 50% progress message", () => {
+    expect(
+      paymentMethodMilestoneMessage({ threshold: 50, cardName: "신한카드", spent: 150_000, goal: 300_000 })
+    ).toBe("🔸 <b>신한카드</b> 이번 달 50% 돌파! 150,000원 / 300,000원");
+  });
+
+  it("builds an 80% progress message with a different emoji than 50%", () => {
+    expect(
+      paymentMethodMilestoneMessage({ threshold: 80, cardName: "신한카드", spent: 240_000, goal: 300_000 })
+    ).toBe("🔶 <b>신한카드</b> 이번 달 80% 돌파! 240,000원 / 300,000원");
+  });
+
+  it("builds a distinct, celebratory 100%+ achievement message (not a warning)", () => {
+    const message = paymentMethodMilestoneMessage({
+      threshold: 100,
+      cardName: "신한카드",
+      spent: 310_000,
+      goal: 300_000,
+    });
+    expect(message).toBe("🎉 <b>신한카드</b> 이번 달 목표 달성! 310,000원 / 300,000원");
+    // Celebratory tone: distinct emoji and wording from the 50/80 progress
+    // messages, never "돌파" (lit. "broke through"/exceeded, which reads as
+    // a warning) for the achievement case.
+    expect(message).not.toContain("돌파");
+  });
+
+  it("escapes HTML-special characters in the card name", () => {
+    expect(
+      paymentMethodMilestoneMessage({
+        threshold: 50,
+        cardName: "<b>해커</b>카드 & co",
+        spent: 1000,
+        goal: 2000,
+      })
+    ).toBe("🔸 <b>&lt;b&gt;해커&lt;/b&gt;카드 &amp; co</b> 이번 달 50% 돌파! 1,000원 / 2,000원");
   });
 });

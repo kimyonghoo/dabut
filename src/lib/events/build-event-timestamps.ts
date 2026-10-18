@@ -19,8 +19,13 @@ export function buildEventTimestamps(input: {
   }
 
   if (mode === "timeRange") {
+    // A timed event can cross midnight (e.g. 11pm-1am): the end instant needs
+    // its own date rather than reusing startDate. endDate is optional for
+    // backward compatibility with any caller that only ever sent one date
+    // (e.g. a same-day event never needed a second date before); it defaults
+    // to startDate, which keeps the common same-day case unchanged.
     const start = zonedDateTimeToUtcIso(startDate, startTime, timeZone);
-    const end = zonedDateTimeToUtcIso(startDate, endTime, timeZone);
+    const end = zonedDateTimeToUtcIso(endDate || startDate, endTime, timeZone);
     if (new Date(end).getTime() <= new Date(start).getTime()) {
       return { error: "End time must be after start time" };
     }

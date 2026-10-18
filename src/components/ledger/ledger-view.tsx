@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { PiggyBank, SearchX } from "lucide-react";
+import { CreditCard, PiggyBank, SearchX } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { SwipeToDelete } from "@/components/swipe/swipe-to-delete";
@@ -10,6 +10,7 @@ import { useOptimisticRemoval } from "@/components/swipe/use-optimistic-removal"
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
 import { OwnershipLegend } from "@/components/ledger/ownership-legend";
 import { BORDER_CLASSNAME } from "@/components/ledger/ownership-style";
+import { PaymentMethodGoalsSheet } from "@/components/ledger/payment-method-goals-sheet";
 import { calculateMonthlyTotals } from "@/lib/ledger/calculate-totals";
 import { categorizeTransaction } from "@/lib/ledger/categorize-transaction";
 import { filterByCategory, groupByOccurredAt } from "@/lib/ledger/filter-by-category";
@@ -25,8 +26,11 @@ export type LedgerRow = {
   memo: string | null;
   occurredAt: string;
   categoryId: string;
+  paymentMethodId: string | null;
   category: { name: string; icon: string | null } | null;
 };
+
+export type LedgerPaymentMethodGoal = { id: string; name: string; icon: string | null; monthlyGoal: number };
 
 export type LedgerCategory = { id: string; name: string; icon: string | null; type: string };
 
@@ -40,6 +44,7 @@ export function LedgerView({
   serverTodayKey,
   hasPartner = false,
   partnerName = null,
+  paymentMethodGoals = [],
 }: {
   rows: LedgerRow[];
   categories: LedgerCategory[];
@@ -55,6 +60,13 @@ export function LedgerView({
    */
   hasPartner?: boolean;
   partnerName?: string | null;
+  /**
+   * The current user's own payment methods that have a monthly goal set
+   * (already filtered server-side — payment methods are personal and never
+   * partner-visible). Drives the hero card's "카드실적" button, which is only
+   * shown when this is non-empty.
+   */
+  paymentMethodGoals?: LedgerPaymentMethodGoal[];
 }) {
   const t = useTranslations("ledger");
   const tDates = useTranslations("dates");
@@ -62,12 +74,28 @@ export function LedgerView({
   const locale = useLocale();
   const todayKey = useTodayKey(serverTodayKey);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [goalsOpen, setGoalsOpen] = useState(false);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteTransaction, "transactionDeleted");
 
   const liveRows = rows.filter((row) => !isRemoved(row.id));
   const filtered = filterByCategory(liveRows, categoryId);
   const totals = calculateMonthlyTotals(filtered.map((row) => ({ type: row.type, amount: row.amount })));
   const groups = groupByOccurredAt(filtered);
+
+  // Spend per goal-having payment method, for this calendar month — computed
+  // from the same month-scoped `liveRows` the hero totals use (the ledger
+  // page only ever fetches the current month), independent of the category
+  // filter above (카드실적 tracks the whole month, not a filtered slice).
+  const goalItems = useMemo(
+    () =>
+      paymentMethodGoals.map((method) => ({
+        ...method,
+        spent: liveRows
+          .filter((row) => row.paymentMethodId === method.id)
+          .reduce((sum, row) => sum + row.amount, 0),
+      })),
+    [paymentMethodGoals, liveRows]
+  );
 
   // Chips: every visible category (defaults + custom), plus any category only
   // known through a row; categories in use this month come first.
@@ -98,22 +126,31 @@ export function LedgerView({
       <Card className="relative overflow-hidden bg-brand-soft p-5">
         <div aria-hidden className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand/15" />
         <div aria-hidden className="pointer-events-none absolute -bottom-8 right-10 h-16 w-16 rounded-full bg-partner/15" />
-        <p className="text-sm font-medium text-ink-muted">{t("net_total")}</p>
-        <p className="mt-1 text-3xl font-extrabold tracking-tight text-ink">
-          {totals.net < 0 ? "-" : ""}
-          {formatWon(totals.net)}
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
-            <p className="text-xs text-ink-muted">{t("income_total")}</p>
-            <p className="mt-0.5 text-base font-bold text-income">+{formatWon(totals.income)}</p>
+        <div className="flex items-start gap-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
+              <p className="text-xs text-ink-muted">{t("income_total")}</p>
+              <p className="mt-0.5 text-base font-bold text-income">+{formatWon(totals.income)}</p>
+            </div>
+            <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
+              <p className="text-xs text-ink-muted">{t("expense_total")}</p>
+              <p className="mt-0.5 text-base font-bold text-expense">-{formatWon(totals.expense)}</p>
+            </div>
           </div>
-          <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
-            <p className="text-xs text-ink-muted">{t("expense_total")}</p>
-            <p className="mt-0.5 text-base font-bold text-expense">-{formatWon(totals.expense)}</p>
-          </div>
+          {goalItems.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setGoalsOpen(true)}
+              className="relative z-[1] inline-flex shrink-0 items-center gap-1.5 self-start rounded-full bg-surface px-3.5 py-2 text-xs font-bold text-brand-strong shadow-sm transition active:scale-[0.97] hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            >
+              <CreditCard aria-hidden className="size-4" />
+              {t("cardPerformance")}
+            </button>
+          )}
         </div>
       </Card>
+
+      <PaymentMethodGoalsSheet open={goalsOpen} onClose={() => setGoalsOpen(false)} items={goalItems} />
 
       {chips.length > 0 && (
         <div

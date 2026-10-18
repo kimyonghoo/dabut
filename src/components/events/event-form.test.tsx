@@ -97,6 +97,22 @@ describe("EventForm edit mode", () => {
     expect(screen.getByDisplayValue("10:30")).toBeInTheDocument();
   });
 
+  it("prefills a midnight-crossing timeRange event's start/end dates and times", () => {
+    const event = makeEvent({
+      title: "Night out",
+      all_day: false,
+      start_at: "2026-10-15T23:00:00.000Z",
+      end_at: "2026-10-16T01:00:00.000Z",
+    });
+    renderWithIntl(<EventForm mode="edit" event={event} connections={[]} />);
+
+    expect(screen.getByRole("radio", { name: "Time range" })).toBeChecked();
+    expect(screen.getByDisplayValue("2026-10-15")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("2026-10-16")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("23:00")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("01:00")).toBeInTheDocument();
+  });
+
   it("selects allDay mode for a single-day all-day event", () => {
     const event = makeEvent({
       title: "Birthday",

@@ -25,12 +25,14 @@ export function ThreadView({
   currentUserId,
   serverTodayKey,
   timeZone,
+  partnerName,
 }: {
   events: CategorizedEvent[];
   currentUserId: string;
   serverTodayKey: string;
   /** The viewing user's configured timezone, for day grouping and HH:mm labels. */
   timeZone: string;
+  partnerName?: string | null;
 }) {
   const t = useTranslations("calendar");
   const groups: ThreadGroup[] = groupEventsByDate(events, timeZone).map((group) => ({
@@ -64,5 +66,7 @@ export function ThreadView({
     );
   }
 
-  return <ThreadList groups={groups} currentUserId={currentUserId} serverTodayKey={serverTodayKey} />;
+  return (
+    <ThreadList groups={groups} currentUserId={currentUserId} serverTodayKey={serverTodayKey} partnerName={partnerName} />
+  );
 }

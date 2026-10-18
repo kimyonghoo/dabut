@@ -35,7 +35,7 @@ export default async function CalendarPage({
   // returns no session.
   if (!user) return redirect({ href: "/login", locale });
   const { data: events } = await supabase.from("events").select("*");
-  const partnerName = view === "thread" ? null : await resolvePartnerName(supabase, user.id);
+  const partnerName = await resolvePartnerName(supabase, user.id);
   const { data: profile } = await supabase
     .from("profiles")
     .select("telegram_chat_id, timezone")
@@ -99,6 +99,7 @@ export default async function CalendarPage({
           currentUserId={user.id}
           serverTodayKey={toDateKey(new Date())}
           timeZone={timeZone}
+          partnerName={partnerName}
         />
       ) : (
         <>

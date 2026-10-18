@@ -17,6 +17,7 @@ import { inputClass, labelClass, errorClass } from "@/components/ui/field";
 import { SubmitButton, Spinner } from "@/components/ui/submit-button";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
 import { CategoryPicker, type PickerCategory } from "@/components/ledger/category-picker";
+import { PaymentMethodPicker, type PickerPaymentMethod } from "@/components/ledger/payment-method-picker";
 
 const DELETE_CONFIRM_MS = 3000;
 
@@ -27,10 +28,12 @@ export function TransactionForm({
   mode,
   transaction,
   categories,
+  paymentMethods = [],
 }: {
   mode: "create" | "edit";
   transaction?: TransactionRow;
   categories: CategoryRow[];
+  paymentMethods?: PickerPaymentMethod[];
 }) {
   const t = useTranslations("ledger");
   const action = mode === "create" ? createTransaction : updateTransaction.bind(null, transaction!.id);
@@ -170,6 +173,12 @@ export function TransactionForm({
           setCreatedCategories((prev) => [...prev, category]);
           setSelectedByType((prev) => ({ ...prev, [category.type]: category.id }));
         }}
+      />
+
+      <PaymentMethodPicker
+        name="paymentMethodId"
+        methods={paymentMethods}
+        defaultValue={transaction?.payment_method_id ?? null}
       />
 
       <label className={labelClass}>
