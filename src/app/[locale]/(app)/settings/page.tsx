@@ -2,19 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useBrandColor } from "@/components/theme/brand-color-provider";
 import { ConnectionManager } from "@/components/connections/connection-manager";
 import { TelegramLink } from "@/components/settings/telegram-link";
-import { BrandColorPicker } from "@/components/settings/brand-color-picker";
 import { SignOutButton } from "@/components/settings/sign-out-button";
-import { LanguageSelect } from "@/components/settings/language-select";
+import { SettingsQuickControls } from "@/components/settings/settings-quick-controls";
 import { DeleteAccount } from "@/components/settings/delete-account";
 import { NicknameEditor } from "@/components/settings/nickname-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { HeartHandshake, Languages, Palette, Smile } from "lucide-react";
+import { HeartHandshake, Smile } from "lucide-react";
 
 export default function SettingsPage() {
   const { brandColor, setBrandColor } = useBrandColor();
@@ -139,7 +137,16 @@ export default function SettingsPage() {
 
   return (
     <main className="flex flex-col gap-4 pb-8">
-      <PageHeader title={tNav("settings")} />
+      <PageHeader
+        title={tNav("settings")}
+        action={
+          <SettingsQuickControls
+            userId={userId}
+            brandColor={brandColor}
+            onBrandColorChange={handleBrandColorChange}
+          />
+        }
+      />
 
       <Card className="flex flex-col gap-3">
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">
@@ -157,23 +164,6 @@ export default function SettingsPage() {
           sentInvitations={sentInvitations}
           connections={connections}
         />
-      </Card>
-
-      <Card className="flex flex-col gap-4">
-        <h2 className="flex items-center gap-2 text-base font-bold text-ink">
-          <Languages aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("language")}
-        </h2>
-        <LanguageSelect userId={userId} />
-      </Card>
-
-      <Card className="flex flex-col gap-2 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
-            <Palette aria-hidden className="size-4 text-brand" strokeWidth={2} /> {t("themeSection")}
-          </h2>
-          <ThemeToggle compact />
-        </div>
-        <BrandColorPicker compact value={brandColor} onChange={handleBrandColorChange} />
       </Card>
 
       <Card>

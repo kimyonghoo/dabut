@@ -73,3 +73,17 @@ body {
     stroke-dashoffset: -16;
   }
 }
+
+/* Settings quick-controls palette panel: presets cascade in like a small
+   wave instead of popping in all at once (each swatch gets an increasing
+   animation-delay — see settings-quick-controls.tsx). */
+@keyframes swatch-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

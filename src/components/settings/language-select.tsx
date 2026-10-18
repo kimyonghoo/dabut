@@ -1,42 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { routing } from "@/i18n/routing";
-import { useProgressRouter } from "@/components/feedback/use-progress-router";
-import { createClient } from "@/lib/supabase/client";
+import { LOCALE_LABELS, useLocaleSwitcher } from "@/components/settings/use-locale-switcher";
 
-type AppLocale = (typeof routing.locales)[number];
-
-// Shown in their own language so anyone can find theirs.
-const LABELS: Record<AppLocale, string> = { ko: "한국어", en: "English", zh: "中文" };
-
-const ONE_YEAR = 60 * 60 * 24 * 365;
-
-/**
- * The active locale comes from the URL prefix (/ko, /en, /zh). Unprefixed
- * visits (e.g. "/") are resolved by next-intl's middleware from the
- * NEXT_LOCALE cookie, so switching sets that cookie and moves to the same
- * page under the new prefix; profiles.locale is updated too (best effort).
- */
 export function LanguageSelect({ userId }: { userId: string | null }) {
   const t = useTranslations("settings");
-  const locale = useLocale() as AppLocale;
-  const pathname = usePathname();
-  const router = useProgressRouter();
-  const [pending, startTransition] = useTransition();
-
-  function choose(next: AppLocale) {
-    if (next === locale || pending) return;
-    document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=${ONE_YEAR}; samesite=lax`;
-    if (userId) {
-      void createClient().from("profiles").update({ locale: next }).eq("id", userId);
-    }
-    startTransition(() => {
-      router.replace(pathname, { locale: next });
-    });
-  }
+  const { locale, choose, pending } = useLocaleSwitcher(userId);
 
   return (
     <div
@@ -59,7 +29,7 @@ export function LanguageSelect({ userId }: { userId: string | null }) {
               active ? "bg-surface text-brand shadow-sm" : "text-ink-muted hover:text-ink"
             }`}
           >
-            {LABELS[value]}
+            {LOCALE_LABELS[value]}
           </button>
         );
       })}

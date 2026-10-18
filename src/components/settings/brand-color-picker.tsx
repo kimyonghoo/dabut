@@ -3,6 +3,11 @@
 import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 
+/**
+ * The fixed palette: exactly 8 presets, no arbitrary/custom hex picker.
+ * Exported so other controls (e.g. SettingsQuickControls' palette panel)
+ * can reuse the same swatch set rather than redefining it.
+ */
 export const BRAND_PRESETS = [
   { value: "#FF6F61", name: "Coral" },
   { value: "#FF8FAB", name: "Pink" },
@@ -27,7 +32,6 @@ export function BrandColorPicker({
 }) {
   const t = useTranslations("settings");
   const current = value.toLowerCase();
-  const isPreset = BRAND_PRESETS.some((p) => p.value.toLowerCase() === current);
   const swatchSize = compact ? "h-6 w-6" : "h-9 w-9";
   const gap = compact ? "gap-1.5" : "gap-3";
 
@@ -59,33 +63,6 @@ export function BrandColorPicker({
           </button>
         );
       })}
-      <label
-        title={t("customColor")}
-        className={`relative grid cursor-pointer place-items-center overflow-hidden rounded-full shadow-sm transition ${swatchSize} ${
-          !isPreset ? RING : "hover:scale-105"
-        }`}
-        style={{
-          background: isPreset
-            ? "conic-gradient(#FF6F61, #F5A524, #7BC67E, #5BB8D6, #8E7CF0, #FF8FAB, #FF6F61)"
-            : value,
-        }}
-      >
-        <span className="sr-only">{t("customColor")}</span>
-        <span
-          aria-hidden
-          className={`grid place-items-center rounded-full bg-surface/90 font-bold text-ink ${
-            compact ? "h-3.5 w-3.5 text-[10px]" : "h-5 w-5 text-xs"
-          }`}
-        >
-          +
-        </span>
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-        />
-      </label>
     </div>
   );
 }
