@@ -214,8 +214,7 @@
     },
     "dailyDigest": {
       "title": "내일 뭐해?",
-      "description": "전날 저녁, 내일 일정을 텔레그램으로 미리 알려드려요",
-      "hourLabel": "알림 시간"
+      "description": "저녁 6시가 되면 내일 일정을 텔레그램으로 알려드려요"
     },
     "themeSection": "테마",
     "mode": "화면 모드",

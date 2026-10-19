@@ -3,10 +3,14 @@ import { zonedDateParts, tomorrowDateKeyInTimeZone, zonedDateTimeToUtcIso, DEFAU
 import { tomorrowDigestMessage } from "@/lib/telegram/messages";
 import { sendTelegramMessage } from "@/lib/telegram/send-message";
 
+// Fixed send time — there's no per-user hour picker (kept simple: toggle
+// on/off only), and the cron itself only fires once a day (Vercel Hobby
+// plan's cron limit), so there's one global hour, not one per user.
+const DIGEST_HOUR = 18;
+
 type DigestProfile = {
   id: string;
   timezone: string | null;
-  daily_digest_hour: number | null;
   telegram_chat_id: string | null;
 };
 
@@ -20,12 +24,13 @@ type CandidateEvent = {
 };
 
 /**
- * "내일 뭐해?" — meant to be hit once an hour by a Vercel Cron job (see
- * vercel.json). Every enabled profile is checked against the current hour
- * *in that profile's own timezone*, since this fires once a day per user at
- * whatever local hour they picked, not once globally. Silent no-op when a
- * user has no events tomorrow — this is a "here's your day" nudge, not a
- * "nothing's happening" one.
+ * "내일 뭐해?" — meant to be hit once a day by a Vercel Cron job (see
+ * vercel.json), scheduled for 18:00 Asia/Seoul. Every enabled profile is
+ * still checked against DIGEST_HOUR *in that profile's own timezone* rather
+ * than assumed, so this keeps working correctly for a non-Seoul profile if
+ * the cron schedule or plan ever changes. Silent no-op when a user has no
+ * events tomorrow — this is a "here's your day" nudge, not a "nothing's
+ * happening" one.
  */
 export async function GET(request: Request) {
   const auth = request.headers.get("authorization");
@@ -38,7 +43,7 @@ export async function GET(request: Request) {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, timezone, daily_digest_hour, telegram_chat_id")
+    .select("id, timezone, telegram_chat_id")
     .eq("daily_digest_enabled", true)
     .not("telegram_chat_id", "is", null);
 
@@ -46,7 +51,7 @@ export async function GET(request: Request) {
   for (const profile of (profiles ?? []) as DigestProfile[]) {
     const timeZone = profile.timezone || DEFAULT_TIMEZONE;
     const { hour } = zonedDateParts(now.toISOString(), timeZone);
-    if (hour !== profile.daily_digest_hour) continue;
+    if (hour !== DIGEST_HOUR) continue;
 
     const tomorrowKey = tomorrowDateKeyInTimeZone(now, timeZone);
     const rangeStart = zonedDateTimeToUtcIso(tomorrowKey, "00:00:00", timeZone);

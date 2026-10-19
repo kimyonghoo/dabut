@@ -214,8 +214,7 @@
     },
     "dailyDigest": {
       "title": "明天干什么？",
-      "description": "提前一天晚上，把明天的日程通过 Telegram 发给你",
-      "hourLabel": "发送时间"
+      "description": "晚上6点，我们会把明天的日程通过 Telegram 发给你"
     },
     "themeSection": "主题",
     "mode": "显示模式",

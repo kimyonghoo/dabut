@@ -46,7 +46,6 @@ function SettingsPageContent() {
   const [displayName, setDisplayName] = useState<string>("");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [dailyDigestEnabled, setDailyDigestEnabled] = useState<boolean>(false);
-  const [dailyDigestHour, setDailyDigestHour] = useState<number | null>(null);
 
   useEffect(() => {
     createClient()
@@ -122,14 +121,13 @@ function SettingsPageContent() {
 
     supabase
       .from("profiles")
-      .select("telegram_chat_id, display_name, daily_digest_enabled, daily_digest_hour")
+      .select("telegram_chat_id, display_name, daily_digest_enabled")
       .eq("id", userId)
       .single()
       .then(({ data }) => {
         setTelegramConnected(!!data?.telegram_chat_id);
         setDisplayName(data?.display_name ?? "");
         setDailyDigestEnabled(!!data?.daily_digest_enabled);
-        setDailyDigestHour(data?.daily_digest_hour ?? null);
       });
 
     // Live status: flips to "connected" as soon as the webhook stores the chat id.
@@ -231,11 +229,7 @@ function SettingsPageContent() {
 
       {telegramConnected && (
         <Card>
-          <DailyDigestSettings
-            userId={userId}
-            initialEnabled={dailyDigestEnabled}
-            initialHour={dailyDigestHour}
-          />
+          <DailyDigestSettings userId={userId} initialEnabled={dailyDigestEnabled} />
         </Card>
       )}
 

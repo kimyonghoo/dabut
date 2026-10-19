@@ -215,14 +215,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "brand_color": string,"created_at": string,"daily_digest_enabled": boolean,"daily_digest_hour": number | null,"display_name": string,"email": string,"id": string,"locale": string,"telegram_chat_id": string | null,"timezone": string,"updated_at": string
+                    "brand_color": string,"created_at": string,"daily_digest_enabled": boolean,"display_name": string,"email": string,"id": string,"locale": string,"telegram_chat_id": string | null,"timezone": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "brand_color"?: string,"created_at"?: string,"daily_digest_enabled"?: boolean,"daily_digest_hour"?: number | null,"display_name"?: string,"email": string,"id": string,"locale"?: string,"telegram_chat_id"?: string | null,"timezone"?: string,"updated_at"?: string
+                    "brand_color"?: string,"created_at"?: string,"daily_digest_enabled"?: boolean,"display_name"?: string,"email": string,"id": string,"locale"?: string,"telegram_chat_id"?: string | null,"timezone"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "brand_color"?: string,"created_at"?: string,"daily_digest_enabled"?: boolean,"daily_digest_hour"?: number | null,"display_name"?: string,"email"?: string,"id"?: string,"locale"?: string,"telegram_chat_id"?: string | null,"timezone"?: string,"updated_at"?: string
+                    "brand_color"?: string,"created_at"?: string,"daily_digest_enabled"?: boolean,"display_name"?: string,"email"?: string,"id"?: string,"locale"?: string,"telegram_chat_id"?: string | null,"timezone"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     

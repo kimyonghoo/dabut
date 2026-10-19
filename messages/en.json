@@ -214,8 +214,7 @@
     },
     "dailyDigest": {
       "title": "What's tomorrow?",
-      "description": "Get tomorrow's schedule on Telegram the evening before",
-      "hourLabel": "Send at"
+      "description": "At 6 PM, we'll tell you tomorrow's schedule on Telegram"
     },
     "themeSection": "Theme",
     "mode": "Appearance",
