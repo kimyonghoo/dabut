@@ -203,6 +203,15 @@
     "bannerDismiss": "닫기"
   },
   "settings": {
+    "passwordGate": {
+      "title": "비밀번호 확인",
+      "instructions": "설정은 민감한 정보가 있어 비밀번호를 한 번 더 확인해요",
+      "passwordLabel": "비밀번호",
+      "passwordRequired": "비밀번호를 입력해 주세요",
+      "invalid": "비밀번호가 올바르지 않아요",
+      "failed": "확인하지 못했어요. 잠시 후 다시 시도해 주세요",
+      "submit": "확인"
+    },
     "themeSection": "테마",
     "mode": "화면 모드",
     "brandColor": "브랜드 색상",

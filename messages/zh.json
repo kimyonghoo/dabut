@@ -203,6 +203,15 @@
     "bannerDismiss": "关闭"
   },
   "settings": {
+    "passwordGate": {
+      "title": "确认密码",
+      "instructions": "设置页面包含敏感信息，请再次确认密码",
+      "passwordLabel": "密码",
+      "passwordRequired": "请输入密码",
+      "invalid": "密码不正确",
+      "failed": "确认失败，请稍后重试",
+      "submit": "确认"
+    },
     "themeSection": "主题",
     "mode": "显示模式",
     "brandColor": "主题色",

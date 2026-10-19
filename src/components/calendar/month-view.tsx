@@ -114,6 +114,14 @@ export function MonthView({
 
   return (
     <DaySummaryProvider events={summaryEvents} currentUserId={currentUserId} partnerName={partnerName} timeZone={timeZone}>
+    <motion.div
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.6}
+      dragDirectionLock
+      onDragEnd={handleDragEnd}
+      className="touch-pan-y"
+    >
     <Card className="!p-2 sm:!p-3">
       <div className="grid grid-cols-7 pb-1.5 text-center text-[11px] font-semibold">
         {weekdays.map((day) => (
@@ -122,14 +130,7 @@ export function MonthView({
           </div>
         ))}
       </div>
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.6}
-        dragDirectionLock
-        onDragEnd={handleDragEnd}
-        className="flex touch-pan-y flex-col gap-px overflow-hidden rounded-xl bg-line"
-      >
+      <div className="flex flex-col gap-px overflow-hidden rounded-xl bg-line">
         {weeks.map((weekDays, weekIndex) => {
           const laned = lanesByWeek[weekIndex];
           const laneCount = laned.reduce((max, { lane }) => Math.max(max, lane + 1), 0);
@@ -211,8 +212,9 @@ export function MonthView({
             </div>
           );
         })}
-      </motion.div>
+      </div>
     </Card>
+    </motion.div>
     </DaySummaryProvider>
   );
 }

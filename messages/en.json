@@ -203,6 +203,15 @@
     "bannerDismiss": "Dismiss"
   },
   "settings": {
+    "passwordGate": {
+      "title": "Confirm your password",
+      "instructions": "Settings holds sensitive info, so please confirm your password once more",
+      "passwordLabel": "Password",
+      "passwordRequired": "Please enter your password",
+      "invalid": "That password isn't correct",
+      "failed": "Couldn't confirm it. Please try again shortly",
+      "submit": "Confirm"
+    },
     "themeSection": "Theme",
     "mode": "Appearance",
     "brandColor": "Brand color",

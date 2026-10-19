@@ -16,8 +16,17 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
 import { CreditCard, HeartHandshake, Smile } from "lucide-react";
+import { PasswordGate } from "@/components/settings/password-gate";
 
 export default function SettingsPage() {
+  return (
+    <PasswordGate>
+      <SettingsPageContent />
+    </PasswordGate>
+  );
+}
+
+function SettingsPageContent() {
   const { brandColor, setBrandColor } = useBrandColor();
   const { timeZone, setTimeZone } = useTimezone();
   const tNav = useTranslations("nav");
