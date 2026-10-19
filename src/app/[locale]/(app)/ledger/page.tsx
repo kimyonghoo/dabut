@@ -21,28 +21,44 @@ export default async function LedgerPage() {
   const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
   const monthEnd = format(endOfMonth(now), "yyyy-MM-dd");
 
-  const [{ data: transactions }, { data: categories }, { data: paymentMethodGoalRows }, partnerName, hasPartner] =
-    await Promise.all([
-      supabase
-        .from("transactions")
-        .select("*, categories(name, icon)")
-        .gte("occurred_at", monthStart)
-        .lte("occurred_at", monthEnd)
-        .order("occurred_at", { ascending: false })
-        .order("created_at", { ascending: false }),
-      supabase.from("categories").select("id, name, icon, type"),
-      // Only the signed-in user's own payment methods that have a goal set
-      // (RLS already restricts this table to owner-only — see
-      // 0018_payment_method_goals.sql); this feeds the ledger hero's
-      // "카드실적" button/sheet, which is personal and never partner-visible.
-      supabase
-        .from("payment_methods")
-        .select("id, name, icon, monthly_goal")
-        .not("monthly_goal", "is", null)
-        .order("created_at", { ascending: true }),
-      user ? resolvePartnerName(supabase, user.id) : Promise.resolve(null),
-      user ? hasConnection(supabase, user.id) : Promise.resolve(false),
-    ]);
+  const [
+    { data: transactions },
+    { data: categories },
+    { data: paymentMethodGoalRows },
+    { data: paymentMethodOptionRows },
+    partnerName,
+    hasPartner,
+  ] = await Promise.all([
+    supabase
+      .from("transactions")
+      .select("*, categories(name, icon)")
+      .gte("occurred_at", monthStart)
+      .lte("occurred_at", monthEnd)
+      .order("occurred_at", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase.from("categories").select("id, name, icon, type"),
+    // Only the signed-in user's own payment methods that have a goal set.
+    // RLS now also lets a connected partner SELECT this table (see
+    // 0019_payment_methods_shared_visibility.sql, for the chip picker use
+    // case), so an explicit owner_id filter is required here as
+    // defense-in-depth — goals/milestones stay personal and are never
+    // shown for someone else's payment method, regardless of what RLS
+    // alone would allow through. `user?.id ?? ""` never matches a real
+    // row, so an unauthenticated request (shouldn't normally reach this
+    // page) safely yields no rows rather than throwing.
+    supabase
+      .from("payment_methods")
+      .select("id, name, icon, monthly_goal")
+      .eq("owner_id", user?.id ?? "")
+      .not("monthly_goal", "is", null)
+      .order("created_at", { ascending: true }),
+    // Deliberately the *shared* list — the viewer's own payment methods plus
+    // a connected partner's (RLS-visible per 0019) — for the ledger's
+    // payment-method filter chips. Only id/name/icon: never monthly_goal.
+    supabase.from("payment_methods").select("id, name, icon").order("created_at", { ascending: true }),
+    user ? resolvePartnerName(supabase, user.id) : Promise.resolve(null),
+    user ? hasConnection(supabase, user.id) : Promise.resolve(false),
+  ]);
 
   const rows: LedgerRow[] = (transactions ?? []).map((row) => ({
     id: row.id,
@@ -61,6 +77,12 @@ export default async function LedgerPage() {
     name: row.name,
     icon: row.icon,
     monthlyGoal: Number(row.monthly_goal),
+  }));
+
+  const paymentMethods = (paymentMethodOptionRows ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    icon: row.icon,
   }));
 
   const monthTitle = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(now);
@@ -84,6 +106,7 @@ export default async function LedgerPage() {
         hasPartner={hasPartner}
         partnerName={partnerName}
         paymentMethodGoals={paymentMethodGoals}
+        paymentMethods={paymentMethods}
       />
     </main>
   );

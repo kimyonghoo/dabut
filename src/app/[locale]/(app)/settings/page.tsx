@@ -136,11 +136,16 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!userId) return;
-    // RLS restricts this to the signed-in user's own payment methods —
-    // personal, never partner-shared (see 0018_payment_method_goals.sql).
+    // RLS now also lets a connected partner SELECT this table (see
+    // 0019_payment_methods_shared_visibility.sql, for the ledger's
+    // payment-method chip picker), so this Settings manager — which
+    // creates/edits/deletes the *signed-in user's own* payment methods and
+    // their private goals — must filter to owner_id explicitly rather than
+    // relying on RLS alone to keep a partner's methods out of this list.
     createClient()
       .from("payment_methods")
       .select("id, name, icon, monthly_goal")
+      .eq("owner_id", userId)
       .order("created_at", { ascending: true })
       .then(({ data }) => {
         setPaymentMethods(

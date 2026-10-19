@@ -8,6 +8,7 @@ const labels: RelationLabels = {
   parents: "부모님",
   siblings: "형제자매",
   colleague: "동료",
+  family: "우리가족",
   other: "기타",
 };
 

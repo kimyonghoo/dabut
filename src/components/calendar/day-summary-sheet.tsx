@@ -18,8 +18,9 @@ import { CalendarPlus, ChevronRight, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
-import { splitDayEvents, type DaySummaryEvent } from "@/lib/calendar/day-summary";
-import { formatInTimeZone } from "@/lib/dates/timezone";
+import { isMultiDayEvent, splitDayEvents, type DaySummaryEvent } from "@/lib/calendar/day-summary";
+import { eventEditHref } from "@/lib/calendar/event-link";
+import { formatInTimeZone, toZonedDateInputValue } from "@/lib/dates/timezone";
 import { DOT_CLASSNAME } from "./category-style";
 import { getDateFnsLocale } from "./date-locale";
 
@@ -39,6 +40,13 @@ function dayTitlePattern(locale: string): string {
   if (locale === "en") return "EEEE, MMMM d";
   if (locale === "zh") return "M月d日 EEEE";
   return "M월 d일 EEEE";
+}
+
+/** Compact "10월 3일" / "Oct 3" style pattern, used to show a multi-day event's full date range. */
+function shortDatePattern(locale: string): string {
+  if (locale === "en") return "MMM d";
+  if (locale === "zh") return "M月d日";
+  return "M월 d일";
 }
 
 /**
@@ -178,6 +186,17 @@ function DaySummarySheet({
     return `${start}–${formatInTimeZone(event.end_at, timeZone, { timeStyle: "short" }, locale)}`;
   }
 
+  // "10월 3일 ~ 10월 4일" style full range for an event that spans different
+  // calendar days (in `timeZone`) — shown instead of/alongside the plain
+  // time so a multi-day event tapped from either end day reads unambiguously.
+  function dateRangeLabel(event: DaySummaryItem): string {
+    const startDay = parseDateKey(toZonedDateInputValue(event.start_at, timeZone));
+    const endDay = event.end_at ? parseDateKey(toZonedDateInputValue(event.end_at, timeZone)) : startDay;
+    if (!startDay || !endDay) return "";
+    const pattern = shortDatePattern(locale);
+    return `${format(startDay, pattern, { locale: dfLocale })} ~ ${format(endDay, pattern, { locale: dfLocale })}`;
+  }
+
   function renderSection(title: string, items: DaySummaryItem[], emptyText: string) {
     return (
       <section className="flex flex-col gap-1.5">
@@ -194,19 +213,32 @@ function DaySummarySheet({
                 { owner_id: event.owner_id, visibility: event.visibility as "personal" | "shared" },
                 currentUserId
               );
+              const multiDay = isMultiDayEvent(event, timeZone);
               return (
                 <li key={event.id}>
                   <Link
-                    href={`/calendar/${event.id}/edit`}
+                    href={eventEditHref(event.id)}
                     onClick={onClose}
-                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 transition hover:bg-surface-2 active:scale-[0.99]"
+                    className="flex flex-col gap-0.5 rounded-xl px-3 py-2.5 transition hover:bg-surface-2 active:scale-[0.99]"
                   >
-                    <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSNAME[category]}`} />
-                    <span className="w-24 shrink-0 text-xs font-medium tabular-nums text-ink-muted">
-                      {timeLabel(event)}
+                    {multiDay && (
+                      <span className="flex items-center gap-2.5">
+                        <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSNAME[category]}`} />
+                        <span className="min-w-0 truncate text-[11px] font-medium text-ink-muted">
+                          {dateRangeLabel(event)}
+                        </span>
+                      </span>
+                    )}
+                    <span className={`flex items-center gap-2.5 ${multiDay ? "pl-[18px]" : ""}`}>
+                      {!multiDay && (
+                        <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSNAME[category]}`} />
+                      )}
+                      <span className="w-28 shrink-0 whitespace-nowrap text-xs font-medium tabular-nums text-ink-muted">
+                        {timeLabel(event)}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{event.title}</span>
+                      <ChevronRight aria-hidden className="size-4 shrink-0 text-ink-muted/60" />
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{event.title}</span>
-                    <ChevronRight aria-hidden className="size-4 shrink-0 text-ink-muted/60" />
                   </Link>
                 </li>
               );

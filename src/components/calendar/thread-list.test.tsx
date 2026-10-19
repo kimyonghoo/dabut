@@ -21,6 +21,7 @@ const messages = {
     categoryPartner: "Partner's events",
     categoryPartnerNamed: "{name}'s events",
     categoryShared: "Shared events",
+    searchPlaceholder: "Search",
   },
   dates: { today: "Today", yesterday: "Yesterday", tomorrow: "Tomorrow" },
   common: { delete: "Delete" },

@@ -31,6 +31,7 @@ export function CompanionPicker({ name, defaultValue }: { name: string; defaultV
     parents: t("parents"),
     siblings: t("siblings"),
     colleague: t("colleague"),
+    family: t("family"),
     other: t("other"),
   };
 

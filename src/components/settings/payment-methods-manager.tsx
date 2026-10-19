@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Banknote, CreditCard, Pencil, Plus, Trash2 } from "lucide-react";
+import { Ban, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   createPaymentMethod,
   updatePaymentMethod,
@@ -16,11 +16,15 @@ import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 
 const DELETE_CONFIRM_MS = 3000;
 
-// Exactly two curated choices, as lucide-react icons — not a grid of emoji.
-// "" (no icon) is kept as a third, minimal affordance.
+// Exactly three choices, as colored emoji tiles (matching the original
+// brainstormed design) — not lucide icons, not a big grid. The emoji itself
+// is stored as `icon` (PaymentMethodIcon already renders any non-key string
+// as literal emoji text), so there's no separate key→icon mapping to keep
+// in sync.
 const ICON_CHOICES = [
-  { key: "card", Icon: CreditCard, labelKey: "iconCard" },
-  { key: "cash", Icon: Banknote, labelKey: "iconCash" },
+  { emoji: "💵", bg: "#eafbf1", labelKey: "iconCash" },
+  { emoji: "💳", bg: "#eef1fb", labelKey: "iconCard" },
+  { emoji: "🎫", bg: "#fdf1e4", labelKey: "iconVoucher" },
 ] as const;
 
 /** Monthly goal is entered in 만원 (10,000-won) units; stored as actual KRW. */
@@ -159,25 +163,26 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
             aria-checked={draft.icon === ""}
             aria-label={t("noIcon")}
             onClick={() => setDraft((d) => ({ ...d, icon: "" }))}
-            className={`grid h-10 w-10 place-items-center rounded-xl text-ink-muted transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
-              draft.icon === "" ? "bg-brand-soft ring-2 ring-brand" : "bg-surface hover:bg-surface"
+            className={`grid h-10 w-10 place-items-center rounded-full text-ink-muted transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+              draft.icon === "" ? "ring-2 ring-brand" : "bg-surface-2 hover:bg-surface"
             }`}
           >
-            <CreditCard aria-hidden className="size-4" />
+            <Ban aria-hidden className="size-4" />
           </button>
-          {ICON_CHOICES.map(({ key, Icon, labelKey }) => (
+          {ICON_CHOICES.map(({ emoji, bg, labelKey }) => (
             <button
-              key={key}
+              key={emoji}
               type="button"
               role="radio"
-              aria-checked={draft.icon === key}
+              aria-checked={draft.icon === emoji}
               aria-label={t(labelKey)}
-              onClick={() => setDraft((d) => ({ ...d, icon: key }))}
-              className={`grid h-10 w-10 place-items-center rounded-xl text-ink transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
-                draft.icon === key ? "bg-brand-soft ring-2 ring-brand" : "bg-surface hover:bg-surface"
+              onClick={() => setDraft((d) => ({ ...d, icon: emoji }))}
+              style={{ backgroundColor: bg }}
+              className={`grid h-10 w-10 place-items-center rounded-full text-base transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                draft.icon === emoji ? "ring-2 ring-brand" : ""
               }`}
             >
-              <Icon aria-hidden className="size-4" />
+              <span aria-hidden>{emoji}</span>
             </button>
           ))}
         </div>

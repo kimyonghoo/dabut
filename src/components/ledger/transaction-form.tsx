@@ -31,11 +31,13 @@ export function TransactionForm({
   transaction,
   categories,
   paymentMethods = [],
+  currentUserId = null,
 }: {
   mode: "create" | "edit";
   transaction?: TransactionRow;
   categories: CategoryRow[];
   paymentMethods?: PickerPaymentMethod[];
+  currentUserId?: string | null;
 }) {
   const t = useTranslations("ledger");
   const { timeZone } = useTimezone();
@@ -184,6 +186,7 @@ export function TransactionForm({
         name="paymentMethodId"
         methods={paymentMethods}
         defaultValue={transaction?.payment_method_id ?? null}
+        currentUserId={currentUserId}
       />
 
       <label className={labelClass}>

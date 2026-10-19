@@ -86,7 +86,7 @@
     "deleteConfirm": "再点一次即可删除",
     "filterLabel": "分类筛选",
     "filterAll": "全部",
-    "filterEmpty": "该分类下暂无记录",
+    "filterEmpty": "没有符合条件的记录",
     "legendMine": "我的账本",
     "legendPartner": "对方账本",
     "legendPartnerNamed": "{name}的账本",
@@ -94,7 +94,14 @@
     "cardPerformance": "卡片业绩",
     "addCategoryTitle": "添加分类",
     "categoryAddFirst": "请先点击「添加」保存新分类",
-    "cancel": "取消"
+    "cancel": "取消",
+    "searchPlaceholder": "搜索",
+    "paymentMethodFilterLabel": "支付方式筛选",
+    "ownerFilterLabel": "记录归属筛选",
+    "filterMine": "我的记录",
+    "filterPartner": "对方的记录",
+    "filterPartnerNamed": "{name}的记录",
+    "partnerOwned": "对方登记"
   },
   "calendar": {
     "monthView": "日历",
@@ -108,7 +115,8 @@
     "nextMonth": "下个月",
     "allDay": "全天",
     "emptyTitle": "还没有日程",
-    "emptyHint": "来添加第一个共同日程吧？"
+    "emptyHint": "来添加第一个共同日程吧？",
+    "searchPlaceholder": "搜索"
   },
   "events": {
     "title": "标题",
@@ -122,6 +130,7 @@
       "parents": "父母",
       "siblings": "兄弟姐妹",
       "colleague": "同事",
+      "family": "全家",
       "other": "其他",
       "otherPlaceholder": "例如：民秀叔叔"
     },
@@ -133,6 +142,28 @@
     "save": "保存",
     "delete": "删除",
     "when": "何时",
+    "repeat": {
+      "label": "重复",
+      "none": "不重复",
+      "daily": "每天",
+      "weekly": "每周",
+      "monthly": "每月",
+      "yearly": "每年",
+      "custom": "自定义",
+      "every": "每",
+      "unitDaily": "天",
+      "unitWeekly": "周",
+      "unitMonthly": "个月",
+      "unitYearly": "年",
+      "endsLabel": "结束",
+      "endNever": "永不",
+      "endUntil": "按日期",
+      "endCount": "按次数",
+      "countSuffix": "次",
+      "scopePrompt": "这是重复日程，要如何应用？",
+      "scopeThis": "仅此日程",
+      "scopeAll": "所有日程"
+    },
     "newTitle": "新日程",
     "editTitle": "编辑日程",
     "back": "返回",
@@ -204,7 +235,8 @@
     "notFound": "找不到该支付方式",
     "failed": "处理失败",
     "iconCard": "卡片",
-    "iconCash": "现金"
+    "iconCash": "现金",
+    "iconVoucher": "礼品卡"
   },
   "cardGoals": {
     "title": "卡片业绩",

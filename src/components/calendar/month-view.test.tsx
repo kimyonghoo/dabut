@@ -99,3 +99,44 @@ describe("MonthView day-summary data threading", () => {
     expect(screen.getAllByText("midnight-event")).toHaveLength(2);
   });
 });
+
+describe("MonthView multi-day events", () => {
+  // A Sat Oct 3 -> Sun Oct 4 span crosses a week boundary in October 2026's
+  // grid, so it exercises the two-segment (week-wrapped) bar case, not just
+  // a single-week bar.
+  const multiDayEvent = makeEvent({
+    id: "trip",
+    owner_id: "me",
+    start_at: "2026-10-03T09:00:00.000Z",
+    end_at: "2026-10-04T18:00:00.000Z",
+  });
+
+  it("renders a spanning event once as a bar, not once per day cell", () => {
+    renderMonth([multiDayEvent], { monthViewTimeZone: "UTC", contextTimeZone: "UTC" });
+    // The title is only drawn on the segment containing the event's true
+    // start day, so it should appear exactly once in the grid (no sheet open yet).
+    expect(screen.getAllByText("trip")).toHaveLength(1);
+  });
+
+  it("shows the full date range (not just that day) when either end day is tapped", () => {
+    renderMonth([multiDayEvent], { monthViewTimeZone: "UTC", contextTimeZone: "UTC" });
+
+    fireEvent.click(screen.getByLabelText(/10월 3일/));
+    expect(screen.getByText("10월 3일 ~ 10월 4일")).toBeInTheDocument();
+  });
+
+  it("shows the same full date range when tapping the *other* end day of the span", () => {
+    renderMonth([multiDayEvent], { monthViewTimeZone: "UTC", contextTimeZone: "UTC" });
+
+    fireEvent.click(screen.getByLabelText(/10월 4일/));
+    expect(screen.getByText("10월 3일 ~ 10월 4일")).toBeInTheDocument();
+  });
+
+  it("does not show a date-range row for an ordinary same-day event", () => {
+    const sameDay = makeEvent({ id: "lunch", owner_id: "me", start_at: "2026-10-18T09:00:00.000Z" });
+    renderMonth([sameDay], { monthViewTimeZone: "UTC", contextTimeZone: "UTC" });
+
+    fireEvent.click(screen.getByLabelText(/10월 18일/));
+    expect(screen.queryByText(/~/)).not.toBeInTheDocument();
+  });
+});

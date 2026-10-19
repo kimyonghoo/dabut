@@ -115,16 +115,42 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"events": {
+                },"event_exceptions": {
                   Row: {
-                    "all_day": boolean,"companions": string | null,"connection_id": string | null,"created_at": string,"created_by": string,"end_at": string | null,"id": string,"location": string | null,"owner_id": string,"start_at": string,"title": string,"updated_at": string,"visibility": string
+                    "cancelled": boolean,"created_at": string,"id": string,"modified_event_id": string | null,"occurrence_date": string,"parent_event_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "all_day"?: boolean,"companions"?: string | null,"connection_id"?: string | null,"created_at"?: string,"created_by": string,"end_at"?: string | null,"id"?: string,"location"?: string | null,"owner_id": string,"start_at": string,"title": string,"updated_at"?: string,"visibility"?: string
+                    "cancelled"?: boolean,"created_at"?: string,"id"?: string,"modified_event_id"?: string | null,"occurrence_date": string,"parent_event_id": string
                   }
                   Update: {
-                    "all_day"?: boolean,"companions"?: string | null,"connection_id"?: string | null,"created_at"?: string,"created_by"?: string,"end_at"?: string | null,"id"?: string,"location"?: string | null,"owner_id"?: string,"start_at"?: string,"title"?: string,"updated_at"?: string,"visibility"?: string
+                    "cancelled"?: boolean,"created_at"?: string,"id"?: string,"modified_event_id"?: string | null,"occurrence_date"?: string,"parent_event_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_exceptions_modified_event_id_fkey"
+      columns: ["modified_event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "event_exceptions_parent_event_id_fkey"
+      columns: ["parent_event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"events": {
+                  Row: {
+                    "all_day": boolean,"companions": string | null,"connection_id": string | null,"created_at": string,"created_by": string,"end_at": string | null,"id": string,"location": string | null,"owner_id": string,"recurrence_count": number | null,"recurrence_end_type": string | null,"recurrence_freq": string | null,"recurrence_interval": number,"recurrence_until": string | null,"start_at": string,"title": string,"updated_at": string,"visibility": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "all_day"?: boolean,"companions"?: string | null,"connection_id"?: string | null,"created_at"?: string,"created_by": string,"end_at"?: string | null,"id"?: string,"location"?: string | null,"owner_id": string,"recurrence_count"?: number | null,"recurrence_end_type"?: string | null,"recurrence_freq"?: string | null,"recurrence_interval"?: number,"recurrence_until"?: string | null,"start_at": string,"title": string,"updated_at"?: string,"visibility"?: string
+                  }
+                  Update: {
+                    "all_day"?: boolean,"companions"?: string | null,"connection_id"?: string | null,"created_at"?: string,"created_by"?: string,"end_at"?: string | null,"id"?: string,"location"?: string | null,"owner_id"?: string,"recurrence_count"?: number | null,"recurrence_end_type"?: string | null,"recurrence_freq"?: string | null,"recurrence_interval"?: number,"recurrence_until"?: string | null,"start_at"?: string,"title"?: string,"updated_at"?: string,"visibility"?: string
                   }
                   Relationships: [
                     {

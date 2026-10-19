@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { addMonths, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
+import { expandEventsForDisplay } from "@/lib/calendar/expand-events-for-display";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
@@ -43,7 +44,15 @@ export default async function CalendarPage({
     .maybeSingle();
   const timeZone = profile?.timezone ?? DEFAULT_TIMEZONE;
 
-  const categorized = (events ?? []).map((event) => ({
+  // Recurring parents are expanded into their visible-range computed
+  // occurrences and merged with the plain/standalone rows (which already
+  // include any detached exceptions) before anything downstream sees them —
+  // every display component below keeps working with a plain EventRow[],
+  // unaware a given row might be a computed occurrence. See
+  // src/lib/calendar/expand-events-for-display.ts.
+  const displayEvents = await expandEventsForDisplay(supabase, events ?? [], timeZone);
+
+  const categorized = displayEvents.map((event) => ({
     ...event,
     // visibility is a text check constraint in the DB, not a real Postgres
     // enum, so the generated type is `string`; the constraint guarantees
@@ -68,6 +77,10 @@ export default async function CalendarPage({
     <main className="flex flex-col gap-4 pb-6">
       {profile && !profile.telegram_chat_id && <TelegramOnboardingBanner />}
       <RealtimeRefresh table="events" />
+      {/* A single-occurrence cancel/detach (이 일정만) only writes
+          event_exceptions, not events — the other side needs this too to
+          live-refresh when a recurring occurrence changes. */}
+      <RealtimeRefresh table="event_exceptions" />
       <PageHeader
         title={
           isThread ? (

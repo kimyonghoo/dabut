@@ -26,6 +26,7 @@ const messages = {
       parents: "Parents",
       siblings: "Siblings",
       colleague: "Colleague",
+      family: "Our family",
       other: "Other",
       otherPlaceholder: "e.g. Uncle Min-su",
     },
@@ -36,6 +37,28 @@ const messages = {
     noConnection: "No connection",
     save: "Save",
     delete: "Delete",
+    repeat: {
+      label: "Repeat",
+      none: "None",
+      daily: "Daily",
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+      custom: "Custom",
+      every: "Every",
+      unitDaily: "day(s)",
+      unitWeekly: "week(s)",
+      unitMonthly: "month(s)",
+      unitYearly: "year(s)",
+      endsLabel: "Ends",
+      endNever: "Never",
+      endUntil: "On date",
+      endCount: "After",
+      countSuffix: "occurrences",
+      scopePrompt: "Apply to:",
+      scopeThis: "This event only",
+      scopeAll: "All events",
+    },
   },
 };
 
@@ -152,5 +175,66 @@ describe("EventForm create mode", () => {
     renderWithIntl(<EventForm mode="create" connections={[]} defaultDate="2026-10-25" />, "Asia/Seoul");
 
     expect(screen.getAllByDisplayValue("2026-10-25")).toHaveLength(2);
+  });
+});
+
+describe("EventForm repeat section", () => {
+  it("defaults to 'None' and hides the 종료 (ends) sub-choice", () => {
+    renderWithIntl(<EventForm mode="create" connections={[]} />);
+
+    expect(screen.getByRole("radio", { name: "None" })).toBeChecked();
+    expect(screen.queryByText("Ends")).not.toBeInTheDocument();
+  });
+
+  it("shows the 종료 sub-choice once a frequency other than 'None' is picked", async () => {
+    const { default: userEvent } = await import("@testing-library/user-event");
+    const user = userEvent.setup();
+    renderWithIntl(<EventForm mode="create" connections={[]} />);
+
+    await user.click(screen.getByRole("radio", { name: "Daily" }));
+
+    expect(screen.getByText("Ends")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Never" })).toBeChecked();
+  });
+
+  it("shows an interval + unit input when 'Custom' is picked", async () => {
+    const { default: userEvent } = await import("@testing-library/user-event");
+    const user = userEvent.setup();
+    renderWithIntl(<EventForm mode="create" connections={[]} />);
+
+    await user.click(screen.getByRole("radio", { name: "Custom" }));
+
+    expect(screen.getByRole("spinbutton")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("day(s)")).toBeInTheDocument();
+  });
+
+  it("prefills an existing recurring event's frequency and end condition", () => {
+    const event = makeEvent({
+      recurrence_freq: "weekly",
+      recurrence_interval: 1,
+      recurrence_end_type: "count",
+      recurrence_count: 5,
+    });
+    renderWithIntl(<EventForm mode="edit" event={event} connections={[]} scope="all" />);
+
+    expect(screen.getByRole("radio", { name: "Weekly" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "After" })).toBeChecked();
+    expect(screen.getByDisplayValue("5")).toBeInTheDocument();
+  });
+
+  it("rounds an interval-1 series back to its plain preset rather than 'Custom'", () => {
+    const event = makeEvent({ recurrence_freq: "monthly", recurrence_interval: 1, recurrence_end_type: "never" });
+    renderWithIntl(<EventForm mode="edit" event={event} connections={[]} scope="all" />);
+
+    expect(screen.getByRole("radio", { name: "Monthly" })).toBeChecked();
+  });
+
+  it("hides the whole repeat section when editing a single detached occurrence (scope 'this')", () => {
+    const event = makeEvent({});
+    renderWithIntl(
+      <EventForm mode="edit" event={event} connections={[]} scope="this" occurrenceDate="2026-10-15" />
+    );
+
+    expect(screen.queryByText("Repeat")).not.toBeInTheDocument();
   });
 });

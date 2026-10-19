@@ -86,7 +86,7 @@
     "deleteConfirm": "Tap again to delete",
     "filterLabel": "Category filter",
     "filterAll": "All",
-    "filterEmpty": "No entries in this category",
+    "filterEmpty": "No entries match these filters",
     "legendMine": "My ledger",
     "legendPartner": "Partner's ledger",
     "legendPartnerNamed": "{name}'s ledger",
@@ -94,7 +94,14 @@
     "cardPerformance": "Card goals",
     "addCategoryTitle": "Add category",
     "categoryAddFirst": "Please tap Add to save the new category first",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "searchPlaceholder": "Search",
+    "paymentMethodFilterLabel": "Payment method filter",
+    "ownerFilterLabel": "Owner filter",
+    "filterMine": "Mine",
+    "filterPartner": "Partner's entries",
+    "filterPartnerNamed": "{name}'s entries",
+    "partnerOwned": "Partner's"
   },
   "calendar": {
     "monthView": "Month",
@@ -108,7 +115,8 @@
     "nextMonth": "Next month",
     "allDay": "All day",
     "emptyTitle": "No plans yet",
-    "emptyHint": "How about adding your first plan together?"
+    "emptyHint": "How about adding your first plan together?",
+    "searchPlaceholder": "Search"
   },
   "events": {
     "title": "Title",
@@ -122,6 +130,7 @@
       "parents": "Parents",
       "siblings": "Siblings",
       "colleague": "Colleague",
+      "family": "Family",
       "other": "Other",
       "otherPlaceholder": "e.g. Uncle Min-su"
     },
@@ -133,6 +142,28 @@
     "save": "Save",
     "delete": "Delete",
     "when": "When",
+    "repeat": {
+      "label": "Repeat",
+      "none": "None",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "custom": "Custom",
+      "every": "Every",
+      "unitDaily": "day(s)",
+      "unitWeekly": "week(s)",
+      "unitMonthly": "month(s)",
+      "unitYearly": "year(s)",
+      "endsLabel": "Ends",
+      "endNever": "Never",
+      "endUntil": "On date",
+      "endCount": "After",
+      "countSuffix": "occurrences",
+      "scopePrompt": "This is a recurring event. Apply to:",
+      "scopeThis": "This event only",
+      "scopeAll": "All events"
+    },
     "newTitle": "New event",
     "editTitle": "Edit event",
     "back": "Back",
@@ -204,7 +235,8 @@
     "notFound": "Payment method not found",
     "failed": "Something went wrong",
     "iconCard": "Card",
-    "iconCash": "Cash"
+    "iconCash": "Cash",
+    "iconVoucher": "Gift card"
   },
   "cardGoals": {
     "title": "Card goals",

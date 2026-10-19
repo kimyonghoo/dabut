@@ -11,6 +11,7 @@ function ev(partial: Partial<DaySummaryEvent> & { id: string }): DaySummaryEvent
     all_day: false,
     start_at: "2026-10-18T09:00:00.000Z",
     end_at: "2026-10-18T10:00:00.000Z",
+    visibility: "personal",
     ...partial,
   };
 }
@@ -98,5 +99,24 @@ describe("splitDayEvents", () => {
     const copy = [...events];
     splitDayEvents(events, DAY, ME, "UTC");
     expect(events).toEqual(copy);
+  });
+
+  it("shows a shared event identically on both sides, regardless of who owns it", () => {
+    const sharedByMe = ev({
+      id: "shared-mine",
+      visibility: "shared",
+      start_at: "2026-10-18T11:00:00.000Z",
+      end_at: "2026-10-18T12:00:00.000Z",
+    });
+    const sharedByPartner = ev({
+      id: "shared-partner",
+      owner_id: PARTNER,
+      visibility: "shared",
+      start_at: "2026-10-18T14:00:00.000Z",
+      end_at: "2026-10-18T15:00:00.000Z",
+    });
+    const { mine, partner } = splitDayEvents([sharedByMe, sharedByPartner], DAY, ME, "UTC");
+    expect(mine.map((e) => e.id)).toEqual(["shared-mine", "shared-partner"]);
+    expect(partner.map((e) => e.id)).toEqual(["shared-mine", "shared-partner"]);
   });
 });

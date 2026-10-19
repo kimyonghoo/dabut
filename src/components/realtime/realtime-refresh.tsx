@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export function RealtimeRefresh({ table }: { table: "events" | "transactions" }) {
+export function RealtimeRefresh({ table }: { table: "events" | "event_exceptions" | "transactions" }) {
   const router = useRouter();
 
   useEffect(() => {

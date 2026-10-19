@@ -48,26 +48,25 @@ const RETURNING = "id, connection_id, type, amount, memo, occurred_at, payment_m
 
 /**
  * Validates that a `paymentMethodId` form value (optional field — "no
- * selection" is valid) refers to one of the caller's own payment methods.
- * Payment methods are strictly personal (see 0018_payment_method_goals.sql),
- * so even though this field has no app-level reason to point at someone
- * else's card, this is a defense-in-depth ownership check rather than
- * trusting RLS + a blind foreign key alone.
+ * selection" is valid) refers to a payment method visible to the caller:
+ * either their own, or one registered by a connected partner and shared via
+ * the relaxed SELECT policy (see 0019_payment_methods_shared_visibility.sql
+ * — the whole point of that migration is to let a user tag their own
+ * transaction with a joint/shared card the partner registered). This
+ * intentionally relies on RLS to decide *visibility* here — unlike the
+ * owner_id filters elsewhere in this file/app that exist specifically to
+ * keep a payment method's private goal data from being fetched for anyone
+ * but its owner, this check only confirms "can the caller see this id at
+ * all," which is exactly what the SELECT policy already encodes.
  */
 async function resolvePaymentMethodId(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
   raw: FormDataEntryValue | null
 ): Promise<{ paymentMethodId: string | null } | { error: string }> {
   const value = typeof raw === "string" ? raw.trim() : "";
   if (!value) return { paymentMethodId: null };
 
-  const { data } = await supabase
-    .from("payment_methods")
-    .select("id")
-    .eq("id", value)
-    .eq("owner_id", userId)
-    .maybeSingle();
+  const { data } = await supabase.from("payment_methods").select("id").eq("id", value).maybeSingle();
   if (!data) return { error: "Invalid payment method" };
   return { paymentMethodId: value };
 }
@@ -118,6 +117,18 @@ async function checkPaymentMethodMilestones(
   const monthEnd = format(endOfMonth(now), "yyyy-MM-dd");
   if (occurredAt < monthStart || occurredAt > monthEnd) return;
 
+  // Owner-scoped on purpose (defense-in-depth, not just RLS): `ownerId`
+  // here is the transaction's creator. Since 0019_payment_methods_shared_
+  // visibility.sql, that creator may now be a connected partner tagging a
+  // *shared* payment method they don't own — in that case this lookup
+  // intentionally finds nothing and the function returns early without
+  // notifying anyone. Goal-crossing notifications stay tied to the actual
+  // registrant acting on their own transactions; a partner's spending on a
+  // shared card doesn't (today) trigger the registrant's milestone alerts.
+  // Extending that would mean inserting into payment_method_milestone_log
+  // on behalf of a different auth.uid(), which that table's still-owner-
+  // only RLS policies correctly block — fixing that is a larger, separate
+  // feature.
   const { data: method } = await supabase
     .from("payment_methods")
     .select("name, monthly_goal")
@@ -219,7 +230,7 @@ export async function createTransaction(
   const amountResult = validateAmount(formData.get("amount") as string);
   if ("error" in amountResult) return amountResult;
 
-  const paymentMethodResult = await resolvePaymentMethodId(supabase, user.id, formData.get("paymentMethodId"));
+  const paymentMethodResult = await resolvePaymentMethodId(supabase, formData.get("paymentMethodId"));
   if ("error" in paymentMethodResult) return paymentMethodResult;
 
   const { data, error } = await supabase.from("transactions").insert({
@@ -268,7 +279,7 @@ export async function updateTransaction(
   const amountResult = validateAmount(formData.get("amount") as string);
   if ("error" in amountResult) return amountResult;
 
-  const paymentMethodResult = await resolvePaymentMethodId(supabase, user.id, formData.get("paymentMethodId"));
+  const paymentMethodResult = await resolvePaymentMethodId(supabase, formData.get("paymentMethodId"));
   if ("error" in paymentMethodResult) return paymentMethodResult;
 
   const { data, error } = await supabase

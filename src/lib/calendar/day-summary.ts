@@ -1,4 +1,4 @@
-import { zonedDateTimeToUtcIso } from "@/lib/dates/timezone";
+import { toZonedDateInputValue, zonedDateTimeToUtcIso } from "@/lib/dates/timezone";
 
 export type DaySummaryEvent = {
   id: string;
@@ -7,6 +7,7 @@ export type DaySummaryEvent = {
   all_day: boolean;
   start_at: string;
   end_at: string | null;
+  visibility: string;
 };
 
 /**
@@ -30,6 +31,22 @@ export function isDayWithinEvent(
 }
 
 /**
+ * True when `event`'s start and end land on different calendar days in
+ * `timeZone` — i.e. it's a genuinely multi-day event (spans a day boundary
+ * in the viewing timezone), not just a same-day event that happens to run
+ * into the evening. Shared by the month grid's spanning-bar rendering and
+ * the day-summary sheet's multi-day row layout so both agree on which
+ * events count as "multi-day".
+ */
+export function isMultiDayEvent(
+  event: Pick<DaySummaryEvent, "start_at" | "end_at">,
+  timeZone: string
+): boolean {
+  if (!event.end_at) return false;
+  return toZonedDateInputValue(event.start_at, timeZone) !== toZonedDateInputValue(event.end_at, timeZone);
+}
+
+/**
  * Order for a day summary: all-day events first, then timed events by start
  * time, ties broken by title so the order is stable.
  */
@@ -44,8 +61,10 @@ export function compareDayEvents(a: DaySummaryEvent, b: DaySummaryEvent): number
 
 /**
  * Picks the events that touch `day` and splits them by owner: events owned
- * by `currentUserId` are "mine", everything else is the partner's. Shared
- * events are attributed to whoever owns them.
+ * by `currentUserId` are "mine", everything else is the partner's. A
+ * `shared` event ("같이 하기로 한" — something both people are doing
+ * together) appears in *both* lists identically, regardless of who owns
+ * it — it's not "attributed" to just one side.
  */
 export function splitDayEvents<T extends DaySummaryEvent>(
   events: readonly T[],
@@ -57,7 +76,12 @@ export function splitDayEvents<T extends DaySummaryEvent>(
   const partner: T[] = [];
   for (const event of events) {
     if (!isDayWithinEvent(day, event, timeZone)) continue;
-    (event.owner_id === currentUserId ? mine : partner).push(event);
+    if (event.visibility === "shared") {
+      mine.push(event);
+      partner.push(event);
+    } else {
+      (event.owner_id === currentUserId ? mine : partner).push(event);
+    }
   }
   mine.sort(compareDayEvents);
   partner.sort(compareDayEvents);

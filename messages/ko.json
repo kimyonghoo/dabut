@@ -86,7 +86,7 @@
     "deleteConfirm": "한 번 더 누르면 삭제돼요",
     "filterLabel": "카테고리 필터",
     "filterAll": "전체",
-    "filterEmpty": "이 카테고리의 내역이 없어요",
+    "filterEmpty": "조건에 맞는 내역이 없어요",
     "legendMine": "내 가계부",
     "legendPartner": "상대방 가계부",
     "legendPartnerNamed": "{name}의 가계부",
@@ -94,7 +94,14 @@
     "cardPerformance": "카드실적",
     "addCategoryTitle": "카테고리 추가",
     "categoryAddFirst": "먼저 카테고리 추가 버튼을 눌러주세요",
-    "cancel": "취소"
+    "cancel": "취소",
+    "searchPlaceholder": "검색",
+    "paymentMethodFilterLabel": "결제수단 필터",
+    "ownerFilterLabel": "내역 필터",
+    "filterMine": "내 내역",
+    "filterPartner": "상대방 내역",
+    "filterPartnerNamed": "{name} 내역",
+    "partnerOwned": "상대방 등록"
   },
   "calendar": {
     "monthView": "달력",
@@ -108,7 +115,8 @@
     "nextMonth": "다음 달",
     "allDay": "하루 종일",
     "emptyTitle": "아직 일정이 없어요",
-    "emptyHint": "함께할 첫 일정을 추가해 볼까요?"
+    "emptyHint": "함께할 첫 일정을 추가해 볼까요?",
+    "searchPlaceholder": "검색"
   },
   "events": {
     "title": "제목",
@@ -122,6 +130,7 @@
       "parents": "부모님",
       "siblings": "형제자매",
       "colleague": "동료",
+      "family": "우리가족",
       "other": "기타",
       "otherPlaceholder": "예: 민수삼촌"
     },
@@ -133,6 +142,28 @@
     "save": "저장",
     "delete": "삭제",
     "when": "언제",
+    "repeat": {
+      "label": "반복",
+      "none": "안 함",
+      "daily": "매일",
+      "weekly": "매주",
+      "monthly": "매월",
+      "yearly": "매년",
+      "custom": "사용자 설정",
+      "every": "매",
+      "unitDaily": "일마다",
+      "unitWeekly": "주마다",
+      "unitMonthly": "개월마다",
+      "unitYearly": "년마다",
+      "endsLabel": "종료",
+      "endNever": "안 함",
+      "endUntil": "날짜",
+      "endCount": "횟수",
+      "countSuffix": "회",
+      "scopePrompt": "반복 일정이에요. 어떻게 적용할까요?",
+      "scopeThis": "이 일정만",
+      "scopeAll": "모든 일정"
+    },
     "newTitle": "새 일정",
     "editTitle": "일정 수정",
     "back": "뒤로",
@@ -204,7 +235,8 @@
     "notFound": "지출수단을 찾을 수 없어요",
     "failed": "처리에 실패했어요",
     "iconCard": "카드",
-    "iconCash": "현금"
+    "iconCash": "현금",
+    "iconVoucher": "상품권"
   },
   "cardGoals": {
     "title": "카드실적",

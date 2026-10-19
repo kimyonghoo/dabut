@@ -2,18 +2,26 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CreditCard, PiggyBank, SearchX } from "lucide-react";
+import { CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
+import { inputClass } from "@/components/ui/field";
 import { SwipeToDelete } from "@/components/swipe/swipe-to-delete";
 import { useOptimisticRemoval } from "@/components/swipe/use-optimistic-removal";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
 import { OwnershipLegend } from "@/components/ledger/ownership-legend";
 import { BORDER_CLASSNAME } from "@/components/ledger/ownership-style";
 import { PaymentMethodGoalsSheet } from "@/components/ledger/payment-method-goals-sheet";
+import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 import { calculateMonthlyTotals } from "@/lib/ledger/calculate-totals";
-import { categorizeTransaction } from "@/lib/ledger/categorize-transaction";
-import { filterByCategory, groupByOccurredAt } from "@/lib/ledger/filter-by-category";
+import { categorizeTransaction, type TransactionOwnership } from "@/lib/ledger/categorize-transaction";
+import {
+  filterByCategory,
+  filterByOwner,
+  filterByPaymentMethod,
+  filterBySearch,
+  groupByOccurredAt,
+} from "@/lib/ledger/filter-by-category";
 import { dateGroupLabel } from "@/lib/dates/relative-day";
 import { useTodayKey } from "@/lib/dates/use-today-key";
 import { quickDeleteTransaction } from "@/lib/actions/swipe-delete";
@@ -32,6 +40,9 @@ export type LedgerRow = {
 
 export type LedgerPaymentMethodGoal = { id: string; name: string; icon: string | null; monthlyGoal: number };
 
+/** For the payment-method filter chips only — never carries `monthlyGoal`. */
+export type LedgerPaymentMethodOption = { id: string; name: string; icon: string | null };
+
 export type LedgerCategory = { id: string; name: string; icon: string | null; type: string };
 
 const chipClass =
@@ -45,6 +56,7 @@ export function LedgerView({
   hasPartner = false,
   partnerName = null,
   paymentMethodGoals = [],
+  paymentMethods = [],
 }: {
   rows: LedgerRow[];
   categories: LedgerCategory[];
@@ -56,7 +68,8 @@ export function LedgerView({
    * have no "shared" ownership the way events do — every row is either
    * "mine" or "partner's" — so when there's no partner at all, that
    * distinction can never occur and showing color cues for it would just
-   * be noise.
+   * be noise. Also gates the owner ("내 내역"/partner) filter row for the
+   * same reason.
    */
   hasPartner?: boolean;
   partnerName?: string | null;
@@ -67,6 +80,15 @@ export function LedgerView({
    * shown when this is non-empty.
    */
   paymentMethodGoals?: LedgerPaymentMethodGoal[];
+  /**
+   * Every payment method visible to the viewer — their own plus any
+   * connected partner's shared ones (see
+   * 0019_payment_methods_shared_visibility.sql) — for the payment-method
+   * filter chips. Deliberately `{ id, name, icon }` only: this list must
+   * never carry `monthlyGoal`, which stays private to whoever registered
+   * the method.
+   */
+  paymentMethods?: LedgerPaymentMethodOption[];
 }) {
   const t = useTranslations("ledger");
   const tDates = useTranslations("dates");
@@ -74,11 +96,23 @@ export function LedgerView({
   const locale = useLocale();
   const todayKey = useTodayKey(serverTodayKey);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+  const [ownerFilter, setOwnerFilter] = useState<TransactionOwnership | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [goalsOpen, setGoalsOpen] = useState(false);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteTransaction, "transactionDeleted");
 
   const liveRows = rows.filter((row) => !isRemoved(row.id));
-  const filtered = filterByCategory(liveRows, categoryId);
+  // All four filter dimensions compose with AND logic: each stage narrows
+  // whatever the previous stage kept.
+  const filtered = filterBySearch(
+    filterByOwner(
+      filterByPaymentMethod(filterByCategory(liveRows, categoryId), paymentMethodId),
+      hasPartner ? ownerFilter : null,
+      currentUserId
+    ),
+    searchQuery
+  );
   const totals = calculateMonthlyTotals(filtered.map((row) => ({ type: row.type, amount: row.amount })));
   const groups = groupByOccurredAt(filtered);
 
@@ -152,13 +186,25 @@ export function LedgerView({
 
       <PaymentMethodGoalsSheet open={goalsOpen} onClose={() => setGoalsOpen(false)} items={goalItems} />
 
+      <div className="relative mt-4">
+        <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder={t("searchPlaceholder")}
+          aria-label={t("searchPlaceholder")}
+          className={`${inputClass} pl-9`}
+        />
+      </div>
+
       {chips.length > 0 && (
         <div
           role="radiogroup"
           aria-label={t("filterLabel")}
           // Horizontal scroller: stop the page-level tab swipe from hijacking it.
           onPointerDownCapture={(event) => event.stopPropagation()}
-          className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <button
             type="button"
@@ -182,6 +228,75 @@ export function LedgerView({
               {chip.name}
             </button>
           ))}
+        </div>
+      )}
+
+      {paymentMethods.length > 0 && (
+        <div
+          role="radiogroup"
+          aria-label={t("paymentMethodFilterLabel")}
+          onPointerDownCapture={(event) => event.stopPropagation()}
+          className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={paymentMethodId === null}
+            onClick={() => setPaymentMethodId(null)}
+            className={chipStyle(paymentMethodId === null)}
+          >
+            {t("filterAll")}
+          </button>
+          {paymentMethods.map((method) => (
+            <button
+              key={method.id}
+              type="button"
+              role="radio"
+              aria-checked={paymentMethodId === method.id}
+              onClick={() => setPaymentMethodId(method.id)}
+              className={chipStyle(paymentMethodId === method.id)}
+            >
+              <PaymentMethodIcon icon={method.icon} className="size-4" />
+              {method.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {hasPartner && (
+        <div
+          role="radiogroup"
+          aria-label={t("ownerFilterLabel")}
+          onPointerDownCapture={(event) => event.stopPropagation()}
+          className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={ownerFilter === null}
+            onClick={() => setOwnerFilter(null)}
+            className={chipStyle(ownerFilter === null)}
+          >
+            {t("filterAll")}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={ownerFilter === "mine"}
+            onClick={() => setOwnerFilter("mine")}
+            className={chipStyle(ownerFilter === "mine")}
+          >
+            {t("filterMine")}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={ownerFilter === "partner"}
+            onClick={() => setOwnerFilter("partner")}
+            className={chipStyle(ownerFilter === "partner")}
+          >
+            {partnerName ? t("filterPartnerNamed", { name: partnerName }) : t("filterPartner")}
+          </button>
         </div>
       )}
 

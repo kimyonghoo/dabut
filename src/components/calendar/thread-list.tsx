@@ -1,13 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Clock, MapPin, Users } from "lucide-react";
+import { Clock, MapPin, Search, Users } from "lucide-react";
 import { dateGroupLabel } from "@/lib/dates/relative-day";
 import { useTodayKey } from "@/lib/dates/use-today-key";
 import { quickDeleteEvent } from "@/lib/actions/swipe-delete";
 import { Link } from "@/i18n/navigation";
 import { SwipeToDelete } from "@/components/swipe/swipe-to-delete";
 import { useOptimisticRemoval } from "@/components/swipe/use-optimistic-removal";
+import { inputClass } from "@/components/ui/field";
+import { filterEventsBySearch } from "@/lib/calendar/filter-events-by-search";
+import { eventEditHref, isVirtualOccurrence } from "@/lib/calendar/event-link";
 import { BADGE_CLASSNAME, CATEGORY_KEY, DOT_CLASSNAME } from "./category-style";
 
 export type ThreadEvent = {
@@ -38,6 +42,7 @@ export function ThreadList({
   const tCommon = useTranslations("common");
   const locale = useLocale();
   const todayKey = useTodayKey(serverTodayKey);
+  const [searchQuery, setSearchQuery] = useState("");
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteEvent, "eventDeleted");
 
   // Prefer the partner's real nickname over the generic "상대방 일정" label
@@ -49,11 +54,28 @@ export function ThreadList({
   }
 
   const visible = groups
-    .map((group) => ({ ...group, events: group.events.filter((event) => !isRemoved(event.id)) }))
+    .map((group) => ({
+      ...group,
+      events: filterEventsBySearch(
+        group.events.filter((event) => !isRemoved(event.id)),
+        searchQuery
+      ),
+    }))
     .filter((group) => group.events.length > 0);
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="relative">
+        <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder={t("searchPlaceholder")}
+          aria-label={t("searchPlaceholder")}
+          className={`${inputClass} pl-9`}
+        />
+      </div>
       {visible.map((group) => {
         const today = group.date === todayKey;
         return (
@@ -75,14 +97,19 @@ export function ThreadList({
                     className={`absolute -left-[1.4rem] top-4 h-2.5 w-2.5 rounded-full ring-4 ring-bg ${DOT_CLASSNAME[event.category]}`}
                   />
                   <SwipeToDelete
-                    disabled={event.ownerId !== currentUserId}
+                    // A computed recurring occurrence has no real row to
+                    // quick-delete via swipe (deleting it needs the
+                    // this-one/all-series prompt, which a swipe gesture
+                    // can't present) — route it to the edit screen instead,
+                    // where that prompt is available.
+                    disabled={event.ownerId !== currentUserId || isVirtualOccurrence(event.id)}
                     deleteLabel={tCommon("delete")}
                     onDelete={() => remove(event.id)}
                     className="rounded-2xl"
                     contentClassName="rounded-2xl bg-surface"
                   >
                     <Link
-                      href={`/calendar/${event.id}/edit`}
+                      href={eventEditHref(event.id)}
                       title={categoryLabel(event.category)}
                       draggable={false}
                       className="block rounded-2xl border border-line bg-surface p-3 shadow-[0_2px_10px_rgba(59,47,42,0.05)] transition hover:border-brand/40 active:scale-[0.99]"

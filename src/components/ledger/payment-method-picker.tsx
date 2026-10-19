@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 
-export type PickerPaymentMethod = { id: string; name: string; icon: string | null };
+export type PickerPaymentMethod = { id: string; name: string; icon: string | null; ownerId?: string };
 
 const chipClass =
   "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand";
@@ -23,10 +23,19 @@ export function PaymentMethodPicker({
   name,
   methods,
   defaultValue,
+  currentUserId,
 }: {
   name: string;
   methods: PickerPaymentMethod[];
   defaultValue?: string | null;
+  /**
+   * When provided (together with each method's `ownerId`), chips for a
+   * payment method registered by someone else (a connected partner's shared
+   * card, see 0019_payment_methods_shared_visibility.sql) get a small
+   * "partner's" cue so it doesn't read as if the viewer registered it
+   * themselves. Never shows any goal/percentage here regardless of owner.
+   */
+  currentUserId?: string | null;
 }) {
   const t = useTranslations("ledger");
   const [selected, setSelected] = useState<string | null>(defaultValue ?? null);
@@ -50,6 +59,7 @@ export function PaymentMethodPicker({
       <div role="radiogroup" aria-label={t("paymentMethod")} className="flex flex-wrap gap-2">
         {methods.map((method) => {
           const active = selected === method.id;
+          const isPartnerOwned = !!currentUserId && !!method.ownerId && method.ownerId !== currentUserId;
           return (
             <button
               key={method.id}
@@ -61,6 +71,7 @@ export function PaymentMethodPicker({
             >
               <PaymentMethodIcon icon={method.icon} className="size-4" />
               {method.name}
+              {isPartnerOwned && <span className="text-xs text-ink-muted">({t("partnerOwned")})</span>}
             </button>
           );
         })}

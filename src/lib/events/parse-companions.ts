@@ -6,7 +6,15 @@
 // and are deliberately locale-agnostic (labels are passed in) so the same logic
 // works no matter which language the chips are rendered in.
 
-export type RelationKey = "spouse" | "child" | "friend" | "parents" | "siblings" | "colleague" | "other";
+export type RelationKey =
+  | "spouse"
+  | "child"
+  | "friend"
+  | "parents"
+  | "siblings"
+  | "colleague"
+  | "family"
+  | "other";
 
 export const RELATION_KEYS: RelationKey[] = [
   "spouse",
@@ -15,6 +23,7 @@ export const RELATION_KEYS: RelationKey[] = [
   "parents",
   "siblings",
   "colleague",
+  "family",
   "other",
 ];
 
