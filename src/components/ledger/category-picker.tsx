@@ -216,10 +216,14 @@ export function CategoryPicker({
             className={inputClass}
           />
 
+          {/* -m-1 p-1 (plus the existing pr-1): the selected ring sits right
+              at each button's edge, so the top/bottom row's ring would get
+              visually clipped by overflow-y-auto without this breathing
+              room. */}
           <div
             role="radiogroup"
             aria-label={t("categoryIcon")}
-            className="grid max-h-[45vh] grid-cols-6 gap-1.5 overflow-y-auto pr-1"
+            className="-m-1 grid max-h-[45vh] grid-cols-6 gap-1.5 overflow-y-auto p-1"
           >
             {CATEGORY_ICON_CHOICES.map((choice) => {
               const active = choice === icon;

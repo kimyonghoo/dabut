@@ -204,7 +204,6 @@ export const CATEGORY_ICON_CHOICES = [
   "hand-coins",
   // misc
   "sparkles",
-  "more-horizontal",
 ] as const;
 
 export const DEFAULT_CATEGORY_ICON = "coins";

@@ -149,7 +149,10 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
   function renderForm() {
     return (
       <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-2 p-3">
-        <div role="radiogroup" aria-label={t("iconLabel")} className="flex gap-1.5">
+        {/* -m-1 p-1: the focus/selected ring sits right at each button's edge,
+            so without this the first/last button's ring gets visually
+            clipped by whatever ancestor box ends right at the row's edge. */}
+        <div role="radiogroup" aria-label={t("iconLabel")} className="-m-1 flex gap-1.5 p-1">
           <button
             type="button"
             role="radio"
