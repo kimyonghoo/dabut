@@ -6,7 +6,7 @@ import { sendTelegramMessage } from "@/lib/telegram/send-message";
 // Fixed send time — there's no per-user hour picker (kept simple: toggle
 // on/off only), and the cron itself only fires once a day (Vercel Hobby
 // plan's cron limit), so there's one global hour, not one per user.
-const DIGEST_HOUR = 7;
+const DIGEST_HOUR = 18;
 
 type DigestProfile = {
   id: string;
