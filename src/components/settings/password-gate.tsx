@@ -9,16 +9,22 @@ import { Spinner } from "@/components/ui/submit-button";
 import { inputClass, labelClass, errorClass } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 
+const UNLOCKED_KEY = "settings-password-gate-unlocked";
+
 /**
  * Gates Settings behind a password re-entry — a lightweight "are you still
- * you" check for a sensitive area, not a full re-login. Asks every single
- * time (no session-length grace period): `unlocked` is plain in-memory
- * state, so it resets whenever this component remounts, which happens on
- * every fresh navigation into Settings.
+ * you" check for a sensitive area, not a full re-login. Unlocked state is
+ * kept in sessionStorage (not plain component state): switching the locale
+ * navigates to a new /[locale]/settings URL, which remounts this component,
+ * and re-prompting for a password on something as incidental as a language
+ * change would be absurd. sessionStorage still clears the slate for a new
+ * tab/session, which is the re-prompt boundary that actually matters.
  */
 export function PasswordGate({ children }: { children: ReactNode }) {
   const t = useTranslations("settings.passwordGate");
-  const [unlocked, setUnlocked] = useState(false);
+  const [unlocked, setUnlocked] = useState(
+    () => typeof window !== "undefined" && sessionStorage.getItem(UNLOCKED_KEY) === "1"
+  );
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -33,6 +39,7 @@ export function PasswordGate({ children }: { children: ReactNode }) {
       setError(result.error === "invalid" ? t("invalid") : t("failed"));
       return;
     }
+    sessionStorage.setItem(UNLOCKED_KEY, "1");
     setUnlocked(true);
   }
 

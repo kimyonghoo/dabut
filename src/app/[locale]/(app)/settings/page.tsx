@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
 import { CreditCard, HeartHandshake, Smile } from "lucide-react";
 import { PasswordGate } from "@/components/settings/password-gate";
+import { DailyDigestSettings } from "@/components/settings/daily-digest-settings";
 
 export default function SettingsPage() {
   return (
@@ -44,6 +45,8 @@ function SettingsPageContent() {
   const [telegramConnected, setTelegramConnected] = useState<boolean>(false);
   const [displayName, setDisplayName] = useState<string>("");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [dailyDigestEnabled, setDailyDigestEnabled] = useState<boolean>(false);
+  const [dailyDigestHour, setDailyDigestHour] = useState<number | null>(null);
 
   useEffect(() => {
     createClient()
@@ -119,12 +122,14 @@ function SettingsPageContent() {
 
     supabase
       .from("profiles")
-      .select("telegram_chat_id, display_name")
+      .select("telegram_chat_id, display_name, daily_digest_enabled, daily_digest_hour")
       .eq("id", userId)
       .single()
       .then(({ data }) => {
         setTelegramConnected(!!data?.telegram_chat_id);
         setDisplayName(data?.display_name ?? "");
+        setDailyDigestEnabled(!!data?.daily_digest_enabled);
+        setDailyDigestHour(data?.daily_digest_hour ?? null);
       });
 
     // Live status: flips to "connected" as soon as the webhook stores the chat id.
@@ -223,6 +228,16 @@ function SettingsPageContent() {
       <Card>
         <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
       </Card>
+
+      {telegramConnected && (
+        <Card>
+          <DailyDigestSettings
+            userId={userId}
+            initialEnabled={dailyDigestEnabled}
+            initialHour={dailyDigestHour}
+          />
+        </Card>
+      )}
 
       <div className="mt-2 flex flex-col items-center gap-2">
         <SignOutButton />

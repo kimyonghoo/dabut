@@ -42,9 +42,11 @@ type ReturnedTransaction = {
   occurred_at: string;
   payment_method_id: string | null;
   categories: { name: string; icon: string | null } | null;
+  payment_methods: { name: string } | null;
 };
 
-const RETURNING = "id, connection_id, type, amount, memo, occurred_at, payment_method_id, categories(name, icon)";
+const RETURNING =
+  "id, connection_id, type, amount, memo, occurred_at, payment_method_id, categories(name, icon), payment_methods(name)";
 
 /**
  * Validates that a `paymentMethodId` form value (optional field — "no
@@ -210,6 +212,7 @@ async function notifyTransaction(
       amount: Number(row.amount),
       categoryName: row.categories?.name ?? "",
       categoryIcon: row.categories?.icon ?? null,
+      paymentMethodName: row.payment_methods?.name ?? null,
       memo: row.memo,
     }),
   });

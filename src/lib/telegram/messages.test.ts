@@ -4,6 +4,7 @@ import {
   eventNotificationMessage,
   transactionNotificationMessage,
   paymentMethodMilestoneMessage,
+  tomorrowDigestMessage,
 } from "./messages";
 
 describe("escapeHtml", () => {
@@ -33,10 +34,10 @@ describe("eventNotificationMessage", () => {
         startAt: "2026-10-20T09:00:00.000Z",
         allDay: false,
       })
-    ).toBe("✅ <b>민지</b>님이 일정을 등록했어요: <b>저녁 약속</b> (10월 20일 (화) 18:00)");
+    ).toBe("📅 <b>일정 등록</b>\n제목: 저녁 약속\n일시: 10월 20일 (화) 18:00\n등록: 민지님");
   });
 
-  it("builds an all-day message without a time, but with the day of week", () => {
+  it("builds an all-day message without a time, marked (종일), but with the day of week", () => {
     expect(
       eventNotificationMessage({
         action: "updated",
@@ -45,7 +46,7 @@ describe("eventNotificationMessage", () => {
         startAt: "2026-10-20T00:00:00.000Z",
         allDay: true,
       })
-    ).toBe("✏️ <b>민지</b>님이 일정을 수정했어요: <b>출장</b> (10월 20일 (화))");
+    ).toBe("📅 <b>일정 수정</b>\n제목: 출장\n일시: 10월 20일 (화) (종일)\n등록: 민지님");
   });
 
   it("uses the event owner's timezone to resolve the calendar day, rolling into the next day (and its weekday) when appropriate", () => {
@@ -60,7 +61,7 @@ describe("eventNotificationMessage", () => {
         startAt: "2026-10-19T16:00:00.000Z",
         allDay: false,
       })
-    ).toBe("✅ <b>민지</b>님이 일정을 등록했어요: <b>저녁 약속</b> (10월 20일 (화) 01:00)");
+    ).toBe("📅 <b>일정 등록</b>\n제목: 저녁 약속\n일시: 10월 20일 (화) 01:00\n등록: 민지님");
   });
 
   it("honors an explicit timeZone instead of the Asia/Seoul default", () => {
@@ -73,10 +74,10 @@ describe("eventNotificationMessage", () => {
         allDay: false,
         timeZone: "UTC",
       })
-    ).toBe("✅ <b>민지</b>님이 일정을 등록했어요: <b>저녁 약속</b> (10월 20일 (화) 09:00)");
+    ).toBe("📅 <b>일정 등록</b>\n제목: 저녁 약속\n일시: 10월 20일 (화) 09:00\n등록: 민지님");
   });
 
-  it("builds a deleted message without a date", () => {
+  it("builds a deleted message", () => {
     expect(
       eventNotificationMessage({
         action: "deleted",
@@ -85,7 +86,7 @@ describe("eventNotificationMessage", () => {
         startAt: "2026-10-20T09:00:00.000Z",
         allDay: false,
       })
-    ).toBe("🗑️ <b>민지</b>님이 일정을 삭제했어요: <b>저녁 약속</b>");
+    ).toBe("📅 <b>일정 삭제</b>\n제목: 저녁 약속\n일시: 10월 20일 (화) 18:00\n등록: 민지님");
   });
 
   it("escapes HTML-special characters in the actor name and title", () => {
@@ -98,7 +99,7 @@ describe("eventNotificationMessage", () => {
         allDay: false,
       })
     ).toBe(
-      "🗑️ <b>&lt;b&gt;해커&lt;/b&gt;</b>님이 일정을 삭제했어요: <b>&lt;script&gt;&amp;nbsp;&lt;/script&gt;</b>"
+      "📅 <b>일정 삭제</b>\n제목: &lt;script&gt;&amp;nbsp;&lt;/script&gt;\n일시: 10월 20일 (화) 18:00\n등록: &lt;b&gt;해커&lt;/b&gt;님"
     );
   });
 });
@@ -113,7 +114,7 @@ describe("transactionNotificationMessage", () => {
         amount: 15000,
         categoryName: "식비",
       })
-    ).toBe("✅ <b>민지</b>님이 식비 지출 <b>15,000원</b>을 등록했어요");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 식비\n금액: 15,000원\n등록: 민지님");
   });
 
   it("includes the category icon next to the category name when present", () => {
@@ -126,10 +127,23 @@ describe("transactionNotificationMessage", () => {
         categoryName: "식비",
         categoryIcon: "🍚",
       })
-    ).toBe("✅ <b>민지</b>님이 🍚 식비 지출 <b>15,000원</b>을 등록했어요");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 🍚 식비\n금액: 15,000원\n등록: 민지님");
   });
 
-  it("appends the memo when present", () => {
+  it("includes the payment method when present", () => {
+    expect(
+      transactionNotificationMessage({
+        action: "created",
+        actorName: "민지",
+        type: "expense",
+        amount: 15000,
+        categoryName: "식비",
+        paymentMethodName: "삼성카드",
+      })
+    ).toBe("💸 <b>지출 발생</b>\n분류: 식비\n결제: 삼성카드\n금액: 15,000원\n등록: 민지님");
+  });
+
+  it("appends a memo line when present", () => {
     expect(
       transactionNotificationMessage({
         action: "created",
@@ -139,10 +153,10 @@ describe("transactionNotificationMessage", () => {
         categoryName: "식비",
         memo: "점심 김밥",
       })
-    ).toBe("✅ <b>민지</b>님이 식비 지출 <b>15,000원</b>을 등록했어요 — 점심 김밥");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 식비\n금액: 15,000원\n메모: 점심 김밥\n등록: 민지님");
   });
 
-  it("omits the memo suffix entirely when memo is null, empty, or whitespace-only", () => {
+  it("omits the memo line entirely when memo is null, empty, or whitespace-only", () => {
     const base = {
       action: "created" as const,
       actorName: "민지",
@@ -150,15 +164,10 @@ describe("transactionNotificationMessage", () => {
       amount: 15000,
       categoryName: "식비",
     };
-    expect(transactionNotificationMessage({ ...base, memo: null })).toBe(
-      "✅ <b>민지</b>님이 식비 지출 <b>15,000원</b>을 등록했어요"
-    );
-    expect(transactionNotificationMessage({ ...base, memo: "" })).toBe(
-      "✅ <b>민지</b>님이 식비 지출 <b>15,000원</b>을 등록했어요"
-    );
-    expect(transactionNotificationMessage({ ...base, memo: "   " })).toBe(
-      "✅ <b>민지</b>님이 식비 지출 <b>15,000원</b>을 등록했어요"
-    );
+    const expected = "💸 <b>지출 발생</b>\n분류: 식비\n금액: 15,000원\n등록: 민지님";
+    expect(transactionNotificationMessage({ ...base, memo: null })).toBe(expected);
+    expect(transactionNotificationMessage({ ...base, memo: "" })).toBe(expected);
+    expect(transactionNotificationMessage({ ...base, memo: "   " })).toBe(expected);
   });
 
   it("builds an updated message", () => {
@@ -170,7 +179,7 @@ describe("transactionNotificationMessage", () => {
         amount: 3000000,
         categoryName: "월급",
       })
-    ).toBe("✏️ <b>민지</b>님이 월급 수입 내역을 수정했어요: <b>3,000,000원</b>");
+    ).toBe("💰 <b>수입 수정</b>\n분류: 월급\n금액: 3,000,000원\n등록: 민지님");
   });
 
   it("builds a deleted message", () => {
@@ -182,10 +191,10 @@ describe("transactionNotificationMessage", () => {
         amount: 12000,
         categoryName: "문화",
       })
-    ).toBe("🗑️ <b>민지</b>님이 문화 지출 내역을 삭제했어요: <b>12,000원</b>");
+    ).toBe("💸 <b>지출 삭제</b>\n분류: 문화\n금액: 12,000원\n등록: 민지님");
   });
 
-  it("escapes HTML-special characters in actor name, category name, and a malicious memo", () => {
+  it("escapes HTML-special characters in actor name, category name, payment method, and a malicious memo", () => {
     expect(
       transactionNotificationMessage({
         action: "created",
@@ -193,10 +202,11 @@ describe("transactionNotificationMessage", () => {
         type: "expense",
         amount: 5000,
         categoryName: "기타&특별",
+        paymentMethodName: "<b>해킹</b>카드",
         memo: '<script>alert("x")</script>',
       })
     ).toBe(
-      "✅ <b>민지&lt;i&gt;</b>님이 기타&amp;특별 지출 <b>5,000원</b>을 등록했어요 — &lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"
+      "💸 <b>지출 발생</b>\n분류: 기타&amp;특별\n결제: &lt;b&gt;해킹&lt;/b&gt;카드\n금액: 5,000원\n메모: &lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;\n등록: 민지&lt;i&gt;님"
     );
   });
 });
@@ -237,5 +247,37 @@ describe("paymentMethodMilestoneMessage", () => {
         goal: 2000,
       })
     ).toBe("🔸 <b>&lt;b&gt;해커&lt;/b&gt;카드 &amp; co</b> 이번 달 50% 돌파! 1,000원 / 2,000원");
+  });
+});
+
+describe("tomorrowDigestMessage", () => {
+  it("lists tomorrow's timed events in order, with a date header", () => {
+    expect(
+      tomorrowDigestMessage({
+        events: [
+          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false }, // 14:00 KST
+          { title: "치과 예약", startAt: "2026-10-19T23:00:00.000Z", allDay: false }, // 08:00 KST
+        ],
+      })
+    ).toBe("🌙 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n08:00  치과 예약\n14:00  회의");
+  });
+
+  it("puts all-day events first, labeled 종일", () => {
+    expect(
+      tomorrowDigestMessage({
+        events: [
+          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false },
+          { title: "생일", startAt: "2026-10-20T00:00:00.000Z", allDay: true },
+        ],
+      })
+    ).toBe("🌙 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n종일  생일\n14:00  회의");
+  });
+
+  it("escapes HTML-special characters in event titles", () => {
+    expect(
+      tomorrowDigestMessage({
+        events: [{ title: "<b>해킹</b>", startAt: "2026-10-20T05:00:00.000Z", allDay: false }],
+      })
+    ).toBe("🌙 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n14:00  &lt;b&gt;해킹&lt;/b&gt;");
   });
 });

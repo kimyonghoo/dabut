@@ -19,10 +19,10 @@ export const DEFAULT_TIMEZONE = "Asia/Seoul";
 /** Short, curated list offered in the settings UI — not an exhaustive IANA combobox. */
 export const TIMEZONE_CHOICES: ReadonlyArray<{ value: string; label: string }> = [
   { value: "Asia/Seoul", label: "서울 (Seoul)" },
-  { value: "UTC", label: "UTC" },
-  { value: "America/New_York", label: "뉴욕 (New York)" },
-  { value: "Europe/London", label: "런던 (London)" },
   { value: "Asia/Tokyo", label: "도쿄 (Tokyo)" },
+  { value: "Asia/Shanghai", label: "베이징 (Beijing)" },
+  { value: "America/New_York", label: "뉴욕 (New York)" },
+  { value: "America/Los_Angeles", label: "LA (Los Angeles)" },
 ];
 
 type ZonedParts = {
@@ -111,6 +111,17 @@ export function toZonedDateInputValue(isoInstant: string, timeZone: string): str
 export function toZonedTimeInputValue(isoInstant: string, timeZone: string): string {
   const { hour, minute } = zonedDateParts(isoInstant, timeZone);
   return `${pad2(hour)}:${pad2(minute)}`;
+}
+
+/**
+ * `yyyy-MM-dd` for the calendar day right after `instant`'s wall-clock date
+ * in `timeZone` — e.g. "what day is tomorrow for this user right now",
+ * for the daily digest cron to know which day's events to summarize.
+ */
+export function tomorrowDateKeyInTimeZone(instant: Date, timeZone: string): string {
+  const { year, month, day } = zonedDateParts(instant.toISOString(), timeZone);
+  const next = new Date(Date.UTC(year, month - 1, day + 1));
+  return `${next.getUTCFullYear()}-${pad2(next.getUTCMonth() + 1)}-${pad2(next.getUTCDate())}`;
 }
 
 /**

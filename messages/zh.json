@@ -91,7 +91,7 @@
     "legendPartner": "对方账本",
     "legendPartnerNamed": "{name}的账本",
     "paymentMethod": "支付方式",
-    "cardPerformance": "卡片业绩",
+    "cardPerformance": "目标",
     "addCategoryTitle": "添加分类",
     "categoryAddFirst": "请先点击「添加」保存新分类",
     "cancel": "取消",
@@ -211,6 +211,11 @@
       "invalid": "密码不正确",
       "failed": "确认失败，请稍后重试",
       "submit": "确认"
+    },
+    "dailyDigest": {
+      "title": "明天干什么？",
+      "description": "提前一天晚上，把明天的日程通过 Telegram 发给你",
+      "hourLabel": "发送时间"
     },
     "themeSection": "主题",
     "mode": "显示模式",

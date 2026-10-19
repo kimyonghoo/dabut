@@ -91,7 +91,7 @@
     "legendPartner": "Partner's ledger",
     "legendPartnerNamed": "{name}'s ledger",
     "paymentMethod": "Payment method",
-    "cardPerformance": "Card goals",
+    "cardPerformance": "Goal",
     "addCategoryTitle": "Add category",
     "categoryAddFirst": "Please tap Add to save the new category first",
     "cancel": "Cancel",
@@ -211,6 +211,11 @@
       "invalid": "That password isn't correct",
       "failed": "Couldn't confirm it. Please try again shortly",
       "submit": "Confirm"
+    },
+    "dailyDigest": {
+      "title": "What's tomorrow?",
+      "description": "Get tomorrow's schedule on Telegram the evening before",
+      "hourLabel": "Send at"
     },
     "themeSection": "Theme",
     "mode": "Appearance",

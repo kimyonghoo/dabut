@@ -2,21 +2,26 @@ import { zonedDateParts, DEFAULT_TIMEZONE } from "@/lib/dates/timezone";
 
 export type NotificationAction = "created" | "updated" | "deleted";
 
-const EVENT_VERB: Record<NotificationAction, string> = {
-  created: "등록했어요",
-  updated: "수정했어요",
-  deleted: "삭제했어요",
+const TX_ACTION_NOUN: Record<NotificationAction, string> = {
+  created: "발생",
+  updated: "수정",
+  deleted: "삭제",
 };
 
-const ACTION_EMOJI: Record<NotificationAction, string> = {
-  created: "✅",
-  updated: "✏️",
-  deleted: "🗑️",
+const EVENT_ACTION_NOUN: Record<NotificationAction, string> = {
+  created: "등록",
+  updated: "수정",
+  deleted: "삭제",
 };
 
 const TYPE_LABEL: Record<"expense" | "income", string> = {
   expense: "지출",
   income: "수입",
+};
+
+const TYPE_EMOJI: Record<"expense" | "income", string> = {
+  expense: "💸",
+  income: "💰",
 };
 
 // index 0 (Sun) - 6 (Sat); this bot's messages are Korean-only today (see
@@ -37,6 +42,20 @@ export function escapeHtml(text: string): string {
     .replace(/'/g, "&#39;");
 }
 
+function formatDateLabel(startAt: string, allDay: boolean, timeZone: string): string {
+  const { month, day, hour, minute, weekday } = zonedDateParts(startAt, timeZone);
+  const weekdayLabel = `(${KOREAN_WEEKDAYS[weekday]})`;
+  return allDay
+    ? `${month}월 ${day}일 ${weekdayLabel} (종일)`
+    : `${month}월 ${day}일 ${weekdayLabel} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+/**
+ * Rich, multi-line event notification (📅 일정 등록/수정/삭제 — title, when, who),
+ * mirroring transactionNotificationMessage's field-per-line layout so every
+ * Telegram push from this app reads the same way at a glance, not just a
+ * single run-on sentence.
+ */
 export function eventNotificationMessage(input: {
   action: NotificationAction;
   actorName: string;
@@ -49,17 +68,15 @@ export function eventNotificationMessage(input: {
   timeZone?: string;
 }): string {
   const { action, actorName, title, startAt, allDay, timeZone = DEFAULT_TIMEZONE } = input;
-  const emoji = ACTION_EMOJI[action];
   const name = escapeHtml(actorName);
   const safeTitle = escapeHtml(title);
-  const head = `${emoji} <b>${name}</b>님이 일정을 ${EVENT_VERB[action]}: <b>${safeTitle}</b>`;
-  if (action === "deleted") return head;
-  const { month, day, hour, minute, weekday } = zonedDateParts(startAt, timeZone);
-  const weekdayLabel = `(${KOREAN_WEEKDAYS[weekday]})`;
-  const date = allDay
-    ? `${month}월 ${day}일 ${weekdayLabel}`
-    : `${month}월 ${day}일 ${weekdayLabel} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-  return `${head} (${date})`;
+  const lines = [
+    `📅 <b>일정 ${EVENT_ACTION_NOUN[action]}</b>`,
+    `제목: ${safeTitle}`,
+    `일시: ${formatDateLabel(startAt, allDay, timeZone)}`,
+    `등록: ${name}님`,
+  ];
+  return lines.join("\n");
 }
 
 export function transactionNotificationMessage(input: {
@@ -69,22 +86,26 @@ export function transactionNotificationMessage(input: {
   amount: number;
   categoryName: string;
   categoryIcon?: string | null;
+  paymentMethodName?: string | null;
   memo?: string | null;
 }): string {
-  const { action, actorName, type, amount, categoryName, categoryIcon, memo } = input;
-  const emoji = ACTION_EMOJI[action];
+  const { action, actorName, type, amount, categoryName, categoryIcon, paymentMethodName, memo } = input;
   const name = escapeHtml(actorName);
   const amountText = `${amount.toLocaleString("ko-KR")}원`;
   const categoryLabel = categoryIcon
     ? `${escapeHtml(categoryIcon)} ${escapeHtml(categoryName)}`
     : escapeHtml(categoryName);
-  const label = `${categoryLabel} ${TYPE_LABEL[type]}`;
   const trimmedMemo = memo?.trim();
-  const memoSuffix = trimmedMemo ? ` — ${escapeHtml(trimmedMemo)}` : "";
-  if (action === "created") {
-    return `${emoji} <b>${name}</b>님이 ${label} <b>${amountText}</b>을 등록했어요${memoSuffix}`;
-  }
-  return `${emoji} <b>${name}</b>님이 ${label} 내역을 ${EVENT_VERB[action]}: <b>${amountText}</b>${memoSuffix}`;
+
+  const lines = [
+    `${TYPE_EMOJI[type]} <b>${TYPE_LABEL[type]} ${TX_ACTION_NOUN[action]}</b>`,
+    `분류: ${categoryLabel}`,
+  ];
+  if (paymentMethodName) lines.push(`결제: ${escapeHtml(paymentMethodName)}`);
+  lines.push(`금액: ${amountText}`);
+  if (trimmedMemo) lines.push(`메모: ${escapeHtml(trimmedMemo)}`);
+  lines.push(`등록: ${name}님`);
+  return lines.join("\n");
 }
 
 const MILESTONE_EMOJI: Record<50 | 80 | 100, string> = {
@@ -120,4 +141,35 @@ export function paymentMethodMilestoneMessage(input: {
     return `${emoji} <b>${name}</b> 이번 달 목표 달성! ${progress}`;
   }
   return `${emoji} <b>${name}</b> 이번 달 ${threshold}% 돌파! ${progress}`;
+}
+
+export type TomorrowDigestEvent = {
+  title: string;
+  startAt: string;
+  allDay: boolean;
+};
+
+/**
+ * "내일 뭐해?" daily digest — tomorrow's events for one user, sent the
+ * evening before at their chosen hour. Caller is responsible for not
+ * invoking this (and not sending anything) when there are no events; this
+ * builder always assumes there's at least one.
+ */
+export function tomorrowDigestMessage(input: {
+  events: TomorrowDigestEvent[];
+  timeZone?: string;
+}): string {
+  const { events, timeZone = DEFAULT_TIMEZONE } = input;
+  const sorted = [...events].sort((a, b) => {
+    if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
+    return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+  });
+  const { month, day, weekday } = zonedDateParts(sorted[0].startAt, timeZone);
+  const lines = [`🌙 <b>내일 뭐해?</b>`, `${month}월 ${day}일 (${KOREAN_WEEKDAYS[weekday]})`, ""];
+  for (const event of sorted) {
+    const { hour, minute } = zonedDateParts(event.startAt, timeZone);
+    const time = event.allDay ? "종일" : `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    lines.push(`${time}  ${escapeHtml(event.title)}`);
+  }
+  return lines.join("\n");
 }
