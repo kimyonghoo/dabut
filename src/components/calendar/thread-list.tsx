@@ -10,9 +10,14 @@ import { Link } from "@/i18n/navigation";
 import { SwipeToDelete } from "@/components/swipe/swipe-to-delete";
 import { useOptimisticRemoval } from "@/components/swipe/use-optimistic-removal";
 import { inputClass } from "@/components/ui/field";
+import { FilterDisclosure } from "@/components/ui/filter-disclosure";
 import { filterEventsBySearch } from "@/lib/calendar/filter-events-by-search";
+import { filterEventsByOwner, type EventOwnerFilter } from "@/lib/calendar/filter-events-by-owner";
 import { eventEditHref, isVirtualOccurrence } from "@/lib/calendar/event-link";
 import { BADGE_CLASSNAME, CATEGORY_KEY, DOT_CLASSNAME } from "./category-style";
+
+const chipClass =
+  "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand";
 
 export type ThreadEvent = {
   id: string;
@@ -43,6 +48,7 @@ export function ThreadList({
   const locale = useLocale();
   const todayKey = useTodayKey(serverTodayKey);
   const [searchQuery, setSearchQuery] = useState("");
+  const [ownerFilter, setOwnerFilter] = useState<EventOwnerFilter | null>(null);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteEvent, "eventDeleted");
 
   // Prefer the partner's real nickname over the generic "상대방 일정" label
@@ -53,29 +59,79 @@ export function ThreadList({
     return t(CATEGORY_KEY[category]);
   }
 
+  // Owner filter composes with search (AND): a 공통(shared) event passes
+  // under either "mine" or "partner" (see filterEventsByOwner) — the
+  // consistent choice given a shared event already renders identically on
+  // both sides of the day-summary modal, rather than being orphaned under
+  // neither filter.
   const visible = groups
     .map((group) => ({
       ...group,
       events: filterEventsBySearch(
-        group.events.filter((event) => !isRemoved(event.id)),
+        filterEventsByOwner(
+          group.events.filter((event) => !isRemoved(event.id)),
+          ownerFilter
+        ),
         searchQuery
       ),
     }))
     .filter((group) => group.events.length > 0);
 
+  const activeFilterCount = (searchQuery.trim() ? 1 : 0) + (ownerFilter ? 1 : 0);
+  const chipStyle = (active: boolean) =>
+    `${chipClass} ${
+      active ? "border-brand bg-brand-soft text-brand-strong" : "border-line bg-surface text-ink hover:bg-surface-2"
+    }`;
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative">
-        <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
-        <input
-          type="search"
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          placeholder={t("searchPlaceholder")}
-          aria-label={t("searchPlaceholder")}
-          className={`${inputClass} pl-9`}
-        />
-      </div>
+      <FilterDisclosure label={t("filtersLabel")} activeCount={activeFilterCount}>
+        <div className="relative">
+          <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchPlaceholder")}
+            className={`${inputClass} pl-9`}
+          />
+        </div>
+        <div
+          role="radiogroup"
+          aria-label={t("ownerFilterLabel")}
+          onPointerDownCapture={(event) => event.stopPropagation()}
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={ownerFilter === null}
+            onClick={() => setOwnerFilter(null)}
+            className={chipStyle(ownerFilter === null)}
+          >
+            {t("filterAll")}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={ownerFilter === "mine"}
+            onClick={() => setOwnerFilter("mine")}
+            className={chipStyle(ownerFilter === "mine")}
+          >
+            {t(CATEGORY_KEY.mine)}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={ownerFilter === "partner"}
+            onClick={() => setOwnerFilter("partner")}
+            className={chipStyle(ownerFilter === "partner")}
+          >
+            {categoryLabel("partner")}
+          </button>
+        </div>
+      </FilterDisclosure>
       {visible.map((group) => {
         const today = group.date === todayKey;
         return (
@@ -109,7 +165,7 @@ export function ThreadList({
                     contentClassName="rounded-2xl bg-surface"
                   >
                     <Link
-                      href={eventEditHref(event.id)}
+                      href={eventEditHref(event.id, "thread")}
                       title={categoryLabel(event.category)}
                       draggable={false}
                       className="block rounded-2xl border border-line bg-surface p-3 shadow-[0_2px_10px_rgba(59,47,42,0.05)] transition hover:border-brand/40 active:scale-[0.99]"

@@ -10,7 +10,7 @@ import type { RecurrenceFreq, RecurrenceEndType } from "@/lib/events/recurrence"
 import { eventNotificationMessage } from "@/lib/telegram/messages";
 import { notifyConnectionMembers } from "@/lib/telegram/notify-connection";
 import { resolveActorName } from "@/lib/telegram/actor-name";
-import { DEFAULT_TIMEZONE } from "@/lib/dates/timezone";
+import { DEFAULT_TIMEZONE, toZonedDateInputValue } from "@/lib/dates/timezone";
 
 export type EventActionState = { error?: string };
 
@@ -19,9 +19,39 @@ export type EventEditScope = "this" | "all";
 
 type EventToast = "eventCreated" | "eventUpdated" | "eventDeleted";
 
+/** `yyyy-MM` for the calendar month containing `isoInstant`, read in `timeZone` (never a naive UTC read). */
+function monthKeyFromIso(isoInstant: string, timeZone: string): string {
+  return toZonedDateInputValue(isoInstant, timeZone).slice(0, 7);
+}
+
+/**
+ * Reads the `returnView` hidden field a save/delete submission carries (see
+ * EventForm) — currently only "thread" is a meaningful value, meaning the
+ * user reached this edit/create/delete from the 일정목록 (list) view and
+ * should land back there instead of month view.
+ */
+function readReturnView(value: FormDataEntryValue | null): "thread" | undefined {
+  return value === "thread" ? "thread" : undefined;
+}
+
 // redirect() throws NEXT_REDIRECT — must be the last call, outside try/catch.
-async function redirectToCalendar(toast: EventToast): Promise<never> {
-  return redirect({ href: { pathname: "/calendar", query: { toast } }, locale: await getLocale() });
+//
+// `month` anchors the redirect to the calendar month containing the
+// saved/deleted event's own (zoned) date, so saving/deleting while browsing
+// a non-current month (e.g. November) lands back on that same month in the
+// common case (the edit didn't move the date) and on the event's new month
+// in the less common case (the edit did move it) — either way, never on
+// whatever month happens to be "today's" by default. `view` optionally
+// preserves 일정목록 (list) view across the round-trip.
+async function redirectToCalendar(
+  toast: EventToast,
+  month: string,
+  view?: "thread"
+): Promise<never> {
+  return redirect({
+    href: { pathname: "/calendar", query: { toast, month, ...(view ? { view } : {}) } },
+    locale: await getLocale(),
+  });
 }
 
 // The naive date/time strings a <datetime-local>-shaped form submits carry no
@@ -197,7 +227,11 @@ export async function createEvent(_prevState: EventActionState, formData: FormDa
   });
 
   revalidatePath("/", "layout");
-  return redirectToCalendar("eventCreated");
+  return redirectToCalendar(
+    "eventCreated",
+    monthKeyFromIso(timestamps.startAt, timeZone),
+    readReturnView(formData.get("returnView"))
+  );
 }
 
 export async function updateEvent(
@@ -226,8 +260,20 @@ export async function updateEvent(
   const connectionId = isShared ? selectedConnectionId : await resolveDefaultConnectionId(supabase, user.id);
   const baseFields = readBaseEventFields(formData, timestamps, connectionId, isShared, title);
 
+  const returnView = readReturnView(formData.get("returnView"));
+
   if (scope === "this" && occurrenceDate) {
-    return updateSingleOccurrence(supabase, user, eventId, occurrenceDate, baseFields, title, timestamps, timeZone);
+    return updateSingleOccurrence(
+      supabase,
+      user,
+      eventId,
+      occurrenceDate,
+      baseFields,
+      title,
+      timestamps,
+      timeZone,
+      returnView
+    );
   }
 
   // scope "all" (or a plain, never-recurring event): edit the parent/standalone row directly, including its recurrence rule.
@@ -261,7 +307,7 @@ export async function updateEvent(
   }
 
   revalidatePath("/", "layout");
-  return redirectToCalendar("eventUpdated");
+  return redirectToCalendar("eventUpdated", monthKeyFromIso(timestamps.startAt, timeZone), returnView);
 }
 
 // Detaches a single occurrence of a recurring series into its own standalone
@@ -278,7 +324,8 @@ async function updateSingleOccurrence(
   baseFields: ReturnType<typeof readBaseEventFields>,
   title: string,
   timestamps: { allDay: boolean; startAt: string; endAt: string | null },
-  timeZone: string
+  timeZone: string,
+  returnView?: "thread"
 ): Promise<EventActionState> {
   const { data: parent, error: parentError } = await supabase
     .from("events")
@@ -334,13 +381,14 @@ async function updateSingleOccurrence(
   });
 
   revalidatePath("/", "layout");
-  return redirectToCalendar("eventUpdated");
+  return redirectToCalendar("eventUpdated", monthKeyFromIso(timestamps.startAt, timeZone), returnView);
 }
 
 export async function deleteEvent(
   eventId: string,
   scope: EventEditScope = "all",
-  occurrenceDate: string | null = null
+  occurrenceDate: string | null = null,
+  returnView?: "thread"
 ): Promise<EventActionState> {
   const supabase = await createClient();
   const {
@@ -349,7 +397,7 @@ export async function deleteEvent(
   if (!user) return { error: "Not authenticated" };
 
   if (scope === "this" && occurrenceDate) {
-    return deleteSingleOccurrence(supabase, user, eventId, occurrenceDate);
+    return deleteSingleOccurrence(supabase, user, eventId, occurrenceDate, returnView);
   }
 
   // scope "all" (or a plain, never-recurring event): delete the whole
@@ -378,6 +426,11 @@ export async function deleteEvent(
     .maybeSingle();
   if (error) return { error: error.message };
 
+  // There's no "new" date to anchor a delete to — redirect to whichever
+  // month the deleted event *was* in, read from its pre-delete start_at.
+  const timeZone = await resolveActorTimezone(supabase, user.id);
+  const month = deleted ? monthKeyFromIso(deleted.start_at, timeZone) : monthKeyFromIso(new Date().toISOString(), timeZone);
+
   if (deleted) {
     await notifyConnectionMembers(supabase, {
       connectionId: deleted.connection_id,
@@ -388,13 +441,13 @@ export async function deleteEvent(
         title: deleted.title,
         startAt: deleted.start_at,
         allDay: deleted.all_day,
-        timeZone: await resolveActorTimezone(supabase, user.id),
+        timeZone,
       }),
     });
   }
 
   revalidatePath("/", "layout");
-  return redirectToCalendar("eventDeleted");
+  return redirectToCalendar("eventDeleted", month, returnView);
 }
 
 // Deletes just one occurrence of a recurring series: if it was already
@@ -407,7 +460,8 @@ async function deleteSingleOccurrence(
   supabase: Awaited<ReturnType<typeof createClient>>,
   user: { id: string },
   parentEventId: string,
-  occurrenceDate: string
+  occurrenceDate: string,
+  returnView?: "thread"
 ): Promise<EventActionState> {
   const { data: parent, error: parentError } = await supabase
     .from("events")
@@ -451,5 +505,7 @@ async function deleteSingleOccurrence(
   });
 
   revalidatePath("/", "layout");
-  return redirectToCalendar("eventDeleted");
+  // occurrenceDate is already a yyyy-MM-dd zoned date key (see its doc at the
+  // call site), so its month is the deleted occurrence's own month directly.
+  return redirectToCalendar("eventDeleted", occurrenceDate.slice(0, 7), returnView);
 }

@@ -33,13 +33,13 @@ async function loadPartnerConnections(
   }));
 }
 
-function EditPageHeader({ t }: { t: Awaited<ReturnType<typeof getTranslations>> }) {
+function EditPageHeader({ t, returnView }: { t: Awaited<ReturnType<typeof getTranslations>>; returnView?: "thread" }) {
   return (
     <PageHeader
       title={
         <span className="flex items-center gap-2">
           <Link
-            href="/calendar"
+            href={{ pathname: "/calendar", query: returnView ? { view: returnView } : undefined }}
             aria-label={t.has("back") ? t("back") : "Back"}
             className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-ink-muted transition hover:bg-surface-2"
           >
@@ -57,10 +57,11 @@ export default async function EditEventPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ occurrence?: string }>;
+  searchParams: Promise<{ occurrence?: string; returnView?: string }>;
 }) {
   const { id } = await params;
-  const { occurrence } = await searchParams;
+  const { occurrence, returnView: returnViewParam } = await searchParams;
+  const returnView = returnViewParam === "thread" ? "thread" : undefined;
   const supabase = await createClient();
   const t = await getTranslations("events");
   const locale = await getLocale();
@@ -120,12 +121,13 @@ export default async function EditEventPage({
 
     return (
       <>
-        <EditPageHeader t={t} />
+        <EditPageHeader t={t} returnView={returnView} />
         <RecurrenceEditScopeChooser
           event={event}
           occurrenceEvent={occurrenceEvent}
           occurrenceDate={occurrenceDate}
           connections={connections}
+          returnView={returnView}
         />
       </>
     );
@@ -138,8 +140,8 @@ export default async function EditEventPage({
   // `?occurrence=` — both are a normal scope "all" edit of this exact row.
   return (
     <>
-      <EditPageHeader t={t} />
-      <EventForm mode="edit" event={event} connections={connections} scope="all" />
+      <EditPageHeader t={t} returnView={returnView} />
+      <EventForm mode="edit" event={event} connections={connections} scope="all" returnView={returnView} />
     </>
   );
 }

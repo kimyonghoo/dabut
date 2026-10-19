@@ -24,6 +24,7 @@ export function RecurrenceEditScopeChooser({
   occurrenceEvent,
   occurrenceDate,
   connections,
+  returnView,
 }: {
   /** The series' real parent row. */
   event: EventRow;
@@ -31,6 +32,8 @@ export function RecurrenceEditScopeChooser({
   occurrenceEvent: EventRow;
   occurrenceDate: string;
   connections: Array<{ id: string; partnerEmail: string }>;
+  /** Threaded straight through to EventForm — see its own doc for what this does. */
+  returnView?: "thread";
 }) {
   const t = useTranslations("events");
   const [scope, setScope] = useState<"this" | "all" | null>(null);
@@ -66,6 +69,7 @@ export function RecurrenceEditScopeChooser({
       connections={connections}
       scope={scope}
       occurrenceDate={scope === "this" ? occurrenceDate : undefined}
+      returnView={returnView}
     />
   );
 }

@@ -6,6 +6,7 @@ import { CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { inputClass } from "@/components/ui/field";
+import { FilterDisclosure } from "@/components/ui/filter-disclosure";
 import { SwipeToDelete } from "@/components/swipe/swipe-to-delete";
 import { useOptimisticRemoval } from "@/components/swipe/use-optimistic-removal";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
@@ -116,6 +117,14 @@ export function LedgerView({
   const totals = calculateMonthlyTotals(filtered.map((row) => ({ type: row.type, amount: row.amount })));
   const groups = groupByOccurredAt(filtered);
 
+  // Drives the collapsed filter toggle's count badge, so it's clear filters
+  // are still applied even while the panel is collapsed.
+  const activeFilterCount =
+    (categoryId ? 1 : 0) +
+    (paymentMethodId ? 1 : 0) +
+    (hasPartner && ownerFilter ? 1 : 0) +
+    (searchQuery.trim() ? 1 : 0);
+
   // Spend per goal-having payment method, for this calendar month — computed
   // from the same month-scoped `liveRows` the hero totals use (the ledger
   // page only ever fetches the current month), independent of the category
@@ -157,25 +166,26 @@ export function LedgerView({
 
   return (
     <>
-      <Card className="relative overflow-hidden bg-brand-soft p-5">
+      <Card className="relative overflow-hidden bg-brand-soft p-3.5">
         <div aria-hidden className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand/15" />
         <div aria-hidden className="pointer-events-none absolute -bottom-8 right-10 h-16 w-16 rounded-full bg-partner/15" />
-        <div className="flex items-start gap-3">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
-              <p className="text-xs text-ink-muted">{t("income_total")}</p>
-              <p className="mt-0.5 text-base font-bold text-income">+{formatWon(totals.income)}</p>
+        <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl bg-surface/80 px-3 py-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] leading-tight text-ink-muted">{t("income_total")}</p>
+              <p className="truncate text-sm font-bold leading-tight text-income">+{formatWon(totals.income)}</p>
             </div>
-            <div className="rounded-2xl bg-surface/80 px-3 py-2.5">
-              <p className="text-xs text-ink-muted">{t("expense_total")}</p>
-              <p className="mt-0.5 text-base font-bold text-expense">-{formatWon(totals.expense)}</p>
+            <span aria-hidden className="h-6 w-px shrink-0 bg-line" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] leading-tight text-ink-muted">{t("expense_total")}</p>
+              <p className="truncate text-sm font-bold leading-tight text-expense">-{formatWon(totals.expense)}</p>
             </div>
           </div>
           {goalItems.length > 0 && (
             <button
               type="button"
               onClick={() => setGoalsOpen(true)}
-              className="relative z-[1] inline-flex shrink-0 items-center gap-1.5 self-start rounded-full bg-surface px-3.5 py-2 text-xs font-bold text-brand-strong shadow-sm transition active:scale-[0.97] hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              className="relative z-[1] inline-flex shrink-0 items-center gap-1.5 self-center rounded-full bg-surface px-3.5 py-2 text-xs font-bold text-brand-strong shadow-sm transition active:scale-[0.97] hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
               <CreditCard aria-hidden className="size-4" />
               {t("cardPerformance")}
@@ -186,119 +196,123 @@ export function LedgerView({
 
       <PaymentMethodGoalsSheet open={goalsOpen} onClose={() => setGoalsOpen(false)} items={goalItems} />
 
-      <div className="relative mt-4">
-        <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
-        <input
-          type="search"
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          placeholder={t("searchPlaceholder")}
-          aria-label={t("searchPlaceholder")}
-          className={`${inputClass} pl-9`}
-        />
+      <div className="mt-4">
+        <FilterDisclosure label={t("filtersLabel")} activeCount={activeFilterCount}>
+          <div className="relative">
+            <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchPlaceholder")}
+              className={`${inputClass} pl-9`}
+            />
+          </div>
+
+          {chips.length > 0 && (
+            <div
+              role="radiogroup"
+              aria-label={t("filterLabel")}
+              // Horizontal scroller: stop the page-level tab swipe from hijacking it.
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={categoryId === null}
+                onClick={() => setCategoryId(null)}
+                className={chipStyle(categoryId === null)}
+              >
+                {t("filterAll")}
+              </button>
+              {chips.map((chip) => (
+                <button
+                  key={chip.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={categoryId === chip.id}
+                  onClick={() => setCategoryId(chip.id)}
+                  className={chipStyle(categoryId === chip.id)}
+                >
+                  <CategoryIcon category={chip} className="size-4" />
+                  {chip.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {paymentMethods.length > 0 && (
+            <div
+              role="radiogroup"
+              aria-label={t("paymentMethodFilterLabel")}
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={paymentMethodId === null}
+                onClick={() => setPaymentMethodId(null)}
+                className={chipStyle(paymentMethodId === null)}
+              >
+                {t("filterAll")}
+              </button>
+              {paymentMethods.map((method) => (
+                <button
+                  key={method.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={paymentMethodId === method.id}
+                  onClick={() => setPaymentMethodId(method.id)}
+                  className={chipStyle(paymentMethodId === method.id)}
+                >
+                  <PaymentMethodIcon icon={method.icon} className="size-4" />
+                  {method.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {hasPartner && (
+            <div
+              role="radiogroup"
+              aria-label={t("ownerFilterLabel")}
+              onPointerDownCapture={(event) => event.stopPropagation()}
+              className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={ownerFilter === null}
+                onClick={() => setOwnerFilter(null)}
+                className={chipStyle(ownerFilter === null)}
+              >
+                {t("filterAll")}
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={ownerFilter === "mine"}
+                onClick={() => setOwnerFilter("mine")}
+                className={chipStyle(ownerFilter === "mine")}
+              >
+                {t("filterMine")}
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={ownerFilter === "partner"}
+                onClick={() => setOwnerFilter("partner")}
+                className={chipStyle(ownerFilter === "partner")}
+              >
+                {partnerName ? t("filterPartnerNamed", { name: partnerName }) : t("filterPartner")}
+              </button>
+            </div>
+          )}
+        </FilterDisclosure>
       </div>
-
-      {chips.length > 0 && (
-        <div
-          role="radiogroup"
-          aria-label={t("filterLabel")}
-          // Horizontal scroller: stop the page-level tab swipe from hijacking it.
-          onPointerDownCapture={(event) => event.stopPropagation()}
-          className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            type="button"
-            role="radio"
-            aria-checked={categoryId === null}
-            onClick={() => setCategoryId(null)}
-            className={chipStyle(categoryId === null)}
-          >
-            {t("filterAll")}
-          </button>
-          {chips.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              role="radio"
-              aria-checked={categoryId === chip.id}
-              onClick={() => setCategoryId(chip.id)}
-              className={chipStyle(categoryId === chip.id)}
-            >
-              <CategoryIcon category={chip} className="size-4" />
-              {chip.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {paymentMethods.length > 0 && (
-        <div
-          role="radiogroup"
-          aria-label={t("paymentMethodFilterLabel")}
-          onPointerDownCapture={(event) => event.stopPropagation()}
-          className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            type="button"
-            role="radio"
-            aria-checked={paymentMethodId === null}
-            onClick={() => setPaymentMethodId(null)}
-            className={chipStyle(paymentMethodId === null)}
-          >
-            {t("filterAll")}
-          </button>
-          {paymentMethods.map((method) => (
-            <button
-              key={method.id}
-              type="button"
-              role="radio"
-              aria-checked={paymentMethodId === method.id}
-              onClick={() => setPaymentMethodId(method.id)}
-              className={chipStyle(paymentMethodId === method.id)}
-            >
-              <PaymentMethodIcon icon={method.icon} className="size-4" />
-              {method.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {hasPartner && (
-        <div
-          role="radiogroup"
-          aria-label={t("ownerFilterLabel")}
-          onPointerDownCapture={(event) => event.stopPropagation()}
-          className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            type="button"
-            role="radio"
-            aria-checked={ownerFilter === null}
-            onClick={() => setOwnerFilter(null)}
-            className={chipStyle(ownerFilter === null)}
-          >
-            {t("filterAll")}
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={ownerFilter === "mine"}
-            onClick={() => setOwnerFilter("mine")}
-            className={chipStyle(ownerFilter === "mine")}
-          >
-            {t("filterMine")}
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={ownerFilter === "partner"}
-            onClick={() => setOwnerFilter("partner")}
-            className={chipStyle(ownerFilter === "partner")}
-          >
-            {partnerName ? t("filterPartnerNamed", { name: partnerName }) : t("filterPartner")}
-          </button>
-        </div>
-      )}
 
       {liveRows.length === 0 ? (
         <div className="mt-10 flex flex-col items-center gap-2 text-center">

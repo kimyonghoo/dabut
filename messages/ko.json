@@ -101,7 +101,8 @@
     "filterMine": "내 내역",
     "filterPartner": "상대방 내역",
     "filterPartnerNamed": "{name} 내역",
-    "partnerOwned": "상대방 등록"
+    "partnerOwned": "상대방 등록",
+    "filtersLabel": "필터"
   },
   "calendar": {
     "monthView": "달력",
@@ -116,7 +117,10 @@
     "allDay": "하루 종일",
     "emptyTitle": "아직 일정이 없어요",
     "emptyHint": "함께할 첫 일정을 추가해 볼까요?",
-    "searchPlaceholder": "검색"
+    "searchPlaceholder": "검색",
+    "filtersLabel": "필터",
+    "filterAll": "전체",
+    "ownerFilterLabel": "일정 필터"
   },
   "events": {
     "title": "제목",

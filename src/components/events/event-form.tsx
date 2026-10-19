@@ -47,6 +47,7 @@ export function EventForm({
   defaultDate,
   scope = "all",
   occurrenceDate,
+  returnView,
 }: {
   mode: "create" | "edit";
   event?: EventRow;
@@ -63,6 +64,15 @@ export function EventForm({
   scope?: "this" | "all";
   /** Required alongside `scope: "this"` — the occurrence's original calendar date (yyyy-MM-dd, parent's timezone), used to key its exception. */
   occurrenceDate?: string;
+  /**
+   * Which calendar view this form was reached from, threaded in from the
+   * page's own `?returnView=` search param (see eventEditHref /
+   * calendar/page.tsx's "새 일정" link) — currently only "thread" (일정목록)
+   * is meaningful. Passed back out to the server action (via a hidden field
+   * for create/update, and directly for delete) so its redirect can land
+   * back on that view instead of always defaulting to month view.
+   */
+  returnView?: "thread";
 }) {
   const t = useTranslations("events");
   const { timeZone } = useTimezone();
@@ -108,7 +118,7 @@ export function EventForm({
       startProgress();
       try {
         // On success the action redirects to the calendar; only errors return.
-        const result = await deleteEvent(event!.id, scope, occurrenceDate ?? null);
+        const result = await deleteEvent(event!.id, scope, occurrenceDate ?? null, returnView);
         if (result?.error) setDeleteError(result.error);
       } finally {
         doneProgress();
@@ -145,6 +155,7 @@ export function EventForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4 pb-24">
+      {returnView && <input type="hidden" name="returnView" value={returnView} />}
       <Card className="flex flex-col gap-3">
         <label className={labelClass}>
           {t("title")}

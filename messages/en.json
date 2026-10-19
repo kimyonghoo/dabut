@@ -101,7 +101,8 @@
     "filterMine": "Mine",
     "filterPartner": "Partner's entries",
     "filterPartnerNamed": "{name}'s entries",
-    "partnerOwned": "Partner's"
+    "partnerOwned": "Partner's",
+    "filtersLabel": "Filters"
   },
   "calendar": {
     "monthView": "Month",
@@ -116,7 +117,10 @@
     "allDay": "All day",
     "emptyTitle": "No plans yet",
     "emptyHint": "How about adding your first plan together?",
-    "searchPlaceholder": "Search"
+    "searchPlaceholder": "Search",
+    "filtersLabel": "Filters",
+    "filterAll": "All",
+    "ownerFilterLabel": "Event filter"
   },
   "events": {
     "title": "Title",

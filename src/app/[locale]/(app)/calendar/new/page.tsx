@@ -8,9 +8,10 @@ import { Link, redirect } from "@/i18n/navigation";
 export default async function NewEventPage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; returnView?: string }>;
 }) {
-  const { date } = await searchParams;
+  const { date, returnView: returnViewParam } = await searchParams;
+  const returnView = returnViewParam === "thread" ? "thread" : undefined;
   // Only accept a plain yyyy-MM-dd (prefill from the calendar day summary).
   const defaultDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined;
   const supabase = await createClient();
@@ -49,7 +50,7 @@ export default async function NewEventPage({
         title={
           <span className="flex items-center gap-2">
             <Link
-              href="/calendar"
+              href={{ pathname: "/calendar", query: returnView ? { view: returnView } : undefined }}
               aria-label={t.has("back") ? t("back") : "Back"}
               className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-ink-muted transition hover:bg-surface-2"
             >
@@ -59,7 +60,7 @@ export default async function NewEventPage({
           </span>
         }
       />
-      <EventForm mode="create" connections={connections} defaultDate={defaultDate} />
+      <EventForm mode="create" connections={connections} defaultDate={defaultDate} returnView={returnView} />
     </>
   );
 }

@@ -18,6 +18,10 @@ vi.mock("@/i18n/navigation", () => ({
       {children}
     </a>
   ),
+  // MonthView's swipe-to-change-month gesture pulls in useProgressRouter ->
+  // useRouter from this module on every render (not just during a drag);
+  // none of this file's assertions exercise navigation, so a no-op stub is enough.
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
 const messages = { calendar: ko.calendar, daySummary: ko.daySummary };

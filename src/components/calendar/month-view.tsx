@@ -1,13 +1,23 @@
+"use client";
+
 import { useLocale, useTranslations } from "next-intl";
-import { format, isSameDay, isSameMonth } from "date-fns";
+import { addMonths, format, isSameDay, isSameMonth } from "date-fns";
+import { motion, type PanInfo } from "framer-motion";
 import { getMonthGridDays } from "@/lib/calendar/month-grid";
 import { isDayWithinEvent, isMultiDayEvent } from "@/lib/calendar/day-summary";
 import { assignLanes, computeMultiDaySegments, groupIntoWeeks, type MultiDaySegment } from "@/lib/calendar/multi-day-bars";
 import { Card } from "@/components/ui/card";
+import { useProgressRouter } from "@/components/feedback/use-progress-router";
 import type { Database } from "@/types/database.types";
 import { CATEGORY_KEY, CHIP_CLASSNAME, DOT_CLASSNAME } from "./category-style";
-import { getDateFnsLocale } from "./date-locale";
+import { getDateFnsLocale, monthHref } from "./date-locale";
 import { DayCellButton, DaySummaryProvider } from "./day-summary-sheet";
+
+// A swipe shorter/slower than this is treated as a normal tap or vertical
+// scroll, not an intentional month-change gesture — keeps accidental small
+// drags and plain scrolling from firing a navigation.
+const SWIPE_DISTANCE_THRESHOLD = 60;
+const SWIPE_VELOCITY_THRESHOLD = 500;
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type CategorizedEvent = EventRow & { category: "mine" | "partner" | "shared" };
@@ -43,10 +53,28 @@ export function MonthView({
   const tSummary = useTranslations("daySummary");
   const locale = useLocale();
   const dfLocale = getDateFnsLocale(locale);
+  const router = useProgressRouter();
   const days = getMonthGridDays(month);
   const weeks = groupIntoWeeks(days);
   const today = new Date();
   const weekdays = days.slice(0, 7);
+
+  // Left swipe -> next month, right swipe -> previous month; reuses the
+  // exact same `/calendar?month=yyyy-MM` href the header's prev/next arrow
+  // links already navigate to (see date-locale.ts's monthHref), so the two
+  // navigation paths can't drift apart. A small/slow drag (ordinary vertical
+  // scroll, or an accidental nudge) clears neither the distance nor the
+  // velocity threshold and is ignored — only a deliberate horizontal swipe
+  // changes the month.
+  function handleDragEnd(_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) {
+    const { x } = info.offset;
+    const { x: vx } = info.velocity;
+    if (x <= -SWIPE_DISTANCE_THRESHOLD || vx <= -SWIPE_VELOCITY_THRESHOLD) {
+      router.push(monthHref(addMonths(month, 1)));
+    } else if (x >= SWIPE_DISTANCE_THRESHOLD || vx >= SWIPE_VELOCITY_THRESHOLD) {
+      router.push(monthHref(addMonths(month, -1)));
+    }
+  }
 
   const summaryEvents = events.map(({ id, owner_id, title, all_day, start_at, end_at, visibility }) => ({
     id,
@@ -84,7 +112,14 @@ export function MonthView({
           </div>
         ))}
       </div>
-      <div className="flex flex-col gap-px overflow-hidden rounded-xl bg-line">
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.6}
+        dragDirectionLock
+        onDragEnd={handleDragEnd}
+        className="flex touch-pan-y flex-col gap-px overflow-hidden rounded-xl bg-line"
+      >
         {weeks.map((weekDays, weekIndex) => {
           const laned = lanesByWeek[weekIndex];
           const laneCount = laned.reduce((max, { lane }) => Math.max(max, lane + 1), 0);
@@ -166,7 +201,7 @@ export function MonthView({
             </div>
           );
         })}
-      </div>
+      </motion.div>
     </Card>
     </DaySummaryProvider>
   );
