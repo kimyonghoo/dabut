@@ -275,7 +275,7 @@ export function EventForm({
                 min={1}
                 value={recurrenceInterval}
                 onChange={(e) => setRecurrenceInterval(Math.max(1, Number(e.target.value) || 1))}
-                className={`${inputClass} w-16 text-center`}
+                className={`${inputClass} !w-16 shrink-0 text-center`}
               />
               <select
                 name="recurrenceCustomUnit"
@@ -331,7 +331,7 @@ export function EventForm({
                     min={1}
                     defaultValue={event?.recurrence_count ?? 5}
                     required
-                    className={`${inputClass} w-20 text-center`}
+                    className={`${inputClass} !w-20 shrink-0 text-center`}
                   />
                   <span>{t("repeat.countSuffix")}</span>
                 </div>

@@ -140,6 +140,12 @@ export function LedgerView({
     [paymentMethodGoals, liveRows]
   );
 
+  const paymentMethodById = useMemo(() => {
+    const byId = new Map<string, LedgerPaymentMethodOption>();
+    for (const method of paymentMethods) byId.set(method.id, method);
+    return byId;
+  }, [paymentMethods]);
+
   // Chips: every visible category (defaults + custom), plus any category only
   // known through a row; categories in use this month come first.
   const chips = useMemo(() => {
@@ -340,6 +346,7 @@ export function LedgerView({
                 {items.map((row) => {
                   const isIncome = row.type === "income";
                   const ownership = categorizeTransaction(row, currentUserId);
+                  const paymentMethod = row.paymentMethodId ? paymentMethodById.get(row.paymentMethodId) : undefined;
                   return (
                     <li
                       key={row.id}
@@ -366,7 +373,16 @@ export function LedgerView({
                             <CategoryIcon category={row.category} className="size-5" />
                           </span>
                           <span className="min-w-0 flex-1">
-                            <span className="block text-[15px] font-semibold text-ink">{row.category?.name}</span>
+                            <span className="flex items-baseline gap-1 truncate">
+                              <span className="text-[15px] font-semibold text-ink">{row.category?.name}</span>
+                              {paymentMethod && (
+                                <span className="flex items-center gap-0.5 truncate text-xs text-ink-muted">
+                                  <span aria-hidden>·</span>
+                                  <PaymentMethodIcon icon={paymentMethod.icon} className="size-3" />
+                                  {paymentMethod.name}
+                                </span>
+                              )}
+                            </span>
                             {row.memo && <span className="block truncate text-xs text-ink-muted">{row.memo}</span>}
                           </span>
                           <span
