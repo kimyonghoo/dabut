@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { CreditCard, Pencil, Plus, Trash2 } from "lucide-react";
+import { Banknote, CreditCard, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   createPaymentMethod,
   updatePaymentMethod,
@@ -12,13 +12,19 @@ import {
 import { buttonClass } from "@/components/ui/button";
 import { inputClass, errorClass } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/submit-button";
+import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 
 const DELETE_CONFIRM_MS = 3000;
 
-// A small curated emoji set (plus "no icon") — mirrors CategoryPicker's
-// curated-choices approach rather than a free-text field, so the settings
-// list stays visually consistent.
-const ICON_CHOICES = ["💳", "🏦", "💰", "🪙", "📱", "🎫", "✈️", "☕", "🛍️", "💵", "🚗", "🎮"] as const;
+// Exactly two curated choices, as lucide-react icons — not a grid of emoji.
+// "" (no icon) is kept as a third, minimal affordance.
+const ICON_CHOICES = [
+  { key: "card", Icon: CreditCard, labelKey: "iconCard" },
+  { key: "cash", Icon: Banknote, labelKey: "iconCash" },
+] as const;
+
+/** Monthly goal is entered in 만원 (10,000-won) units; stored as actual KRW. */
+const WON_PER_MANWON = 10000;
 
 type DraftState = { name: string; icon: string; goal: string };
 
@@ -29,7 +35,7 @@ function parseGoalInput(raw: string): { monthlyGoal: number | null } | { error: 
   if (!trimmed) return { monthlyGoal: null };
   const value = Number(trimmed);
   if (!Number.isFinite(value) || value < 0) return { error: "invalidGoal" };
-  return { monthlyGoal: value };
+  return { monthlyGoal: Math.round(value * WON_PER_MANWON) };
 }
 
 /**
@@ -74,7 +80,11 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
   }
 
   function startEdit(method: PaymentMethod) {
-    setDraft({ name: method.name, icon: method.icon ?? "", goal: method.monthlyGoal?.toString() ?? "" });
+    setDraft({
+      name: method.name,
+      icon: method.icon ?? "",
+      goal: method.monthlyGoal != null ? String(method.monthlyGoal / WON_PER_MANWON) : "",
+    });
     setError(null);
     setEditingId(method.id);
   }
@@ -139,32 +149,32 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
   function renderForm() {
     return (
       <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-2 p-3">
-        <div role="radiogroup" aria-label={t("iconLabel")} className="grid grid-cols-7 gap-1.5">
+        <div role="radiogroup" aria-label={t("iconLabel")} className="flex gap-1.5">
           <button
             type="button"
             role="radio"
             aria-checked={draft.icon === ""}
             aria-label={t("noIcon")}
             onClick={() => setDraft((d) => ({ ...d, icon: "" }))}
-            className={`grid h-10 place-items-center rounded-xl text-ink-muted transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+            className={`grid h-10 w-10 place-items-center rounded-xl text-ink-muted transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
               draft.icon === "" ? "bg-brand-soft ring-2 ring-brand" : "bg-surface hover:bg-surface"
             }`}
           >
             <CreditCard aria-hidden className="size-4" />
           </button>
-          {ICON_CHOICES.map((choice) => (
+          {ICON_CHOICES.map(({ key, Icon, labelKey }) => (
             <button
-              key={choice}
+              key={key}
               type="button"
               role="radio"
-              aria-checked={draft.icon === choice}
-              aria-label={choice}
-              onClick={() => setDraft((d) => ({ ...d, icon: choice }))}
-              className={`grid h-10 place-items-center rounded-xl text-lg transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
-                draft.icon === choice ? "bg-brand-soft ring-2 ring-brand" : "bg-surface hover:bg-surface"
+              aria-checked={draft.icon === key}
+              aria-label={t(labelKey)}
+              onClick={() => setDraft((d) => ({ ...d, icon: key }))}
+              className={`grid h-10 w-10 place-items-center rounded-xl text-ink transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                draft.icon === key ? "bg-brand-soft ring-2 ring-brand" : "bg-surface hover:bg-surface"
               }`}
             >
-              {choice}
+              <Icon aria-hidden className="size-4" />
             </button>
           ))}
         </div>
@@ -187,18 +197,20 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
           <span className="shrink-0 text-xs font-medium text-ink-muted">{t("goalLabel")}</span>
           <input
             type="number"
-            inputMode="numeric"
+            inputMode="decimal"
             min="0"
-            step="1"
+            step="0.1"
             value={draft.goal}
             onChange={(e) => setDraft((d) => ({ ...d, goal: e.target.value }))}
             placeholder={t("goalPlaceholder")}
             className="w-full min-w-0 bg-transparent text-right text-base font-semibold tabular-nums outline-none placeholder:text-ink-muted/60 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
-          {/* Currency unit is always "원" (KRW) regardless of UI language,
-              matching the hardcoded "원" on the ledger's own amount field
-              in transaction-form.tsx. */}
-          <span className="shrink-0 text-sm font-medium text-ink-muted">원</span>
+          {/* The user types in 만원 (10,000-won) units; this is converted to
+              actual KRW at the create/update-action boundary (see submit()
+              and startEdit() above). The unit label is always "만원"
+              regardless of UI language, matching the hardcoded "원" on the
+              ledger's own amount field in transaction-form.tsx. */}
+          <span className="shrink-0 text-sm font-medium text-ink-muted">만원</span>
         </label>
 
         {error && (
@@ -246,7 +258,7 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
               className="flex flex-wrap items-center gap-2.5 rounded-2xl border border-line bg-surface px-3 py-2.5"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-base">
-                {method.icon ?? <CreditCard aria-hidden className="size-4 text-brand" />}
+                <PaymentMethodIcon icon={method.icon} className="size-4 text-brand" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-ink">{method.name}</p>

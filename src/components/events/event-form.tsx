@@ -40,6 +40,12 @@ export function EventForm({
 }) {
   const t = useTranslations("events");
   const { timeZone } = useTimezone();
+  // The generic "+ 일정 추가" entry point passes no defaultDate (unlike the
+  // day-summary sheet's "이날 일정 추가", which already passes a specific
+  // date) — default that case to zoned-today rather than leaving the date
+  // input empty.
+  const zonedToday = toZonedDateInputValue(new Date().toISOString(), timeZone);
+  const initialDate = defaultDate ?? zonedToday;
   const action = mode === "create" ? createEvent : updateEvent.bind(null, event!.id);
   const [state, formAction] = useActionState<EventActionState, FormData>(action, {});
   const [timeMode, setTimeMode] = useState<TimeMode>(computeInitialTimeMode(event, timeZone));
@@ -122,7 +128,7 @@ export function EventForm({
           <input
             type="date"
             name="startDate"
-            defaultValue={event ? toZonedDateInputValue(event.start_at, timeZone) : defaultDate}
+            defaultValue={event ? toZonedDateInputValue(event.start_at, timeZone) : initialDate}
             required
             className={inputClass}
           />
@@ -143,7 +149,7 @@ export function EventForm({
               type="date"
               name="endDate"
               defaultValue={
-                event ? toZonedDateInputValue(event.end_at ?? event.start_at, timeZone) : defaultDate
+                event ? toZonedDateInputValue(event.end_at ?? event.start_at, timeZone) : initialDate
               }
               required
               className={inputClass}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CreditCard } from "lucide-react";
+import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 
 export type PickerPaymentMethod = { id: string; name: string; icon: string | null };
 
@@ -59,11 +59,7 @@ export function PaymentMethodPicker({
               onClick={() => toggle(method.id)}
               className={chipStyle(active)}
             >
-              {method.icon ? (
-                <span aria-hidden>{method.icon}</span>
-              ) : (
-                <CreditCard aria-hidden className="size-4" />
-              )}
+              <PaymentMethodIcon icon={method.icon} className="size-4" />
               {method.name}
             </button>
           );

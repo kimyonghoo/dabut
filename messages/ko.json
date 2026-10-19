@@ -91,7 +91,10 @@
     "legendPartner": "상대방 가계부",
     "legendPartnerNamed": "{name}의 가계부",
     "paymentMethod": "결제 수단",
-    "cardPerformance": "카드실적"
+    "cardPerformance": "카드실적",
+    "addCategoryTitle": "카테고리 추가",
+    "categoryAddFirst": "먼저 카테고리 추가 버튼을 눌러주세요",
+    "cancel": "취소"
   },
   "calendar": {
     "monthView": "달력",
@@ -189,7 +192,7 @@
     "namePlaceholder": "이름 (예: 신한카드)",
     "nameLabel": "지출수단 이름",
     "goalLabel": "월 목표",
-    "goalPlaceholder": "목표 금액 (선택)",
+    "goalPlaceholder": "목표 금액 (만원 단위, 선택)",
     "cancel": "취소",
     "save": "저장",
     "noGoal": "목표 미설정",
@@ -199,7 +202,9 @@
     "invalidGoal": "올바른 금액을 입력해 주세요",
     "notAuthenticated": "로그인이 필요해요",
     "notFound": "지출수단을 찾을 수 없어요",
-    "failed": "처리에 실패했어요"
+    "failed": "처리에 실패했어요",
+    "iconCard": "카드",
+    "iconCash": "현금"
   },
   "cardGoals": {
     "title": "카드실적",

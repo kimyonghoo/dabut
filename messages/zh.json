@@ -91,7 +91,10 @@
     "legendPartner": "对方账本",
     "legendPartnerNamed": "{name}的账本",
     "paymentMethod": "支付方式",
-    "cardPerformance": "卡片业绩"
+    "cardPerformance": "卡片业绩",
+    "addCategoryTitle": "添加分类",
+    "categoryAddFirst": "请先点击「添加」保存新分类",
+    "cancel": "取消"
   },
   "calendar": {
     "monthView": "日历",
@@ -189,7 +192,7 @@
     "namePlaceholder": "名称（例如：新韩卡）",
     "nameLabel": "支付方式名称",
     "goalLabel": "月目标",
-    "goalPlaceholder": "目标金额（可选）",
+    "goalPlaceholder": "目标金额（单位：万元，可选）",
     "cancel": "取消",
     "save": "保存",
     "noGoal": "未设置目标",
@@ -199,7 +202,9 @@
     "invalidGoal": "请输入正确的金额",
     "notAuthenticated": "请先登录",
     "notFound": "找不到该支付方式",
-    "failed": "处理失败"
+    "failed": "处理失败",
+    "iconCard": "卡片",
+    "iconCash": "现金"
   },
   "cardGoals": {
     "title": "卡片业绩",

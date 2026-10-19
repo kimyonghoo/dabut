@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextIntlClientProvider } from "next-intl";
 import { EventForm } from "./event-form";
 import { TimezoneProvider } from "@/components/dates/timezone-provider";
@@ -39,12 +39,12 @@ const messages = {
   },
 };
 
-function renderWithIntl(ui: React.ReactElement) {
+function renderWithIntl(ui: React.ReactElement, timeZone = "UTC") {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
       {/* UTC keeps these prefill assertions a direct passthrough of the stored
           instant; timezone-specific conversion is covered in timezone.test.ts. */}
-      <TimezoneProvider initialTimeZone="UTC">{ui}</TimezoneProvider>
+      <TimezoneProvider initialTimeZone={timeZone}>{ui}</TimezoneProvider>
     </NextIntlClientProvider>
   );
 }
@@ -124,5 +124,33 @@ describe("EventForm edit mode", () => {
 
     expect(screen.getByRole("radio", { name: "All day" })).toBeChecked();
     expect(screen.getByDisplayValue("2026-10-15")).toBeInTheDocument();
+  });
+});
+
+describe("EventForm create mode", () => {
+  // 08:00 KST on the 19th is still 23:00 UTC on the 18th — a regression test
+  // for the bug where a brand-new event with no defaultDate (the generic
+  // "+ 일정 추가" entry point) left the date input empty instead of
+  // defaulting to the user's zoned-today.
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-18T23:00:00.000Z"));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("defaults the start/end date inputs to zoned-today (not UTC-today) when no defaultDate is given", () => {
+    renderWithIntl(<EventForm mode="create" connections={[]} />, "Asia/Seoul");
+
+    // Default mode is "timeRange", which renders both a startDate and an
+    // endDate input defaulting to the same zoned-today value.
+    expect(screen.getAllByDisplayValue("2026-10-19")).toHaveLength(2);
+  });
+
+  it("still prefers an explicit defaultDate (from the day-summary sheet) over zoned-today", () => {
+    renderWithIntl(<EventForm mode="create" connections={[]} defaultDate="2026-10-25" />, "Asia/Seoul");
+
+    expect(screen.getAllByDisplayValue("2026-10-25")).toHaveLength(2);
   });
 });

@@ -18,6 +18,8 @@ import { SubmitButton, Spinner } from "@/components/ui/submit-button";
 import { doneProgress, startProgress } from "@/components/feedback/progress-store";
 import { CategoryPicker, type PickerCategory } from "@/components/ledger/category-picker";
 import { PaymentMethodPicker, type PickerPaymentMethod } from "@/components/ledger/payment-method-picker";
+import { useTimezone } from "@/components/dates/timezone-provider";
+import { toZonedDateInputValue } from "@/lib/dates/timezone";
 
 const DELETE_CONFIRM_MS = 3000;
 
@@ -36,6 +38,7 @@ export function TransactionForm({
   paymentMethods?: PickerPaymentMethod[];
 }) {
   const t = useTranslations("ledger");
+  const { timeZone } = useTimezone();
   const action = mode === "create" ? createTransaction : updateTransaction.bind(null, transaction!.id);
   const [state, formAction] = useActionState<TransactionActionState, FormData>(action, {});
   const [type, setType] = useState<"expense" | "income">(
@@ -91,7 +94,9 @@ export function TransactionForm({
     });
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Zoned-today (not UTC-today, per toZonedDateInputValue's doc comment) so a
+  // brand-new entry defaults to the user's actual local date.
+  const today = toZonedDateInputValue(new Date().toISOString(), timeZone);
   const isIncome = type === "income";
 
   return (

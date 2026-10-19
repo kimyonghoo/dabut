@@ -91,7 +91,10 @@
     "legendPartner": "Partner's ledger",
     "legendPartnerNamed": "{name}'s ledger",
     "paymentMethod": "Payment method",
-    "cardPerformance": "Card goals"
+    "cardPerformance": "Card goals",
+    "addCategoryTitle": "Add category",
+    "categoryAddFirst": "Please tap Add to save the new category first",
+    "cancel": "Cancel"
   },
   "calendar": {
     "monthView": "Month",
@@ -189,7 +192,7 @@
     "namePlaceholder": "Name (e.g. Shinhan Card)",
     "nameLabel": "Payment method name",
     "goalLabel": "Monthly goal",
-    "goalPlaceholder": "Goal amount (optional)",
+    "goalPlaceholder": "Goal amount in 10,000-won units (optional)",
     "cancel": "Cancel",
     "save": "Save",
     "noGoal": "No goal set",
@@ -199,7 +202,9 @@
     "invalidGoal": "Enter a valid amount",
     "notAuthenticated": "Please sign in",
     "notFound": "Payment method not found",
-    "failed": "Something went wrong"
+    "failed": "Something went wrong",
+    "iconCard": "Card",
+    "iconCash": "Cash"
   },
   "cardGoals": {
     "title": "Card goals",

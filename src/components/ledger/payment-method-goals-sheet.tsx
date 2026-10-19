@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useDragControls, useReducedMotion, type PanInfo } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, CreditCard, X } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { formatWon } from "@/components/ledger/category-icon";
+import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 
 export type PaymentMethodGoalItem = {
   id: string;
@@ -129,13 +130,7 @@ export function PaymentMethodGoalsSheet({
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        {item.icon ? (
-                          <span aria-hidden className="text-lg leading-none">
-                            {item.icon}
-                          </span>
-                        ) : (
-                          <CreditCard aria-hidden className="size-5 text-ink-muted" />
-                        )}
+                        <PaymentMethodIcon icon={item.icon} className="size-5 text-ink-muted" />
                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{item.name}</span>
                         {done ? (
                           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-income/15 px-2 py-0.5 text-xs font-bold text-income">
