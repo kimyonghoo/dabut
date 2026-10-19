@@ -223,15 +223,15 @@ function SettingsPageContent() {
         <PaymentMethodsManager initialMethods={paymentMethods} />
       </Card>
 
-      <Card>
-        <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
-      </Card>
-
       {telegramConnected && (
         <Card>
           <DailyDigestSettings userId={userId} initialEnabled={dailyDigestEnabled} />
         </Card>
       )}
+
+      <Card>
+        <TelegramLink connected={telegramConnected} onDisconnected={() => setTelegramConnected(false)} />
+      </Card>
 
       <div className="mt-2 flex flex-col items-center gap-2">
         <SignOutButton />

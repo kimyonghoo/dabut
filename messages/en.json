@@ -77,7 +77,7 @@
     "back": "Back",
     "newTitle": "New entry",
     "editTitle": "Edit entry",
-    "addCategory": "+ Add",
+    "addCategory": "Add",
     "addCategorySubmit": "Add",
     "categoryName": "Category name",
     "categoryNamePlaceholder": "Category name (max 12)",
@@ -111,7 +111,7 @@
     "categoryMine": "My events",
     "categoryPartner": "Partner's events",
     "categoryPartnerNamed": "{name}'s events",
-    "categoryShared": "Together events",
+    "categoryShared": "Together",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "allDay": "All day",
@@ -213,8 +213,7 @@
       "submit": "Confirm"
     },
     "dailyDigest": {
-      "title": "What's tomorrow?",
-      "description": "At 6 PM, we'll tell you tomorrow's schedule on Telegram"
+      "title": "What's tomorrow?"
     },
     "themeSection": "Theme",
     "mode": "Appearance",
@@ -277,7 +276,8 @@
     "emailConfirmedLogin": "Email confirmed! Please log in",
     "deleteFailed": "Couldn't delete. Please try again",
     "accountDeleted": "Your account has been deleted. Thank you for everything",
-    "telegramSignupVerified": "Telegram verification complete! Welcome to Dabut"
+    "telegramSignupVerified": "Telegram verification complete! Welcome to Dabut",
+    "dailyDigestEnabled": "We'll tell you tomorrow's schedule at 6 PM"
   },
   "daySummary": {
     "mine": "My events",

@@ -77,7 +77,7 @@
     "back": "返回",
     "newTitle": "添加记录",
     "editTitle": "编辑记录",
-    "addCategory": "+ 添加",
+    "addCategory": "添加",
     "addCategorySubmit": "添加",
     "categoryName": "分类名称",
     "categoryNamePlaceholder": "分类名称（最多12字）",
@@ -111,7 +111,7 @@
     "categoryMine": "我的日程",
     "categoryPartner": "对方的日程",
     "categoryPartnerNamed": "{name}的日程",
-    "categoryShared": "一起的日程",
+    "categoryShared": "一起",
     "prevMonth": "上个月",
     "nextMonth": "下个月",
     "allDay": "全天",
@@ -213,8 +213,7 @@
       "submit": "确认"
     },
     "dailyDigest": {
-      "title": "明天干什么？",
-      "description": "晚上6点，我们会把明天的日程通过 Telegram 发给你"
+      "title": "明天干什么？"
     },
     "themeSection": "主题",
     "mode": "显示模式",
@@ -277,7 +276,8 @@
     "emailConfirmedLogin": "邮箱验证完成！请登录",
     "deleteFailed": "删除失败，请重试",
     "accountDeleted": "账户已删除，感谢一路相伴",
-    "telegramSignupVerified": "Telegram 验证完成！欢迎来到 Dabut"
+    "telegramSignupVerified": "Telegram 验证完成！欢迎来到 Dabut",
+    "dailyDigestEnabled": "晚上6点，我们会告诉你明天的日程"
   },
   "daySummary": {
     "mine": "我的日程",

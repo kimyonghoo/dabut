@@ -77,7 +77,7 @@
     "back": "뒤로",
     "newTitle": "내역 추가",
     "editTitle": "내역 수정",
-    "addCategory": "+ 추가",
+    "addCategory": "추가",
     "addCategorySubmit": "추가",
     "categoryName": "카테고리 이름",
     "categoryNamePlaceholder": "카테고리 이름 (최대 12자)",
@@ -91,7 +91,7 @@
     "legendPartner": "상대방 가계부",
     "legendPartnerNamed": "{name}의 가계부",
     "paymentMethod": "결제 수단",
-    "cardPerformance": "목표",
+    "cardPerformance": "실적",
     "addCategoryTitle": "카테고리 추가",
     "categoryAddFirst": "먼저 카테고리 추가 버튼을 눌러주세요",
     "cancel": "취소",
@@ -111,7 +111,7 @@
     "categoryMine": "내 일정",
     "categoryPartner": "상대방 일정",
     "categoryPartnerNamed": "{name}의 일정",
-    "categoryShared": "같이 일정",
+    "categoryShared": "같이",
     "prevMonth": "이전 달",
     "nextMonth": "다음 달",
     "allDay": "하루 종일",
@@ -213,8 +213,7 @@
       "submit": "확인"
     },
     "dailyDigest": {
-      "title": "내일 뭐해?",
-      "description": "저녁 6시가 되면 내일 일정을 텔레그램으로 알려드려요"
+      "title": "내일 뭐해?"
     },
     "themeSection": "테마",
     "mode": "화면 모드",
@@ -277,7 +276,8 @@
     "emailConfirmedLogin": "이메일 인증 완료! 로그인해 주세요",
     "deleteFailed": "삭제하지 못했어요. 다시 시도해 주세요",
     "accountDeleted": "계정을 삭제했어요. 그동안 고마웠어요",
-    "telegramSignupVerified": "텔레그램 인증이 완료됐어요! 다붓에 오신 걸 환영해요"
+    "telegramSignupVerified": "텔레그램 인증이 완료됐어요! 다붓에 오신 걸 환영해요",
+    "dailyDigestEnabled": "저녁 6시가 되면 내일 일정을 알려드릴게요"
   },
   "daySummary": {
     "mine": "내 일정",

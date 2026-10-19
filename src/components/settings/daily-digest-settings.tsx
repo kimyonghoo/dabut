@@ -4,13 +4,16 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Moon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { showToast } from "@/components/feedback/toast-bus";
 
 /**
  * "내일 뭐해?" — opt-in Telegram push summarizing tomorrow's events, sent
  * once a day at a fixed 6 PM (see the daily-digest cron route) — no
  * per-user hour picker, just on/off. Writes straight to `profiles` on
  * toggle, same pattern as the other Settings quick controls (brand color,
- * timezone) — no separate save step.
+ * timezone) — no separate save step. The 6 PM behavior isn't written out as
+ * a standing description (no room for it here), just surfaced once as a
+ * toast the moment you flip it on.
  */
 export function DailyDigestSettings({
   userId,
@@ -25,6 +28,7 @@ export function DailyDigestSettings({
   function toggle() {
     const next = !enabled;
     setEnabled(next);
+    if (next) showToast("dailyDigestEnabled");
     if (!userId) return;
     void createClient().from("profiles").update({ daily_digest_enabled: next }).eq("id", userId);
   }
@@ -34,10 +38,7 @@ export function DailyDigestSettings({
       <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
         <Moon className="size-4.5" strokeWidth={2} />
       </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-ink">{t("title")}</p>
-        <p className="text-xs text-ink-muted">{t("description")}</p>
-      </div>
+      <p className="min-w-0 flex-1 text-sm font-semibold text-ink">{t("title")}</p>
       <button
         type="button"
         role="switch"
