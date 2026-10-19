@@ -213,7 +213,9 @@
       "submit": "Confirm"
     },
     "dailyDigest": {
-      "title": "What's tomorrow?"
+      "title": "What's tomorrow?",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off"
     },
     "themeSection": "Theme",
     "mode": "Appearance",

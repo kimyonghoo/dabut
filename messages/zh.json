@@ -213,7 +213,9 @@
       "submit": "确认"
     },
     "dailyDigest": {
-      "title": "明天干什么？"
+      "title": "明天干什么？",
+      "turnOn": "开启提醒",
+      "turnOff": "关闭提醒"
     },
     "themeSection": "主题",
     "mode": "显示模式",

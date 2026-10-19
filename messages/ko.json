@@ -213,7 +213,9 @@
       "submit": "확인"
     },
     "dailyDigest": {
-      "title": "내일 뭐해?"
+      "title": "내일 뭐해?",
+      "turnOn": "알림 켜기",
+      "turnOff": "알림 끄기"
     },
     "themeSection": "테마",
     "mode": "화면 모드",

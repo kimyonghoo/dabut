@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Moon } from "lucide-react";
+import { CalendarCheck2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { showToast } from "@/components/feedback/toast-bus";
+import { buttonClass } from "@/components/ui/button";
 
 /**
  * "내일 뭐해?" — opt-in Telegram push summarizing tomorrow's events, sent
  * once a day at a fixed 6 PM (see the daily-digest cron route) — no
- * per-user hour picker, just on/off. Writes straight to `profiles` on
- * toggle, same pattern as the other Settings quick controls (brand color,
- * timezone) — no separate save step. The 6 PM behavior isn't written out as
- * a standing description (no room for it here), just surfaced once as a
- * toast the moment you flip it on.
+ * per-user hour picker, just on/off. Mirrors TelegramLink's layout exactly
+ * (bare icon + title on the left, a single connect/disconnect-style button
+ * on the right) rather than a toggle switch, so the two Settings rows read
+ * the same way. Writes straight to `profiles` on click, same pattern as the
+ * other Settings quick controls — no separate save step.
  */
 export function DailyDigestSettings({
   userId,
@@ -34,27 +35,17 @@ export function DailyDigestSettings({
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
-        <Moon className="size-4.5" strokeWidth={2} />
-      </span>
-      <p className="min-w-0 flex-1 text-sm font-semibold text-ink">{t("title")}</p>
+    <div className="flex items-center justify-between gap-3">
+      <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-ink">
+        <CalendarCheck2 aria-hidden className="size-4 shrink-0 text-brand" />
+        <span className="truncate">{t("title")}</span>
+      </h2>
       <button
         type="button"
-        role="switch"
-        aria-checked={enabled}
-        aria-label={t("title")}
         onClick={toggle}
-        className={`relative h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
-          enabled ? "bg-brand" : "bg-surface-2"
-        }`}
+        className={buttonClass(enabled ? "danger" : "primary", "shrink-0 !px-3.5 !py-2")}
       >
-        <span
-          aria-hidden
-          className={`absolute top-0.5 size-6 rounded-full bg-white shadow transition-[left] ${
-            enabled ? "left-[22px]" : "left-0.5"
-          }`}
-        />
+        {enabled ? t("turnOff") : t("turnOn")}
       </button>
     </div>
   );
