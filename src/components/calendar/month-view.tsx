@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useTransition } from "react";
 import { addMonths, format, isSameDay, isSameMonth } from "date-fns";
 import { motion, type PanInfo } from "framer-motion";
 import { getMonthGridDays } from "@/lib/calendar/month-grid";
@@ -54,6 +55,7 @@ export function MonthView({
   const locale = useLocale();
   const dfLocale = getDateFnsLocale(locale);
   const router = useProgressRouter();
+  const [, startTransition] = useTransition();
   const days = getMonthGridDays(month);
   const weeks = groupIntoWeeks(days);
   const today = new Date();
@@ -66,13 +68,21 @@ export function MonthView({
   // scroll, or an accidental nudge) clears neither the distance nor the
   // velocity threshold and is ignored — only a deliberate horizontal swipe
   // changes the month.
+  //
+  // The push is wrapped in startTransition (same pattern as
+  // use-locale-switcher.ts and month-nav-arrows.tsx) so React keeps this
+  // month's grid mounted and visible — for MonthSlide to animate out —
+  // instead of the route's loading.tsx fallback blanking the screen while
+  // the new month streams in.
   function handleDragEnd(_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) {
     const { x } = info.offset;
     const { x: vx } = info.velocity;
     if (x <= -SWIPE_DISTANCE_THRESHOLD || vx <= -SWIPE_VELOCITY_THRESHOLD) {
-      router.push(monthHref(addMonths(month, 1)));
+      const href = monthHref(addMonths(month, 1));
+      startTransition(() => router.push(href));
     } else if (x >= SWIPE_DISTANCE_THRESHOLD || vx >= SWIPE_VELOCITY_THRESHOLD) {
-      router.push(monthHref(addMonths(month, -1)));
+      const href = monthHref(addMonths(month, -1));
+      startTransition(() => router.push(href));
     }
   }
 

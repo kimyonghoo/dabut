@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { REVEAL_WIDTH, resolveSwipeReveal } from "./resolve-swipe-reveal";
+import { POSITION_THRESHOLD_RATIO, REVEAL_WIDTH, resolveSwipeReveal } from "./resolve-swipe-reveal";
+
+const POSITION_THRESHOLD = REVEAL_WIDTH * POSITION_THRESHOLD_RATIO;
 
 describe("resolveSwipeReveal", () => {
-  it("opens after a left drag past half the button width", () => {
-    expect(resolveSwipeReveal(-(REVEAL_WIDTH / 2 + 1), 0, false)).toBe(true);
-    expect(resolveSwipeReveal(-(REVEAL_WIDTH / 2 - 1), 0, false)).toBe(false);
+  it("opens after a left drag past the reveal-width threshold", () => {
+    expect(resolveSwipeReveal(-(POSITION_THRESHOLD + 1), 0, false)).toBe(true);
+    expect(resolveSwipeReveal(-(POSITION_THRESHOLD - 1), 0, false)).toBe(false);
   });
 
   it("opens/closes on a fast flick regardless of distance", () => {
@@ -13,7 +15,7 @@ describe("resolveSwipeReveal", () => {
   });
 
   it("closes an open row dragged back to the right", () => {
-    expect(resolveSwipeReveal(REVEAL_WIDTH / 2 + 1, 0, true)).toBe(false);
+    expect(resolveSwipeReveal(POSITION_THRESHOLD + 1, 0, true)).toBe(false);
     expect(resolveSwipeReveal(10, 0, true)).toBe(true);
   });
 

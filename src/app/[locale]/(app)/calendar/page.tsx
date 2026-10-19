@@ -1,17 +1,18 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { addMonths, format } from "date-fns";
+import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { expandEventsForDisplay } from "@/lib/calendar/expand-events-for-display";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { ViewToggle } from "@/components/calendar/view-toggle";
 import { MonthView } from "@/components/calendar/month-view";
+import { MonthSlide } from "@/components/calendar/month-slide";
+import { MonthNavArrows } from "@/components/calendar/month-nav-arrows";
 import { ThreadView } from "@/components/calendar/thread-view";
 import { CategoryLegend } from "@/components/calendar/category-legend";
-import { getDateFnsLocale, monthHref, monthTitlePattern, parseMonthParam } from "@/components/calendar/date-locale";
+import { getDateFnsLocale, monthTitlePattern, parseMonthParam } from "@/components/calendar/date-locale";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { resolvePartnerName } from "@/lib/calendar/partner-name";
 import { toDateKey } from "@/lib/dates/relative-day";
@@ -35,13 +36,18 @@ export default async function CalendarPage({
   // fail safe here too instead of crashing on user!.id if one transiently
   // returns no session.
   if (!user) return redirect({ href: "/login", locale });
-  const { data: events } = await supabase.from("events").select("*");
-  const partnerName = await resolvePartnerName(supabase, user.id);
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("telegram_chat_id, timezone")
-    .eq("id", user.id)
-    .maybeSingle();
+  // These three only depend on `user.id`/the already-authenticated
+  // `supabase` client, not on each other — running them as a single
+  // Promise.all instead of three sequential awaits turns three round trips
+  // (plus resolvePartnerName's own two internal round trips) into one
+  // batch, which is most of where the previous multi-second month-change
+  // delay actually came from (the RSC-navigation blank flash on top of that
+  // is a separate issue, fixed by startTransition — see MonthSlide).
+  const [{ data: events }, partnerName, { data: profile }] = await Promise.all([
+    supabase.from("events").select("*"),
+    resolvePartnerName(supabase, user.id),
+    supabase.from("profiles").select("telegram_chat_id, timezone").eq("id", user.id).maybeSingle(),
+  ]);
   const timeZone = profile?.timezone ?? DEFAULT_TIMEZONE;
 
   // Recurring parents are expanded into their visible-range computed
@@ -66,8 +72,6 @@ export default async function CalendarPage({
   const month = parseMonthParam(monthParam);
   const isThread = view === "thread";
   const monthTitle = format(month, monthTitlePattern(locale), { locale: getDateFnsLocale(locale) });
-  const navClass =
-    "inline-flex h-8 w-8 items-center justify-center rounded-full text-lg text-ink-muted transition hover:bg-surface-2 hover:text-ink active:scale-90";
 
   return (
     <main className="flex flex-col gap-4 pb-6">
@@ -82,15 +86,12 @@ export default async function CalendarPage({
           isThread ? (
             t("threadView")
           ) : (
-            <span className="inline-flex items-center gap-1">
-              <Link href={monthHref(addMonths(month, -1))} aria-label={t("prevMonth")} className={navClass}>
-                <ChevronLeft aria-hidden className="size-5" />
-              </Link>
-              <span>{monthTitle}</span>
-              <Link href={monthHref(addMonths(month, 1))} aria-label={t("nextMonth")} className={navClass}>
-                <ChevronRight aria-hidden className="size-5" />
-              </Link>
-            </span>
+            <MonthNavArrows
+              month={month}
+              monthTitle={monthTitle}
+              prevLabel={t("prevMonth")}
+              nextLabel={t("nextMonth")}
+            />
           )
         }
         action={
@@ -115,14 +116,16 @@ export default async function CalendarPage({
         />
       ) : (
         <>
-          <MonthView
-            month={month}
-            events={categorized}
-            currentUserId={user.id}
-            partnerName={partnerName}
-            timeZone={timeZone}
-          />
-          <CategoryLegend />
+          <MonthSlide monthKey={format(month, "yyyy-MM")}>
+            <MonthView
+              month={month}
+              events={categorized}
+              currentUserId={user.id}
+              partnerName={partnerName}
+              timeZone={timeZone}
+            />
+          </MonthSlide>
+          <CategoryLegend partnerName={partnerName} />
         </>
       )}
     </main>
