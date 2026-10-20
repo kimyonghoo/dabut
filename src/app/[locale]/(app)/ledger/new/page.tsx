@@ -1,13 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { TransactionForm } from "@/components/ledger/transaction-form";
+import { fetchCategoriesSortedByUsage } from "@/lib/ledger/fetch-sorted-categories";
 
 export default async function NewTransactionPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const [{ data: categories }, { data: paymentMethods }] = await Promise.all([
-    supabase.from("categories").select("*"),
+  const [categories, { data: paymentMethods }] = await Promise.all([
+    fetchCategoriesSortedByUsage(supabase),
     // Deliberately the one place that fetches *other members'* payment
     // methods too — RLS now allows a connection member to SELECT a payment
     // method they don't own (see 0019_payment_methods_shared_visibility.sql)
@@ -20,7 +21,7 @@ export default async function NewTransactionPage() {
   return (
     <TransactionForm
       mode="create"
-      categories={categories ?? []}
+      categories={categories}
       paymentMethods={paymentMethods ?? []}
       currentUserId={user?.id ?? null}
     />

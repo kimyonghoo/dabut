@@ -165,7 +165,7 @@ export function tomorrowDigestMessage(input: {
     return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
   });
   const { month, day, weekday } = zonedDateParts(sorted[0].startAt, timeZone);
-  const lines = [`🌙 <b>내일 뭐해?</b>`, `${month}월 ${day}일 (${KOREAN_WEEKDAYS[weekday]})`, ""];
+  const lines = [`📅 <b>내일 뭐해?</b>`, `${month}월 ${day}일 (${KOREAN_WEEKDAYS[weekday]})`, ""];
   for (const event of sorted) {
     const { hour, minute } = zonedDateParts(event.startAt, timeZone);
     const time = event.allDay ? "종일" : `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;

@@ -46,6 +46,7 @@ export function CategoryPicker({
 }) {
   const t = useTranslations("ledger");
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string>(CATEGORY_ICON_CHOICES[0]);
   const [error, setError] = useState<string | null>(null);
@@ -147,11 +148,22 @@ export function CategoryPicker({
     }
   }
 
+  // Only the 10 most-used categories show by default (categories arrives
+  // pre-sorted most-used-first — see fetchCategoriesSortedByUsage) — the
+  // rest are tucked behind "더보기" so this chip row doesn't sprawl as the
+  // category list grows. The currently selected one stays visible even if
+  // it falls outside the top 10 (e.g. editing an older, rarely-used entry).
+  const TOP_COUNT = 10;
+  const topCategories = categories.slice(0, TOP_COUNT);
+  const hiddenCategories = categories.slice(TOP_COUNT).filter((c) => c.id !== selectedId);
+  const forcedVisible = categories.slice(TOP_COUNT).filter((c) => c.id === selectedId);
+  const visibleCategories = expanded ? categories : [...topCategories, ...forcedVisible];
+
   return (
     <fieldset ref={fieldsetRef} className="flex flex-col gap-2">
       <legend className="mb-2 text-sm font-medium text-ink-muted">{t("category")}</legend>
       <div className="flex flex-wrap gap-2">
-        {categories.map((category) => (
+        {visibleCategories.map((category) => (
           <label key={category.id} className="cursor-pointer">
             <input
               type="radio"
@@ -170,6 +182,15 @@ export function CategoryPicker({
             </span>
           </label>
         ))}
+        {hiddenCategories.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            className={`${chipClass} border-dashed border-line text-ink-muted hover:bg-surface-2`}
+          >
+            {expanded ? t("filterLess") : t("filterMore", { count: hiddenCategories.length })}
+          </button>
+        )}
         <button
           type="button"
           aria-haspopup="dialog"

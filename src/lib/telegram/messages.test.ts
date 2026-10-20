@@ -259,7 +259,7 @@ describe("tomorrowDigestMessage", () => {
           { title: "치과 예약", startAt: "2026-10-19T23:00:00.000Z", allDay: false }, // 08:00 KST
         ],
       })
-    ).toBe("🌙 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n08:00  치과 예약\n14:00  회의");
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n08:00  치과 예약\n14:00  회의");
   });
 
   it("puts all-day events first, labeled 종일", () => {
@@ -270,7 +270,7 @@ describe("tomorrowDigestMessage", () => {
           { title: "생일", startAt: "2026-10-20T00:00:00.000Z", allDay: true },
         ],
       })
-    ).toBe("🌙 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n종일  생일\n14:00  회의");
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n종일  생일\n14:00  회의");
   });
 
   it("escapes HTML-special characters in event titles", () => {
@@ -278,6 +278,6 @@ describe("tomorrowDigestMessage", () => {
       tomorrowDigestMessage({
         events: [{ title: "<b>해킹</b>", startAt: "2026-10-20T05:00:00.000Z", allDay: false }],
       })
-    ).toBe("🌙 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n14:00  &lt;b&gt;해킹&lt;/b&gt;");
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n14:00  &lt;b&gt;해킹&lt;/b&gt;");
   });
 });
