@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { CalendarCheck2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { toggleDailyDigest } from "@/lib/actions/daily-digest";
 import { showToast } from "@/components/feedback/toast-bus";
 import { buttonClass } from "@/components/ui/button";
 
@@ -13,25 +13,26 @@ import { buttonClass } from "@/components/ui/button";
  * per-user hour picker, just on/off. Mirrors TelegramLink's layout exactly
  * (bare icon + title on the left, a single connect/disconnect-style button
  * on the right) rather than a toggle switch, so the two Settings rows read
- * the same way. Writes straight to `profiles` on click, same pattern as the
- * other Settings quick controls — no separate save step.
+ * the same way.
  */
-export function DailyDigestSettings({
-  userId,
-  initialEnabled,
-}: {
-  userId: string | null;
-  initialEnabled: boolean;
-}) {
+export function DailyDigestSettings({ initialEnabled }: { initialEnabled: boolean }) {
   const t = useTranslations("settings.dailyDigest");
   const [enabled, setEnabled] = useState(initialEnabled);
+  const [pending, startTransition] = useTransition();
 
   function toggle() {
     const next = !enabled;
     setEnabled(next);
-    if (next) showToast("dailyDigestEnabled");
-    if (!userId) return;
-    void createClient().from("profiles").update({ daily_digest_enabled: next }).eq("id", userId);
+    startTransition(async () => {
+      const result = await toggleDailyDigest(next);
+      if (!result.ok) {
+        // Roll back the optimistic flip — the DB write didn't actually land.
+        setEnabled(!next);
+        showToast("dailyDigestToggleFailed", "error");
+        return;
+      }
+      if (next) showToast("dailyDigestEnabled");
+    });
   }
 
   return (
@@ -43,6 +44,7 @@ export function DailyDigestSettings({
       <button
         type="button"
         onClick={toggle}
+        disabled={pending}
         className={buttonClass(enabled ? "danger" : "primary", "shrink-0 !px-3.5 !py-2")}
       >
         {enabled ? t("turnOff") : t("turnOn")}

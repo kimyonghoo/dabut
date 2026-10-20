@@ -279,7 +279,8 @@
     "deleteFailed": "삭제하지 못했어요. 다시 시도해 주세요",
     "accountDeleted": "계정을 삭제했어요. 그동안 고마웠어요",
     "telegramSignupVerified": "텔레그램 인증이 완료됐어요! 다붓에 오신 걸 환영해요",
-    "dailyDigestEnabled": "저녁 6시가 되면 내일 일정을 알려드릴게요"
+    "dailyDigestEnabled": "저녁 6시가 되면 내일 일정을 알려드릴게요",
+    "dailyDigestToggleFailed": "설정을 저장하지 못했어요. 다시 시도해 주세요"
   },
   "daySummary": {
     "mine": "내 일정",

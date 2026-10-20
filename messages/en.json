@@ -279,7 +279,8 @@
     "deleteFailed": "Couldn't delete. Please try again",
     "accountDeleted": "Your account has been deleted. Thank you for everything",
     "telegramSignupVerified": "Telegram verification complete! Welcome to Dabut",
-    "dailyDigestEnabled": "We'll tell you tomorrow's schedule at 6 PM"
+    "dailyDigestEnabled": "We'll tell you tomorrow's schedule at 6 PM",
+    "dailyDigestToggleFailed": "Couldn't save that. Please try again"
   },
   "daySummary": {
     "mine": "My events",

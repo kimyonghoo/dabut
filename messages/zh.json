@@ -279,7 +279,8 @@
     "deleteFailed": "删除失败，请重试",
     "accountDeleted": "账户已删除，感谢一路相伴",
     "telegramSignupVerified": "Telegram 验证完成！欢迎来到 Dabut",
-    "dailyDigestEnabled": "晚上6点，我们会告诉你明天的日程"
+    "dailyDigestEnabled": "晚上6点，我们会告诉你明天的日程",
+    "dailyDigestToggleFailed": "保存失败，请重试"
   },
   "daySummary": {
     "mine": "我的日程",

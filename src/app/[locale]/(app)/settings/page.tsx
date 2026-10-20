@@ -225,7 +225,7 @@ function SettingsPageContent() {
 
       {telegramConnected && (
         <Card>
-          <DailyDigestSettings userId={userId} initialEnabled={dailyDigestEnabled} />
+          <DailyDigestSettings initialEnabled={dailyDigestEnabled} />
         </Card>
       )}
 
