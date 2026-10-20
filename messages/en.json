@@ -88,6 +88,8 @@
     "deleteConfirm": "Tap again to delete",
     "filterLabel": "Category filter",
     "filterAll": "All",
+    "filterMore": "More +{count}",
+    "filterLess": "Less",
     "filterEmpty": "No entries match these filters",
     "legendMine": "My ledger",
     "legendPartner": "Partner's ledger",

@@ -88,6 +88,8 @@
     "deleteConfirm": "한 번 더 누르면 삭제돼요",
     "filterLabel": "카테고리 필터",
     "filterAll": "전체",
+    "filterMore": "더보기 +{count}",
+    "filterLess": "접기",
     "filterEmpty": "조건에 맞는 내역이 없어요",
     "legendMine": "내 가계부",
     "legendPartner": "상대방 가계부",

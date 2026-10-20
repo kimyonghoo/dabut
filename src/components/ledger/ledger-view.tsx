@@ -101,6 +101,7 @@ export function LedgerView({
   const [ownerFilter, setOwnerFilter] = useState<TransactionOwnership | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [goalsOpen, setGoalsOpen] = useState(false);
+  const [chipsExpanded, setChipsExpanded] = useState(false);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteTransaction, "transactionDeleted");
 
   const liveRows = rows.filter((row) => !isRemoved(row.id));
@@ -159,14 +160,26 @@ export function LedgerView({
         byId.set(row.categoryId, { id: row.categoryId, ...row.category, type: row.type });
       }
     }
-    const used = new Set(rows.map((row) => row.categoryId));
+    const countById = new Map<string, number>();
+    for (const row of rows) countById.set(row.categoryId, (countById.get(row.categoryId) ?? 0) + 1);
     return [...byId.values()].sort((a, b) => {
-      const usedDiff = Number(used.has(b.id)) - Number(used.has(a.id));
-      if (usedDiff !== 0) return usedDiff;
+      const countDiff = (countById.get(b.id) ?? 0) - (countById.get(a.id) ?? 0);
+      if (countDiff !== 0) return countDiff;
       if (a.type !== b.type) return a.type === "expense" ? -1 : 1;
       return 0;
     });
   }, [categories, rows]);
+
+  // Only the 10 most-used categories show by default — the rest are tucked
+  // behind "더보기" to keep the filter row from sprawling. A category that's
+  // already selected (filtering by something outside the top 10, e.g. after
+  // switching months) stays visible regardless, so its chip is never an
+  // active-but-invisible filter.
+  const TOP_CHIP_COUNT = 10;
+  const topChips = chips.slice(0, TOP_CHIP_COUNT);
+  const hiddenChips = chips.slice(TOP_CHIP_COUNT).filter((c) => !categoryIds.includes(c.id));
+  const forcedVisibleChips = chips.slice(TOP_CHIP_COUNT).filter((c) => categoryIds.includes(c.id));
+  const visibleChips = chipsExpanded ? chips : [...topChips, ...forcedVisibleChips];
 
   const chipStyle = (active: boolean) =>
     `${chipClass} ${
@@ -235,7 +248,7 @@ export function LedgerView({
               >
                 {t("filterAll")}
               </button>
-              {chips.map((chip) => (
+              {visibleChips.map((chip) => (
                 <button
                   key={chip.id}
                   type="button"
@@ -247,6 +260,15 @@ export function LedgerView({
                   {chip.name}
                 </button>
               ))}
+              {hiddenChips.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setChipsExpanded((value) => !value)}
+                  className={`${chipClass} border-dashed border-line text-ink-muted hover:bg-surface-2`}
+                >
+                  {chipsExpanded ? t("filterLess") : t("filterMore", { count: hiddenChips.length })}
+                </button>
+              )}
             </div>
           )}
 

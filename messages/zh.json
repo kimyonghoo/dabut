@@ -88,6 +88,8 @@
     "deleteConfirm": "再点一次即可删除",
     "filterLabel": "分类筛选",
     "filterAll": "全部",
+    "filterMore": "更多 +{count}",
+    "filterLess": "收起",
     "filterEmpty": "没有符合条件的记录",
     "legendMine": "我的账本",
     "legendPartner": "对方账本",
