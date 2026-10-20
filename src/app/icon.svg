@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
-  <rect width="80" height="80" rx="20" fill="#2c2320"/>
+  <rect width="80" height="80" rx="20" fill="#ffffff"/>
   <defs>
     <clipPath id="frontClip">
       <path d="M0 15 C-15 4 -17 -6 -11 -12 C-5 -16 0 -13 0 -8 C0 -13 5 -16 11 -12 C17 -6 15 4 0 15 Z" transform="translate(48 40) rotate(12)"/>
