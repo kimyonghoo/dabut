@@ -90,7 +90,7 @@ describe("createTransaction", () => {
     expect(mocks.notifyConnectionMembers).not.toHaveBeenCalled();
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/", "layout");
     expect(mocks.redirect).toHaveBeenCalledWith({
-      href: { pathname: "/ledger", query: { toast: "transactionCreated" } },
+      href: { pathname: "/ledger", query: { toast: "transactionCreated", month: "2026-10" } },
       locale: "ko",
     });
   });

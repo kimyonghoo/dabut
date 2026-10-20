@@ -4,13 +4,13 @@ import { enUS, ko, zhCN, type Locale } from "date-fns/locale";
 const LOCALES: Record<string, Locale> = { ko, en: enUS, zh: zhCN };
 
 /**
- * `/calendar?month=yyyy-MM` href for a given month — the single source of
- * this URL shape, shared by the page header's prev/next month links and the
- * month grid's swipe gesture, so the two navigation paths can never drift
- * apart.
+ * `/calendar?month=yyyy-MM` (or `/ledger?month=yyyy-MM`) href for a given
+ * month — the single source of this URL shape, shared by the page header's
+ * prev/next month links and the month grid's swipe gesture, so the
+ * navigation paths can never drift apart.
  */
-export function monthHref(date: Date) {
-  return { pathname: "/calendar" as const, query: { month: format(date, "yyyy-MM") } };
+export function monthHref(date: Date, pathname: "/calendar" | "/ledger" = "/calendar") {
+  return { pathname, query: { month: format(date, "yyyy-MM") } };
 }
 
 export function getDateFnsLocale(locale: string): Locale {

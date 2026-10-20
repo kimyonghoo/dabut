@@ -23,17 +23,19 @@ export function MonthNavArrows({
   monthTitle,
   prevLabel,
   nextLabel,
+  basePath = "/calendar",
 }: {
   month: Date;
   monthTitle: string;
   prevLabel: string;
   nextLabel: string;
+  basePath?: "/calendar" | "/ledger";
 }) {
   const router = useProgressRouter();
   const [, startTransition] = useTransition();
 
   function go(nextMonth: Date) {
-    const href = monthHref(nextMonth);
+    const href = monthHref(nextMonth, basePath);
     startTransition(() => {
       router.push(href);
     });

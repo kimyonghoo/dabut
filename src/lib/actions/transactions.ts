@@ -191,8 +191,15 @@ async function checkPaymentMethodMilestones(
   }
 }
 
-async function redirectToLedger(toast: "transactionCreated" | "transactionUpdated" | "transactionDeleted"): Promise<never> {
-  return redirect({ href: { pathname: "/ledger", query: { toast } }, locale: await getLocale() });
+// `month` anchors the redirect to the ledger month containing the
+// saved/deleted transaction's own `occurred_at` date, so saving/deleting
+// while browsing a non-current month lands back on that same month in the
+// common case, mirroring events.ts's redirectToCalendar.
+async function redirectToLedger(
+  toast: "transactionCreated" | "transactionUpdated" | "transactionDeleted",
+  month: string
+): Promise<never> {
+  return redirect({ href: { pathname: "/ledger", query: { toast, month } }, locale: await getLocale() });
 }
 
 async function notifyTransaction(
@@ -265,7 +272,7 @@ export async function createTransaction(
 
   revalidatePath("/", "layout");
   // redirect throws (NEXT_REDIRECT) — must stay last and outside any try/catch.
-  return redirectToLedger("transactionCreated");
+  return redirectToLedger("transactionCreated", (row?.occurred_at ?? formData.get("occurredAt") as string).slice(0, 7));
 }
 
 export async function updateTransaction(
@@ -314,7 +321,7 @@ export async function updateTransaction(
 
   revalidatePath("/", "layout");
   // redirect throws (NEXT_REDIRECT) — must stay last and outside any try/catch.
-  return redirectToLedger("transactionUpdated");
+  return redirectToLedger("transactionUpdated", (row?.occurred_at ?? formData.get("occurredAt") as string).slice(0, 7));
 }
 
 export async function deleteTransaction(transactionId: string): Promise<TransactionActionState> {
@@ -333,9 +340,10 @@ export async function deleteTransaction(transactionId: string): Promise<Transact
     .maybeSingle();
   if (error) return { error: error.message };
 
-  await notifyTransaction(supabase, user, "deleted", data as unknown as ReturnedTransaction | null);
+  const deletedRow = data as unknown as ReturnedTransaction | null;
+  await notifyTransaction(supabase, user, "deleted", deletedRow);
 
   revalidatePath("/", "layout");
   // redirect throws (NEXT_REDIRECT) — must stay last and outside any try/catch.
-  return redirectToLedger("transactionDeleted");
+  return redirectToLedger("transactionDeleted", (deletedRow?.occurred_at ?? format(new Date(), "yyyy-MM-dd")).slice(0, 7));
 }

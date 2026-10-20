@@ -96,8 +96,8 @@ export function LedgerView({
   const tCommon = useTranslations("common");
   const locale = useLocale();
   const todayKey = useTodayKey(serverTodayKey);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [paymentMethodIds, setPaymentMethodIds] = useState<string[]>([]);
   const [ownerFilter, setOwnerFilter] = useState<TransactionOwnership | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [goalsOpen, setGoalsOpen] = useState(false);
@@ -105,10 +105,11 @@ export function LedgerView({
 
   const liveRows = rows.filter((row) => !isRemoved(row.id));
   // All four filter dimensions compose with AND logic: each stage narrows
-  // whatever the previous stage kept.
+  // whatever the previous stage kept. Category and payment method are both
+  // multi-select (OR within the dimension, AND across dimensions).
   const filtered = filterBySearch(
     filterByOwner(
-      filterByPaymentMethod(filterByCategory(liveRows, categoryId), paymentMethodId),
+      filterByPaymentMethod(filterByCategory(liveRows, categoryIds), paymentMethodIds),
       hasPartner ? ownerFilter : null,
       currentUserId
     ),
@@ -117,11 +118,19 @@ export function LedgerView({
   const totals = calculateMonthlyTotals(filtered.map((row) => ({ type: row.type, amount: row.amount })));
   const groups = groupByOccurredAt(filtered);
 
+  function toggleCategory(id: string) {
+    setCategoryIds((current) => (current.includes(id) ? current.filter((c) => c !== id) : [...current, id]));
+  }
+
+  function togglePaymentMethod(id: string) {
+    setPaymentMethodIds((current) => (current.includes(id) ? current.filter((c) => c !== id) : [...current, id]));
+  }
+
   // Drives the collapsed filter toggle's count badge, so it's clear filters
   // are still applied even while the panel is collapsed.
   const activeFilterCount =
-    (categoryId ? 1 : 0) +
-    (paymentMethodId ? 1 : 0) +
+    (categoryIds.length > 0 ? 1 : 0) +
+    (paymentMethodIds.length > 0 ? 1 : 0) +
     (hasPartner && ownerFilter ? 1 : 0) +
     (searchQuery.trim() ? 1 : 0);
 
@@ -212,7 +221,7 @@ export function LedgerView({
 
           {chips.length > 0 && (
             <div
-              role="radiogroup"
+              role="group"
               aria-label={t("filterLabel")}
               // Horizontal scroller: stop the page-level tab swipe from hijacking it.
               onPointerDownCapture={(event) => event.stopPropagation()}
@@ -220,10 +229,9 @@ export function LedgerView({
             >
               <button
                 type="button"
-                role="radio"
-                aria-checked={categoryId === null}
-                onClick={() => setCategoryId(null)}
-                className={chipStyle(categoryId === null)}
+                aria-pressed={categoryIds.length === 0}
+                onClick={() => setCategoryIds([])}
+                className={chipStyle(categoryIds.length === 0)}
               >
                 {t("filterAll")}
               </button>
@@ -231,10 +239,9 @@ export function LedgerView({
                 <button
                   key={chip.id}
                   type="button"
-                  role="radio"
-                  aria-checked={categoryId === chip.id}
-                  onClick={() => setCategoryId(chip.id)}
-                  className={chipStyle(categoryId === chip.id)}
+                  aria-pressed={categoryIds.includes(chip.id)}
+                  onClick={() => toggleCategory(chip.id)}
+                  className={chipStyle(categoryIds.includes(chip.id))}
                 >
                   <CategoryIcon category={chip} className="size-4" />
                   {chip.name}
@@ -245,17 +252,16 @@ export function LedgerView({
 
           {paymentMethods.length > 0 && (
             <div
-              role="radiogroup"
+              role="group"
               aria-label={t("paymentMethodFilterLabel")}
               onPointerDownCapture={(event) => event.stopPropagation()}
               className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <button
                 type="button"
-                role="radio"
-                aria-checked={paymentMethodId === null}
-                onClick={() => setPaymentMethodId(null)}
-                className={chipStyle(paymentMethodId === null)}
+                aria-pressed={paymentMethodIds.length === 0}
+                onClick={() => setPaymentMethodIds([])}
+                className={chipStyle(paymentMethodIds.length === 0)}
               >
                 {t("filterAll")}
               </button>
@@ -263,10 +269,9 @@ export function LedgerView({
                 <button
                   key={method.id}
                   type="button"
-                  role="radio"
-                  aria-checked={paymentMethodId === method.id}
-                  onClick={() => setPaymentMethodId(method.id)}
-                  className={chipStyle(paymentMethodId === method.id)}
+                  aria-pressed={paymentMethodIds.includes(method.id)}
+                  onClick={() => togglePaymentMethod(method.id)}
+                  className={chipStyle(paymentMethodIds.includes(method.id))}
                 >
                   <PaymentMethodIcon icon={method.icon} className="size-4" />
                   {method.name}

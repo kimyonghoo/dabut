@@ -3,27 +3,28 @@ import { matchesSearchQuery } from "@/lib/search/matches-search-query";
 
 export type FilterableTransaction = { categoryId: string; occurredAt: string };
 
-/** `null` = all categories. */
-export function filterByCategory<T extends FilterableTransaction>(rows: T[], categoryId: string | null): T[] {
-  if (!categoryId) return rows;
-  return rows.filter((row) => row.categoryId === categoryId);
+/** Empty array = all categories. Multi-select: a row matches if its category is any of `categoryIds`. */
+export function filterByCategory<T extends FilterableTransaction>(rows: T[], categoryIds: readonly string[]): T[] {
+  if (categoryIds.length === 0) return rows;
+  const selected = new Set(categoryIds);
+  return rows.filter((row) => selected.has(row.categoryId));
 }
 
 export type FilterableByPaymentMethod = { paymentMethodId: string | null };
 
 /**
- * `null` = all payment methods. A row with no payment method tagged
- * (`paymentMethodId: null`) only ever shows under "all" — it never matches
- * a specific method filter, even though that filter's value is also
- * `null`-ish in spirit; the two `null`s mean different things ("show
- * everything" vs. "this row has nothing to match").
+ * Empty array = all payment methods. Multi-select: a row matches if its
+ * payment method is any of `paymentMethodIds`. A row with no payment method
+ * tagged (`paymentMethodId: null`) only ever shows under "all" — it never
+ * matches a specific method filter.
  */
 export function filterByPaymentMethod<T extends FilterableByPaymentMethod>(
   rows: T[],
-  paymentMethodId: string | null
+  paymentMethodIds: readonly string[]
 ): T[] {
-  if (!paymentMethodId) return rows;
-  return rows.filter((row) => row.paymentMethodId === paymentMethodId);
+  if (paymentMethodIds.length === 0) return rows;
+  const selected = new Set(paymentMethodIds);
+  return rows.filter((row) => row.paymentMethodId != null && selected.has(row.paymentMethodId));
 }
 
 export type FilterableByOwner = { ownerId: string };

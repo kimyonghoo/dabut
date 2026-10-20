@@ -6,10 +6,17 @@ import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { PageHeader } from "@/components/ui/page-header";
 import { buttonClass } from "@/components/ui/button";
 import { LedgerView, type LedgerRow } from "@/components/ledger/ledger-view";
+import { MonthNavArrows } from "@/components/calendar/month-nav-arrows";
+import { parseMonthParam } from "@/components/calendar/date-locale";
 import { hasConnection, resolvePartnerName } from "@/lib/calendar/partner-name";
 import { toDateKey } from "@/lib/dates/relative-day";
 
-export default async function LedgerPage() {
+export default async function LedgerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { month: monthParam } = await searchParams;
   const t = await getTranslations("ledger");
   const locale = await getLocale();
   const supabase = await createClient();
@@ -18,8 +25,9 @@ export default async function LedgerPage() {
   } = await supabase.auth.getUser();
 
   const now = new Date();
-  const monthStart = format(startOfMonth(now), "yyyy-MM-dd");
-  const monthEnd = format(endOfMonth(now), "yyyy-MM-dd");
+  const month = parseMonthParam(monthParam);
+  const monthStart = format(startOfMonth(month), "yyyy-MM-dd");
+  const monthEnd = format(endOfMonth(month), "yyyy-MM-dd");
 
   const [
     { data: transactions },
@@ -85,13 +93,21 @@ export default async function LedgerPage() {
     icon: row.icon,
   }));
 
-  const monthTitle = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(now);
+  const monthTitle = new Intl.DateTimeFormat(locale, { year: "numeric", month: "long" }).format(month);
 
   return (
     <main className="pb-24">
       <RealtimeRefresh table="transactions" />
       <PageHeader
-        title={monthTitle}
+        title={
+          <MonthNavArrows
+            month={month}
+            monthTitle={monthTitle}
+            prevLabel={t("prevMonth")}
+            nextLabel={t("nextMonth")}
+            basePath="/ledger"
+          />
+        }
         action={
           <Link href="/ledger/new" className={buttonClass("primary")}>
             {t("newTransaction")}

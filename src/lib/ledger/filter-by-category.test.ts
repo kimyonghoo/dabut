@@ -9,17 +9,21 @@ const rows = [
 ];
 
 describe("filterByCategory", () => {
-  it("returns everything for null (All)", () => {
-    expect(filterByCategory(rows, null)).toEqual(rows);
+  it("returns everything for an empty selection (All)", () => {
+    expect(filterByCategory(rows, [])).toEqual(rows);
   });
 
   it("keeps only the selected category, including custom ones", () => {
-    expect(filterByCategory(rows, "food").map((r) => r.id)).toEqual(["1", "3"]);
-    expect(filterByCategory(rows, "custom").map((r) => r.id)).toEqual(["4"]);
+    expect(filterByCategory(rows, ["food"]).map((r) => r.id)).toEqual(["1", "3"]);
+    expect(filterByCategory(rows, ["custom"]).map((r) => r.id)).toEqual(["4"]);
+  });
+
+  it("keeps rows matching any of multiple selected categories", () => {
+    expect(filterByCategory(rows, ["food", "custom"]).map((r) => r.id)).toEqual(["1", "3", "4"]);
   });
 
   it("returns an empty list for a category with no rows", () => {
-    expect(filterByCategory(rows, "none")).toEqual([]);
+    expect(filterByCategory(rows, ["none"])).toEqual([]);
   });
 });
 
@@ -39,17 +43,21 @@ describe("filterByPaymentMethod", () => {
     { id: "4", paymentMethodId: "card-a" },
   ];
 
-  it("returns everything for null (All)", () => {
-    expect(filterByPaymentMethod(pmRows, null)).toEqual(pmRows);
+  it("returns everything for an empty selection (All)", () => {
+    expect(filterByPaymentMethod(pmRows, [])).toEqual(pmRows);
   });
 
   it("keeps only rows tagged with the selected method", () => {
-    expect(filterByPaymentMethod(pmRows, "card-a").map((r) => r.id)).toEqual(["1", "4"]);
+    expect(filterByPaymentMethod(pmRows, ["card-a"]).map((r) => r.id)).toEqual(["1", "4"]);
+  });
+
+  it("keeps rows matching any of multiple selected methods", () => {
+    expect(filterByPaymentMethod(pmRows, ["card-a", "card-b"]).map((r) => r.id)).toEqual(["1", "2", "4"]);
   });
 
   it("never matches an untagged row against a specific method", () => {
-    expect(filterByPaymentMethod(pmRows, "card-a").some((r) => r.id === "3")).toBe(false);
-    expect(filterByPaymentMethod(pmRows, "card-b").map((r) => r.id)).toEqual(["2"]);
+    expect(filterByPaymentMethod(pmRows, ["card-a"]).some((r) => r.id === "3")).toBe(false);
+    expect(filterByPaymentMethod(pmRows, ["card-b"]).map((r) => r.id)).toEqual(["2"]);
   });
 });
 
