@@ -110,7 +110,6 @@ body {
 
 .today-cell-indicator {
   box-shadow: inset 0 0 0 2px var(--color-brand);
-  border-radius: 0.75rem;
   animation: today-cell-pulse 2.4s ease-in-out infinite;
 }
 
