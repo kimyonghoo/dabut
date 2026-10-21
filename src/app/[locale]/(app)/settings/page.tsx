@@ -11,11 +11,12 @@ import { SettingsQuickControls } from "@/components/settings/settings-quick-cont
 import { DeleteAccount } from "@/components/settings/delete-account";
 import { NicknameEditor } from "@/components/settings/nickname-editor";
 import { PaymentMethodsManager } from "@/components/settings/payment-methods-manager";
+import { MonthlyGoalManager } from "@/components/settings/monthly-goal-manager";
 import type { PaymentMethod } from "@/lib/actions/payment-methods";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { CreditCard, HeartHandshake, Smile } from "lucide-react";
+import { CreditCard, HeartHandshake, Smile, Target } from "lucide-react";
 import { PasswordGate } from "@/components/settings/password-gate";
 import { DailyDigestSettings } from "@/components/settings/daily-digest-settings";
 
@@ -46,6 +47,7 @@ function SettingsPageContent() {
   const [displayName, setDisplayName] = useState<string>("");
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [dailyDigestEnabled, setDailyDigestEnabled] = useState<boolean>(false);
+  const [monthlySpendingGoal, setMonthlySpendingGoal] = useState<number | null>(null);
 
   useEffect(() => {
     createClient()
@@ -148,6 +150,29 @@ function SettingsPageContent() {
 
   useEffect(() => {
     if (!userId) return;
+    const supabase = createClient();
+    supabase
+      .from("connection_members")
+      .select("connection_id")
+      .eq("user_id", userId)
+      .order("joined_at", { ascending: true })
+      .limit(1)
+      .then(async ({ data }) => {
+        const connectionId = data?.[0]?.connection_id;
+        if (!connectionId) return;
+        const { data: connection } = await supabase
+          .from("connections")
+          .select("monthly_spending_goal")
+          .eq("id", connectionId)
+          .maybeSingle();
+        setMonthlySpendingGoal(
+          connection?.monthly_spending_goal == null ? null : Number(connection.monthly_spending_goal)
+        );
+      });
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
     // RLS now also lets a connected partner SELECT this table (see
     // 0019_payment_methods_shared_visibility.sql, for the ledger's
     // payment-method chip picker), so this Settings manager — which
@@ -215,6 +240,15 @@ function SettingsPageContent() {
           connections={connections}
         />
       </Card>
+
+      {connections.length > 0 && (
+        <Card className="flex flex-col gap-4">
+          <h2 className="flex items-center gap-2 text-base font-bold text-ink">
+            <Target aria-hidden className="size-5 text-brand" strokeWidth={2} /> {t("monthlyGoalSection")}
+          </h2>
+          <MonthlyGoalManager initialGoal={monthlySpendingGoal} />
+        </Card>
+      )}
 
       <Card className="flex flex-col gap-4">
         <h2 className="flex items-center gap-2 text-base font-bold text-ink">

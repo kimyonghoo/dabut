@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
+import { BarChart3, CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { inputClass } from "@/components/ui/field";
@@ -58,6 +58,7 @@ export function LedgerView({
   partnerName = null,
   paymentMethodGoals = [],
   paymentMethods = [],
+  monthlySpendingGoal = null,
 }: {
   rows: LedgerRow[];
   categories: LedgerCategory[];
@@ -90,6 +91,8 @@ export function LedgerView({
    * the method.
    */
   paymentMethods?: LedgerPaymentMethodOption[];
+  /** The couple's shared "이번 달 목표 지출액" (see lib/ledger/monthly-goal.ts); null when unset or unconnected. */
+  monthlySpendingGoal?: number | null;
 }) {
   const t = useTranslations("ledger");
   const tDates = useTranslations("dates");
@@ -150,6 +153,15 @@ export function LedgerView({
     [paymentMethodGoals, liveRows]
   );
 
+  // Whole-month expense total, independent of the category/owner/search
+  // filters above — the goal bar tracks the real month, same as 카드실적.
+  const monthlyExpenseTotal = useMemo(
+    () => liveRows.filter((row) => row.type === "expense").reduce((sum, row) => sum + row.amount, 0),
+    [liveRows]
+  );
+  const goalPct =
+    monthlySpendingGoal && monthlySpendingGoal > 0 ? (monthlyExpenseTotal / monthlySpendingGoal) * 100 : null;
+
   // Chips: every visible category (defaults + custom), plus any category only
   // known through a row; categories in use this month come first.
   const chips = useMemo(() => {
@@ -203,17 +215,40 @@ export function LedgerView({
               <p className="truncate text-sm font-bold leading-tight text-expense">-{formatWon(totals.expense)}</p>
             </div>
           </div>
-          {goalItems.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setGoalsOpen(true)}
-              className="relative z-[1] inline-flex shrink-0 items-center gap-1.5 self-center rounded-full bg-surface px-3.5 py-2 text-xs font-bold text-brand-strong shadow-sm transition active:scale-[0.97] hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          <div className="relative z-[1] flex shrink-0 flex-col items-stretch gap-1.5 self-center">
+            {goalItems.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setGoalsOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-surface px-3.5 py-2 text-xs font-bold text-brand-strong shadow-sm transition active:scale-[0.97] hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                <CreditCard aria-hidden className="size-4" />
+                {t("cardPerformance")}
+              </button>
+            )}
+            <Link
+              href="/ledger/stats"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-surface px-3.5 py-2 text-xs font-bold text-brand-strong shadow-sm transition active:scale-[0.97] hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
-              <CreditCard aria-hidden className="size-4" />
-              {t("cardPerformance")}
-            </button>
-          )}
+              <BarChart3 aria-hidden className="size-4" />
+              {t("stats")}
+            </Link>
+          </div>
         </div>
+        {goalPct != null && (
+          <div className="relative z-[1] mt-2.5">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-ink-muted">
+              <span>{t("goalProgress")}</span>
+              <span className={goalPct >= 100 ? "text-expense" : "text-brand-strong"}>{Math.floor(goalPct)}%</span>
+            </div>
+            <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-surface">
+              <div
+                className={`h-full rounded-full transition-[width] ${goalPct >= 100 ? "bg-expense" : "bg-gradient-to-r from-brand to-[#ff9a6c]"}`}
+                style={{ width: `${Math.min(goalPct, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
       </Card>
 
       <PaymentMethodGoalsSheet open={goalsOpen} onClose={() => setGoalsOpen(false)} items={goalItems} />

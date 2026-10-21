@@ -36,11 +36,14 @@ export function ThreadList({
   currentUserId,
   serverTodayKey,
   partnerName,
+  isCurrentMonth,
 }: {
   groups: ThreadGroup[];
   currentUserId: string;
   serverTodayKey: string;
   partnerName?: string | null;
+  /** Whether the selected month is the real current month — gates the synthetic "오늘 일정없음" placeholder. */
+  isCurrentMonth: boolean;
 }) {
   const t = useTranslations("calendar");
   const tDates = useTranslations("dates");
@@ -64,7 +67,7 @@ export function ThreadList({
   // consistent choice given a shared event already renders identically on
   // both sides of the day-summary modal, rather than being orphaned under
   // neither filter.
-  const visible = groups
+  const filtered = groups
     .map((group) => ({
       ...group,
       events: filterEventsBySearch(
@@ -76,6 +79,16 @@ export function ThreadList({
       ),
     }))
     .filter((group) => group.events.length > 0);
+
+  // When today has no events at all, a synthetic empty "일정없음" card still
+  // marks the day — but only in the unfiltered view: an active search/owner
+  // filter already means "no events match", a different message than "no
+  // events today" would be. Spliced back in by date so it stays in order.
+  const showTodayPlaceholder =
+    isCurrentMonth && !searchQuery.trim() && !ownerFilter && !filtered.some((group) => group.date === todayKey);
+  const visible = showTodayPlaceholder
+    ? [...filtered, { date: todayKey, events: [] }].sort((a, b) => a.date.localeCompare(b.date))
+    : filtered;
 
   const activeFilterCount = (searchQuery.trim() ? 1 : 0) + (ownerFilter ? 1 : 0);
   const chipStyle = (active: boolean) =>
@@ -145,6 +158,11 @@ export function ThreadList({
                 {dateGroupLabel(group.date, todayKey, locale, (key) => tDates(key))}
               </span>
             </h3>
+            {group.events.length === 0 ? (
+              <div className="today-cell-indicator ml-3 rounded-2xl border border-brand/40 bg-surface px-4 py-3 text-sm font-medium text-ink-muted">
+                {t("noEventsToday")}
+              </div>
+            ) : (
             <ul className="ml-3 flex flex-col gap-2 border-l-2 border-dashed border-line pl-4">
               {group.events.map((event) => (
                 <li key={event.id} className="relative">
@@ -199,6 +217,7 @@ export function ThreadList({
                 </li>
               ))}
             </ul>
+            )}
           </section>
         );
       })}

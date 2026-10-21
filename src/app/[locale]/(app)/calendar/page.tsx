@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { format, endOfMonth } from "date-fns";
+import { format, endOfMonth, isSameMonth } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { expandEventsForDisplay } from "@/lib/calendar/expand-events-for-display";
@@ -149,6 +149,7 @@ export default async function CalendarPage({
             serverTodayKey={toDateKey(new Date())}
             timeZone={timeZone}
             partnerName={partnerName}
+            isCurrentMonth={isSameMonth(month, new Date())}
           />
         </MonthSlide>
       ) : (

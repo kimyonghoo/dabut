@@ -106,7 +106,9 @@
     "filterPartner": "对方的记录",
     "filterPartnerNamed": "{name}的记录",
     "partnerOwned": "对方登记",
-    "filtersLabel": "筛选"
+    "filtersLabel": "筛选",
+    "stats": "统计",
+    "goalProgress": "本月目标进度"
   },
   "calendar": {
     "monthView": "日历",
@@ -124,7 +126,8 @@
     "searchPlaceholder": "搜索",
     "filtersLabel": "筛选",
     "filterAll": "全部",
-    "ownerFilterLabel": "日程筛选"
+    "ownerFilterLabel": "日程筛选",
+    "noEventsToday": "没有日程"
   },
   "events": {
     "title": "标题",
@@ -232,7 +235,8 @@
     "accountSection": "账户",
     "accountDeleteHint": "删除账户后，你的日程、账本记录和分类都会被删除，并解除与对方的连接。对方创建的记录会保留在对方账户中。",
     "nicknameSection": "昵称",
-    "paymentMethodsSection": "支付方式"
+    "paymentMethodsSection": "支付方式",
+    "monthlyGoalSection": "本月目标支出额"
   },
   "paymentMethods": {
     "empty": "还没有添加支付方式",
@@ -284,7 +288,10 @@
     "accountDeleted": "账户已删除，感谢一路相伴",
     "telegramSignupVerified": "Telegram 验证完成！欢迎来到 Dabut",
     "dailyDigestEnabled": "晚上6点，我们会告诉你明天的日程",
-    "dailyDigestToggleFailed": "保存失败，请重试"
+    "dailyDigestToggleFailed": "保存失败，请重试",
+    "monthlyGoalSaved": "已保存目标支出额",
+    "monthlyGoalFailed": "保存失败，请稍后再试",
+    "monthlyGoalNoConnection": "与对方连接后才能设置共同目标"
   },
   "daySummary": {
     "mine": "我的日程",
@@ -296,6 +303,46 @@
     "addEvent": "在这天添加日程",
     "close": "关闭",
     "openDay": "{date}，{count, plural, =0 {无日程} other {# 个日程}}"
+  },
+  "stats": {
+    "title": "统计",
+    "back": "返回",
+    "periodMonth": "本月",
+    "period3m": "最近3个月",
+    "period6m": "最近6个月",
+    "period1y": "最近1年",
+    "savingsRate": "总储蓄率",
+    "savingsRateHint": "收入{income}中储蓄{saved}（支出{expense}）",
+    "savingsNoIncome": "这段时间没有收入",
+    "savingsGood": "👍 良好",
+    "savingsWarning": "⚠️ 注意",
+    "savingsCritical": "🚨 赤字",
+    "categoryShare": "分类支出占比",
+    "categoryShareHint": "占总支出比例 · 从高到低",
+    "trend": "收支趋势",
+    "trendHint": "最近6个月 · 月度收入 vs 支出",
+    "income": "收入",
+    "expense": "支出",
+    "paymentMethodShare": "支付方式统计",
+    "paymentMethodShareHint": "按支出笔数 · 各支付方式总额",
+    "paymentMethodUnassigned": "未指定",
+    "weekdayPattern": "按星期的支出模式",
+    "weekdayPatternHint": "颜色越深 = 支出越多",
+    "weekdayPeak": "支出最多的星期: {day}",
+    "top10": "消费 TOP 10",
+    "top10Hint": "最大的{count}笔支出",
+    "emptySection": "暂无数据",
+    "weekdayShort": ["日", "一", "二", "三", "四", "五", "六"]
+  },
+  "monthlyGoal": {
+    "title": "本月目标支出额",
+    "placeholder": "目标金额（万元单位）",
+    "save": "保存",
+    "invalid": "请输入正确的金额",
+    "failed": "保存失败，请稍后再试",
+    "noConnection": "与对方连接后才能设置共同目标",
+    "currentGoal": "本月目标：{amount}万元",
+    "progressLabel": "本月目标进度"
   },
   "monthPicker": {
     "back": "返回",

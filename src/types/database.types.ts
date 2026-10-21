@@ -103,14 +103,14 @@ isOneToOne: false
                   ]
                 },"connections": {
                   Row: {
-                    "created_at": string,"id": string
+                    "created_at": string,"id": string,"monthly_spending_goal": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string
+                    "created_at"?: string,"id"?: string,"monthly_spending_goal"?: number | null
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string
+                    "created_at"?: string,"id"?: string,"monthly_spending_goal"?: number | null
                   }
                   Relationships: [
                     

@@ -60,6 +60,7 @@ export function MonthView({
 }) {
   const t = useTranslations("calendar");
   const tSummary = useTranslations("daySummary");
+  const tDates = useTranslations("dates");
   const locale = useLocale();
   const dfLocale = getDateFnsLocale(locale);
   const router = useProgressRouter();
@@ -198,13 +199,13 @@ export function MonthView({
                       <span
                         aria-current={isToday ? "date" : undefined}
                         title={holidayName}
-                        className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                        className={
                           isToday
-                            ? "bg-brand font-bold text-white shadow-sm"
-                            : `font-medium ${holidayName || day.getDay() === 0 ? "text-expense" : day.getDay() === 6 ? "text-partner" : "text-ink"}`
-                        }`}
+                            ? "mx-auto text-xs font-bold text-brand"
+                            : `mx-auto flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${holidayName || day.getDay() === 0 ? "text-expense" : day.getDay() === 6 ? "text-partner" : "text-ink"}`
+                        }
                       >
-                        {day.getDate()}
+                        {isToday ? tDates("today") : day.getDate()}
                       </span>
                       <ul className="flex min-w-0 flex-col gap-0.5">
                         {visible.map((event) => (

@@ -26,6 +26,7 @@ export function ThreadView({
   serverTodayKey,
   timeZone,
   partnerName,
+  isCurrentMonth,
 }: {
   events: CategorizedEvent[];
   currentUserId: string;
@@ -33,6 +34,8 @@ export function ThreadView({
   /** The viewing user's configured timezone, for day grouping and HH:mm labels. */
   timeZone: string;
   partnerName?: string | null;
+  /** Whether the selected month is the real current month — gates the synthetic "오늘 일정없음" placeholder. */
+  isCurrentMonth: boolean;
 }) {
   const t = useTranslations("calendar");
   const groups: ThreadGroup[] = groupEventsByDate(events, timeZone).map((group) => ({
@@ -67,6 +70,12 @@ export function ThreadView({
   }
 
   return (
-    <ThreadList groups={groups} currentUserId={currentUserId} serverTodayKey={serverTodayKey} partnerName={partnerName} />
+    <ThreadList
+      groups={groups}
+      currentUserId={currentUserId}
+      serverTodayKey={serverTodayKey}
+      partnerName={partnerName}
+      isCurrentMonth={isCurrentMonth}
+    />
   );
 }

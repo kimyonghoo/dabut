@@ -106,7 +106,9 @@
     "filterPartner": "상대방 내역",
     "filterPartnerNamed": "{name} 내역",
     "partnerOwned": "상대방 등록",
-    "filtersLabel": "필터"
+    "filtersLabel": "필터",
+    "stats": "통계",
+    "goalProgress": "이번 달 목표 대비"
   },
   "calendar": {
     "monthView": "달력",
@@ -124,7 +126,8 @@
     "searchPlaceholder": "검색",
     "filtersLabel": "필터",
     "filterAll": "전체",
-    "ownerFilterLabel": "일정 필터"
+    "ownerFilterLabel": "일정 필터",
+    "noEventsToday": "일정없음"
   },
   "events": {
     "title": "제목",
@@ -232,7 +235,8 @@
     "accountSection": "계정",
     "accountDeleteHint": "계정을 삭제하면 내 일정·가계부 내역과 카테고리가 모두 지워지고, 연결된 상대방과의 연결도 해제돼요. 상대방이 작성한 내역은 상대방 계정에 그대로 남아요.",
     "nicknameSection": "닉네임",
-    "paymentMethodsSection": "지출수단"
+    "paymentMethodsSection": "지출수단",
+    "monthlyGoalSection": "이번 달 목표 지출액"
   },
   "paymentMethods": {
     "empty": "등록된 지출수단이 없어요",
@@ -284,7 +288,10 @@
     "accountDeleted": "계정을 삭제했어요. 그동안 고마웠어요",
     "telegramSignupVerified": "텔레그램 인증이 완료됐어요! 다붓에 오신 걸 환영해요",
     "dailyDigestEnabled": "저녁 6시가 되면 내일 일정을 알려드릴게요",
-    "dailyDigestToggleFailed": "설정을 저장하지 못했어요. 다시 시도해 주세요"
+    "dailyDigestToggleFailed": "설정을 저장하지 못했어요. 다시 시도해 주세요",
+    "monthlyGoalSaved": "목표 지출액을 저장했어요",
+    "monthlyGoalFailed": "저장하지 못했어요. 다시 시도해 주세요",
+    "monthlyGoalNoConnection": "상대방과 연결된 후에 설정할 수 있어요"
   },
   "daySummary": {
     "mine": "내 일정",
@@ -296,6 +303,46 @@
     "addEvent": "이날 일정 추가",
     "close": "닫기",
     "openDay": "{date}, {count, plural, =0 {일정 없음} other {일정 #개}}"
+  },
+  "stats": {
+    "title": "통계",
+    "back": "뒤로",
+    "periodMonth": "이번 달",
+    "period3m": "최근 3개월",
+    "period6m": "최근 6개월",
+    "period1y": "최근 1년",
+    "savingsRate": "총 저축률",
+    "savingsRateHint": "수입 {income} 중 {saved} 저축 (지출 {expense})",
+    "savingsNoIncome": "이 기간엔 수입이 없어요",
+    "savingsGood": "👍 양호",
+    "savingsWarning": "⚠️ 주의",
+    "savingsCritical": "🚨 적자",
+    "categoryShare": "항목별 지출 비중",
+    "categoryShareHint": "전체 지출 중 카테고리 비율 · 높은 순",
+    "trend": "기간별 수입/지출 추이",
+    "trendHint": "최근 6개월 · 월별 수입 vs 지출",
+    "income": "수입",
+    "expense": "지출",
+    "paymentMethodShare": "결제수단별 통계",
+    "paymentMethodShareHint": "지출 건 기준 · 결제수단별 총액",
+    "paymentMethodUnassigned": "미지정",
+    "weekdayPattern": "요일별 지출 패턴",
+    "weekdayPatternHint": "진하기 = 지출 금액 (진할수록 많이 씀)",
+    "weekdayPeak": "지출이 가장 많은 요일: {day}",
+    "top10": "소비 TOP 10",
+    "top10Hint": "가장 큰 지출 거래 {count}건",
+    "emptySection": "표시할 데이터가 없어요",
+    "weekdayShort": ["일", "월", "화", "수", "목", "금", "토"]
+  },
+  "monthlyGoal": {
+    "title": "이번 달 목표 지출액",
+    "placeholder": "목표 금액 (만원 단위)",
+    "save": "저장",
+    "invalid": "올바른 금액을 입력해 주세요",
+    "failed": "저장하지 못했어요. 잠시 후 다시 시도해 주세요",
+    "noConnection": "상대방과 연결된 후에 설정할 수 있어요",
+    "currentGoal": "이번 달 목표: {amount}만원",
+    "progressLabel": "이번 달 목표 대비"
   },
   "monthPicker": {
     "back": "뒤로",

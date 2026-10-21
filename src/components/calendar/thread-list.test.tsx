@@ -25,6 +25,7 @@ const messages = {
     filtersLabel: "Filters",
     filterAll: "All",
     ownerFilterLabel: "Event filter",
+    noEventsToday: "No events",
   },
   dates: { today: "Today", yesterday: "Yesterday", tomorrow: "Tomorrow" },
   common: { delete: "Delete" },
@@ -52,7 +53,13 @@ function makeGroups(category: "mine" | "partner" | "shared"): ThreadGroup[] {
 function renderList(groups: ThreadGroup[], partnerName?: string | null) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
-      <ThreadList groups={groups} currentUserId="me" serverTodayKey="2026-10-18" partnerName={partnerName} />
+      <ThreadList
+        groups={groups}
+        currentUserId="me"
+        serverTodayKey="2026-10-18"
+        partnerName={partnerName}
+        isCurrentMonth={true}
+      />
     </NextIntlClientProvider>
   );
 }

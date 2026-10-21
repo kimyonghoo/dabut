@@ -9,6 +9,7 @@ import { LedgerView, type LedgerRow } from "@/components/ledger/ledger-view";
 import { MonthNavArrows } from "@/components/calendar/month-nav-arrows";
 import { parseMonthParam } from "@/components/calendar/date-locale";
 import { hasConnection, resolvePartnerName } from "@/lib/calendar/partner-name";
+import { resolveMonthlySpendingGoal } from "@/lib/ledger/monthly-goal";
 import { toDateKey } from "@/lib/dates/relative-day";
 
 export default async function LedgerPage({
@@ -36,6 +37,7 @@ export default async function LedgerPage({
     { data: paymentMethodOptionRows },
     partnerName,
     hasPartner,
+    monthlySpendingGoal,
   ] = await Promise.all([
     supabase
       .from("transactions")
@@ -66,6 +68,7 @@ export default async function LedgerPage({
     supabase.from("payment_methods").select("id, name, icon").order("created_at", { ascending: true }),
     user ? resolvePartnerName(supabase, user.id) : Promise.resolve(null),
     user ? hasConnection(supabase, user.id) : Promise.resolve(false),
+    user ? resolveMonthlySpendingGoal(supabase, user.id) : Promise.resolve(null),
   ]);
 
   const rows: LedgerRow[] = (transactions ?? []).map((row) => ({
@@ -123,6 +126,7 @@ export default async function LedgerPage({
         partnerName={partnerName}
         paymentMethodGoals={paymentMethodGoals}
         paymentMethods={paymentMethods}
+        monthlySpendingGoal={monthlySpendingGoal}
       />
     </main>
   );

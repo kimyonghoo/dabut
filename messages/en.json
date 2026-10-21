@@ -106,7 +106,9 @@
     "filterPartner": "Partner's entries",
     "filterPartnerNamed": "{name}'s entries",
     "partnerOwned": "Partner's",
-    "filtersLabel": "Filters"
+    "filtersLabel": "Filters",
+    "stats": "Stats",
+    "goalProgress": "Progress toward this month's goal"
   },
   "calendar": {
     "monthView": "Month",
@@ -124,7 +126,8 @@
     "searchPlaceholder": "Search",
     "filtersLabel": "Filters",
     "filterAll": "All",
-    "ownerFilterLabel": "Event filter"
+    "ownerFilterLabel": "Event filter",
+    "noEventsToday": "No events"
   },
   "events": {
     "title": "Title",
@@ -232,7 +235,8 @@
     "accountSection": "Account",
     "accountDeleteHint": "Deleting your account removes your events, ledger entries and categories, and unlinks you from your partner. Entries your partner created stay in their account.",
     "nicknameSection": "Nickname",
-    "paymentMethodsSection": "Payment methods"
+    "paymentMethodsSection": "Payment methods",
+    "monthlyGoalSection": "This month's spending goal"
   },
   "paymentMethods": {
     "empty": "No payment methods yet",
@@ -284,7 +288,10 @@
     "accountDeleted": "Your account has been deleted. Thank you for everything",
     "telegramSignupVerified": "Telegram verification complete! Welcome to Dabut",
     "dailyDigestEnabled": "We'll tell you tomorrow's schedule at 6 PM",
-    "dailyDigestToggleFailed": "Couldn't save that. Please try again"
+    "dailyDigestToggleFailed": "Couldn't save that. Please try again",
+    "monthlyGoalSaved": "Spending goal saved",
+    "monthlyGoalFailed": "Couldn't save that. Please try again",
+    "monthlyGoalNoConnection": "Connect with a partner first to set a shared goal"
   },
   "daySummary": {
     "mine": "My events",
@@ -296,6 +303,46 @@
     "addEvent": "Add event on this day",
     "close": "Close",
     "openDay": "{date}, {count, plural, =0 {no events} one {# event} other {# events}}"
+  },
+  "stats": {
+    "title": "Stats",
+    "back": "Back",
+    "periodMonth": "This month",
+    "period3m": "Last 3 months",
+    "period6m": "Last 6 months",
+    "period1y": "Last year",
+    "savingsRate": "Savings rate",
+    "savingsRateHint": "Saved {saved} out of {income} income (spent {expense})",
+    "savingsNoIncome": "No income in this period",
+    "savingsGood": "👍 Good",
+    "savingsWarning": "⚠️ Watch out",
+    "savingsCritical": "🚨 In the red",
+    "categoryShare": "Spending by category",
+    "categoryShareHint": "Share of total spending · highest first",
+    "trend": "Income vs. expense trend",
+    "trendHint": "Last 6 months · income vs. expense",
+    "income": "Income",
+    "expense": "Expense",
+    "paymentMethodShare": "Spending by payment method",
+    "paymentMethodShareHint": "By expense count · total per payment method",
+    "paymentMethodUnassigned": "Unassigned",
+    "weekdayPattern": "Spending by day of week",
+    "weekdayPatternHint": "Darker = more spending",
+    "weekdayPeak": "Biggest spending day: {day}",
+    "top10": "Top 10 expenses",
+    "top10Hint": "Your {count} biggest expenses",
+    "emptySection": "No data to show",
+    "weekdayShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  },
+  "monthlyGoal": {
+    "title": "This month's spending goal",
+    "placeholder": "Goal amount (in 10,000 won)",
+    "save": "Save",
+    "invalid": "Please enter a valid amount",
+    "failed": "Couldn't save that. Please try again",
+    "noConnection": "Connect with a partner first to set a shared goal",
+    "currentGoal": "This month's goal: {amount}0,000 won",
+    "progressLabel": "Progress toward this month's goal"
   },
   "monthPicker": {
     "back": "Back",
