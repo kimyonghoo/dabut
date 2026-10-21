@@ -11,6 +11,7 @@ import { MonthView } from "@/components/calendar/month-view";
 import { MonthSlide } from "@/components/calendar/month-slide";
 import { MonthNavArrows } from "@/components/calendar/month-nav-arrows";
 import { ThreadView } from "@/components/calendar/thread-view";
+import { TodayButton } from "@/components/calendar/today-button";
 import { CategoryLegend } from "@/components/calendar/category-legend";
 import { getDateFnsLocale, monthTitlePattern, parseMonthParam } from "@/components/calendar/date-locale";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
@@ -126,12 +127,15 @@ export default async function CalendarPage({
           />
         }
         action={
-          <Link
-            href={{ pathname: "/calendar/new", query: isThread ? { returnView: "thread" } : undefined }}
-            className={buttonClass("primary", "shrink-0 !px-3.5 !py-2")}
-          >
-            {t("newEvent")}
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            <TodayButton month={month} extraQuery={isThread ? { view: "thread" } : undefined} />
+            <Link
+              href={{ pathname: "/calendar/new", query: isThread ? { returnView: "thread" } : undefined }}
+              className={buttonClass("primary", "shrink-0 !px-3.5 !py-2")}
+            >
+              {t("newEvent")}
+            </Link>
+          </div>
         }
       />
       <div className="flex justify-center">

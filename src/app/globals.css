@@ -89,20 +89,29 @@ body {
 }
 
 /* Calendar "today" cell indicator (month-view.tsx): a slow glow pulse
-   around the date circle so today reads at a glance instead of blending
-   into the grid. */
-@keyframes today-pulse {
+   around the WHOLE day cell (not just the date circle) so today reads at a
+   glance instead of blending into the grid — a static inset ring plus a
+   breathing outer glow. The inset ring is declared outside the keyframes
+   too so it still shows as a plain static ring under reduced-motion
+   (animation: none leaves the un-animated box-shadow declaration in place). */
+@keyframes today-cell-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-brand) 55%, transparent);
+    box-shadow:
+      inset 0 0 0 2px var(--color-brand),
+      0 0 0 0 color-mix(in oklab, var(--color-brand) 45%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-brand) 0%, transparent);
+    box-shadow:
+      inset 0 0 0 2px var(--color-brand),
+      0 0 0 5px color-mix(in oklab, var(--color-brand) 0%, transparent);
   }
 }
 
-.today-indicator {
-  animation: today-pulse 2.4s ease-in-out infinite;
+.today-cell-indicator {
+  box-shadow: inset 0 0 0 2px var(--color-brand);
+  border-radius: 0.75rem;
+  animation: today-cell-pulse 2.4s ease-in-out infinite;
 }
 
 /* Locale switch cross-fade (see use-locale-switcher.ts): keep the browser's
@@ -121,7 +130,7 @@ body {
     animation: none !important;
   }
 
-  .today-indicator {
+  .today-cell-indicator {
     animation: none;
   }
 }

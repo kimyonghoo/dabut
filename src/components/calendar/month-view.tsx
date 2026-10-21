@@ -193,14 +193,14 @@ export function MonthView({
                       })}
                       className={`flex min-h-[6.5rem] min-w-0 flex-col gap-0.5 p-0.5 ${
                         inMonth ? "bg-surface" : "bg-surface-2/60 opacity-45"
-                      }`}
+                      } ${isToday ? "today-cell-indicator" : ""}`}
                     >
                       <span
                         aria-current={isToday ? "date" : undefined}
                         title={holidayName}
                         className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full text-xs ${
                           isToday
-                            ? "today-indicator bg-brand font-bold text-white shadow-sm"
+                            ? "bg-brand font-bold text-white shadow-sm"
                             : `font-medium ${holidayName || day.getDay() === 0 ? "text-expense" : day.getDay() === 6 ? "text-partner" : "text-ink"}`
                         }`}
                       >
