@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { format } from "date-fns";
+import { format, endOfMonth } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { expandEventsForDisplay } from "@/lib/calendar/expand-events-for-display";
@@ -15,8 +15,10 @@ import { CategoryLegend } from "@/components/calendar/category-legend";
 import { getDateFnsLocale, monthTitlePattern, parseMonthParam } from "@/components/calendar/date-locale";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { resolvePartnerName } from "@/lib/calendar/partner-name";
+import { getHolidaysForYear } from "@/lib/calendar/holidays";
+import { getMonthGridDays } from "@/lib/calendar/month-grid";
 import { toDateKey } from "@/lib/dates/relative-day";
-import { DEFAULT_TIMEZONE } from "@/lib/dates/timezone";
+import { DEFAULT_TIMEZONE, zonedDateTimeToUtcIso } from "@/lib/dates/timezone";
 import { TelegramOnboardingBanner } from "@/components/settings/telegram-onboarding-banner";
 
 export default async function CalendarPage({
@@ -73,6 +75,38 @@ export default async function CalendarPage({
   const isThread = view === "thread";
   const monthTitle = format(month, monthTitlePattern(locale), { locale: getDateFnsLocale(locale) });
 
+  // Thread/list view ("일정목록") is scoped to the same selected month as the
+  // grid, the same way the ledger list is scoped to its month — events are
+  // kept whenever they overlap the month at all, so a multi-day event
+  // starting just before month-end (or ending just after month-start) still
+  // shows up once, in both months it touches.
+  const monthStartIso = zonedDateTimeToUtcIso(format(month, "yyyy-MM-dd"), "00:00:00", timeZone);
+  const monthEndIso = zonedDateTimeToUtcIso(format(endOfMonth(month), "yyyy-MM-dd"), "23:59:59", timeZone);
+  const monthStartMs = new Date(monthStartIso).getTime();
+  const monthEndMs = new Date(monthEndIso).getTime();
+  const threadEvents = isThread
+    ? categorized.filter((event) => {
+        const startMs = new Date(event.start_at).getTime();
+        const endMs = event.end_at ? new Date(event.end_at).getTime() : startMs;
+        return startMs <= monthEndMs && endMs >= monthStartMs;
+      })
+    : [];
+
+  // Computed server-side only — `date-holidays`'s rule data (~2MB) must
+  // never reach the client bundle; MonthView gets plain [key, name] tuples.
+  // The 6-week grid can spill into an adjacent year at a Dec/Jan boundary,
+  // so every year actually present in the grid is covered, not just
+  // `month`'s own year.
+  const gridYears = isThread
+    ? []
+    : Array.from(new Set(getMonthGridDays(month).map((d) => d.getFullYear())));
+  const holidayEntries: [string, string][] = Array.from(
+    gridYears.reduce((map, year) => {
+      for (const [key, name] of getHolidaysForYear(year, timeZone, locale)) map.set(key, name);
+      return map;
+    }, new Map<string, string>())
+  );
+
   return (
     <main className="flex flex-col gap-4 pb-6">
       {profile && !profile.telegram_chat_id && <TelegramOnboardingBanner />}
@@ -83,16 +117,13 @@ export default async function CalendarPage({
       <RealtimeRefresh table="event_exceptions" />
       <PageHeader
         title={
-          isThread ? (
-            t("threadView")
-          ) : (
-            <MonthNavArrows
-              month={month}
-              monthTitle={monthTitle}
-              prevLabel={t("prevMonth")}
-              nextLabel={t("nextMonth")}
-            />
-          )
+          <MonthNavArrows
+            month={month}
+            monthTitle={monthTitle}
+            prevLabel={t("prevMonth")}
+            nextLabel={t("nextMonth")}
+            extraQuery={isThread ? { view: "thread" } : undefined}
+          />
         }
         action={
           <Link
@@ -107,13 +138,15 @@ export default async function CalendarPage({
         <ViewToggle />
       </div>
       {isThread ? (
-        <ThreadView
-          events={categorized}
-          currentUserId={user.id}
-          serverTodayKey={toDateKey(new Date())}
-          timeZone={timeZone}
-          partnerName={partnerName}
-        />
+        <MonthSlide monthKey={`thread-${format(month, "yyyy-MM")}`}>
+          <ThreadView
+            events={threadEvents}
+            currentUserId={user.id}
+            serverTodayKey={toDateKey(new Date())}
+            timeZone={timeZone}
+            partnerName={partnerName}
+          />
+        </MonthSlide>
       ) : (
         <>
           <MonthSlide monthKey={format(month, "yyyy-MM")}>
@@ -123,6 +156,7 @@ export default async function CalendarPage({
               currentUserId={user.id}
               partnerName={partnerName}
               timeZone={timeZone}
+              holidays={holidayEntries}
             />
           </MonthSlide>
           <CategoryLegend partnerName={partnerName} />

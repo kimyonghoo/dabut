@@ -255,29 +255,51 @@ describe("tomorrowDigestMessage", () => {
     expect(
       tomorrowDigestMessage({
         events: [
-          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false }, // 14:00 KST
-          { title: "치과 예약", startAt: "2026-10-19T23:00:00.000Z", allDay: false }, // 08:00 KST
+          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false, isMine: true }, // 14:00 KST
+          { title: "치과 예약", startAt: "2026-10-19T23:00:00.000Z", allDay: false, isMine: true }, // 08:00 KST
         ],
       })
-    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n08:00  치과 예약\n14:00  회의");
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n👤 <b>나</b>\n08:00  치과 예약\n14:00  회의");
   });
 
   it("puts all-day events first, labeled 종일", () => {
     expect(
       tomorrowDigestMessage({
         events: [
-          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false },
-          { title: "생일", startAt: "2026-10-20T00:00:00.000Z", allDay: true },
+          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false, isMine: true },
+          { title: "생일", startAt: "2026-10-20T00:00:00.000Z", allDay: true, isMine: true },
         ],
       })
-    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n종일  생일\n14:00  회의");
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n👤 <b>나</b>\n종일  생일\n14:00  회의");
   });
 
   it("escapes HTML-special characters in event titles", () => {
     expect(
       tomorrowDigestMessage({
-        events: [{ title: "<b>해킹</b>", startAt: "2026-10-20T05:00:00.000Z", allDay: false }],
+        events: [{ title: "<b>해킹</b>", startAt: "2026-10-20T05:00:00.000Z", allDay: false, isMine: true }],
       })
-    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n14:00  &lt;b&gt;해킹&lt;/b&gt;");
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n👤 <b>나</b>\n14:00  &lt;b&gt;해킹&lt;/b&gt;");
+  });
+
+  it("groups events into 나 and the partner's section, with the partner's name", () => {
+    expect(
+      tomorrowDigestMessage({
+        events: [
+          { title: "회의", startAt: "2026-10-20T05:00:00.000Z", allDay: false, isMine: true },
+          { title: "요가", startAt: "2026-10-19T23:00:00.000Z", allDay: false, isMine: false },
+        ],
+        partnerName: "지민",
+      })
+    ).toBe(
+      "📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n👤 <b>나</b>\n14:00  회의\n\n👥 <b>지민</b>\n08:00  요가"
+    );
+  });
+
+  it("falls back to 상대방 when the partner has no display name", () => {
+    expect(
+      tomorrowDigestMessage({
+        events: [{ title: "요가", startAt: "2026-10-19T23:00:00.000Z", allDay: false, isMine: false }],
+      })
+    ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n👥 <b>상대방</b>\n08:00  요가");
   });
 });

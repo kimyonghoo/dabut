@@ -7,9 +7,10 @@ import { Link } from "@/i18n/navigation";
 
 export type TabKey = "calendar" | "ledger" | "settings";
 
+// 가계부 is used more often than 일정, so it leads the tab order.
 const TABS: Array<{ key: TabKey; href: string; Icon: LucideIcon }> = [
-  { key: "calendar", href: "/calendar", Icon: CalendarHeart },
   { key: "ledger", href: "/ledger", Icon: Wallet },
+  { key: "calendar", href: "/calendar", Icon: CalendarHeart },
   { key: "settings", href: "/settings", Icon: Settings },
 ];
 

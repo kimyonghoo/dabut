@@ -147,29 +147,54 @@ export type TomorrowDigestEvent = {
   title: string;
   startAt: string;
   allDay: boolean;
+  /** True when the recipient themself owns this event, false for a partner's shared event. */
+  isMine: boolean;
 };
+
+function sortDigestEvents(events: TomorrowDigestEvent[]): TomorrowDigestEvent[] {
+  return [...events].sort((a, b) => {
+    if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
+    return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+  });
+}
+
+function digestEventLines(events: TomorrowDigestEvent[], timeZone: string): string[] {
+  return sortDigestEvents(events).map((event) => {
+    const { hour, minute } = zonedDateParts(event.startAt, timeZone);
+    const time = event.allDay ? "종일" : `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    return `${time}  ${escapeHtml(event.title)}`;
+  });
+}
 
 /**
  * "내일 뭐해?" daily digest — tomorrow's events for one user, sent the
- * evening before at their chosen hour. Caller is responsible for not
- * invoking this (and not sending anything) when there are no events; this
- * builder always assumes there's at least one.
+ * evening before at their chosen hour. Events are grouped into "나" (the
+ * recipient's own events) and the partner's shared events so it's clear at
+ * a glance whose plan is whose, instead of one mixed list. Caller is
+ * responsible for not invoking this (and not sending anything) when there
+ * are no events; this builder always assumes there's at least one.
  */
 export function tomorrowDigestMessage(input: {
   events: TomorrowDigestEvent[];
   timeZone?: string;
+  partnerName?: string | null;
 }): string {
-  const { events, timeZone = DEFAULT_TIMEZONE } = input;
-  const sorted = [...events].sort((a, b) => {
-    if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
-    return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
-  });
+  const { events, timeZone = DEFAULT_TIMEZONE, partnerName } = input;
+  const sorted = sortDigestEvents(events);
   const { month, day, weekday } = zonedDateParts(sorted[0].startAt, timeZone);
-  const lines = [`📅 <b>내일 뭐해?</b>`, `${month}월 ${day}일 (${KOREAN_WEEKDAYS[weekday]})`, ""];
-  for (const event of sorted) {
-    const { hour, minute } = zonedDateParts(event.startAt, timeZone);
-    const time = event.allDay ? "종일" : `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-    lines.push(`${time}  ${escapeHtml(event.title)}`);
+  const lines = [`📅 <b>내일 뭐해?</b>`, `${month}월 ${day}일 (${KOREAN_WEEKDAYS[weekday]})`];
+
+  const mine = events.filter((event) => event.isMine);
+  const theirs = events.filter((event) => !event.isMine);
+
+  if (mine.length > 0) {
+    lines.push("", "👤 <b>나</b>");
+    lines.push(...digestEventLines(mine, timeZone));
   }
+  if (theirs.length > 0) {
+    lines.push("", `👥 <b>${escapeHtml(partnerName?.trim() || "상대방")}</b>`);
+    lines.push(...digestEventLines(theirs, timeZone));
+  }
+
   return lines.join("\n");
 }

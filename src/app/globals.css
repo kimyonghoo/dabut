@@ -88,6 +88,23 @@ body {
   }
 }
 
+/* Calendar "today" cell indicator (month-view.tsx): a slow glow pulse
+   around the date circle so today reads at a glance instead of blending
+   into the grid. */
+@keyframes today-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-brand) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-brand) 0%, transparent);
+  }
+}
+
+.today-indicator {
+  animation: today-pulse 2.4s ease-in-out infinite;
+}
+
 /* Locale switch cross-fade (see use-locale-switcher.ts): keep the browser's
    default view-transition cross-fade short and snappy so it reads as a
    smoothing of the content swap, not its own animation; skip it entirely
@@ -102,5 +119,9 @@ body {
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+
+  .today-indicator {
+    animation: none;
   }
 }

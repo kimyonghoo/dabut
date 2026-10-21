@@ -58,6 +58,7 @@ export function DaySummaryProvider({
   currentUserId,
   partnerName,
   timeZone,
+  holidays,
   children,
 }: {
   events: DaySummaryItem[];
@@ -74,6 +75,8 @@ export function DaySummaryProvider({
    * day a near-midnight event belongs to.
    */
   timeZone: string;
+  /** "yyyy-MM-dd" -> holiday name, for the viewer's own timezone/country (see lib/calendar/holidays.ts). */
+  holidays?: Map<string, string>;
   children: ReactNode;
 }) {
   const [dateKey, setDateKey] = useState<string | null>(null);
@@ -90,6 +93,7 @@ export function DaySummaryProvider({
         currentUserId={currentUserId}
         partnerName={partnerName}
         timeZone={timeZone}
+        holidayName={dateKey ? holidays?.get(dateKey) : undefined}
       />
     </DaySummaryContext.Provider>
   );
@@ -133,6 +137,7 @@ function DaySummarySheet({
   currentUserId,
   partnerName,
   timeZone,
+  holidayName,
 }: {
   dateKey: string | null;
   onClose: () => void;
@@ -140,6 +145,7 @@ function DaySummarySheet({
   currentUserId: string;
   partnerName?: string | null;
   timeZone: string;
+  holidayName?: string;
 }) {
   const t = useTranslations("daySummary");
   const locale = useLocale();
@@ -290,8 +296,13 @@ function DaySummarySheet({
             >
             <div aria-hidden className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-line sm:hidden" />
             <header className="flex items-center justify-between gap-2 px-5 pb-2 pt-3">
-              <h2 id="day-summary-title" className="text-lg font-bold text-ink">
+              <h2 id="day-summary-title" className="flex items-center gap-2 text-lg font-bold text-ink">
                 {format(day, dayTitlePattern(locale), { locale: dfLocale })}
+                {holidayName && (
+                  <span className="rounded-full bg-expense/10 px-2 py-0.5 text-xs font-semibold text-expense">
+                    {holidayName}
+                  </span>
+                )}
               </h2>
               <button
                 type="button"

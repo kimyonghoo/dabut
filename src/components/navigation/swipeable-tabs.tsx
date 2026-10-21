@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useState, type ReactNode } from "react";
 import { usePathname } from "@/i18n/navigation";
 
-const TAB_ORDER = ["calendar", "ledger", "settings"] as const;
+const TAB_ORDER = ["ledger", "calendar", "settings"] as const;
 
 function tabIndex(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);

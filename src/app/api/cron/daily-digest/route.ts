@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { zonedDateParts, tomorrowDateKeyInTimeZone, zonedDateTimeToUtcIso, DEFAULT_TIMEZONE } from "@/lib/dates/timezone";
 import { tomorrowDigestMessage } from "@/lib/telegram/messages";
 import { sendTelegramMessage } from "@/lib/telegram/send-message";
+import { resolvePartnerName } from "@/lib/calendar/partner-name";
 
 // Fixed send time — there's no per-user hour picker (kept simple: toggle
 // on/off only), and the cron itself only fires once a day (Vercel Hobby
@@ -91,11 +92,19 @@ export async function GET(request: Request) {
 
     if (tomorrowEvents.length === 0) continue;
 
+    const partnerName = await resolvePartnerName(supabase, profile.id);
+
     await sendTelegramMessage(
       profile.telegram_chat_id!,
       tomorrowDigestMessage({
-        events: tomorrowEvents.map((e) => ({ title: e.title, startAt: e.start_at, allDay: e.all_day })),
+        events: tomorrowEvents.map((e) => ({
+          title: e.title,
+          startAt: e.start_at,
+          allDay: e.all_day,
+          isMine: e.owner_id === profile.id,
+        })),
         timeZone,
+        partnerName,
       })
     );
     sent++;

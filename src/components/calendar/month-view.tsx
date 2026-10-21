@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { addMonths, format, isSameDay, isSameMonth } from "date-fns";
 import { motion, type PanInfo } from "framer-motion";
 import { getMonthGridDays } from "@/lib/calendar/month-grid";
@@ -42,6 +42,7 @@ export function MonthView({
   currentUserId,
   partnerName,
   timeZone,
+  holidays,
 }: {
   month: Date;
   events: CategorizedEvent[];
@@ -49,6 +50,13 @@ export function MonthView({
   partnerName?: string | null;
   /** The viewing user's configured timezone — decides which calendar day each event's instant falls on. */
   timeZone: string;
+  /**
+   * "yyyy-MM-dd" -> holiday name entries, computed server-side (see
+   * lib/calendar/holidays.ts) and passed as plain tuples rather than a Map
+   * so this stays a trivially serializable RSC prop — `date-holidays`'s ~2MB
+   * rule data must never end up in the client bundle.
+   */
+  holidays?: [string, string][];
 }) {
   const t = useTranslations("calendar");
   const tSummary = useTranslations("daySummary");
@@ -60,6 +68,8 @@ export function MonthView({
   const weeks = groupIntoWeeks(days);
   const today = new Date();
   const weekdays = days.slice(0, 7);
+
+  const holidayMap = useMemo(() => new Map(holidays), [holidays]);
 
   // Left swipe -> next month, right swipe -> previous month; reuses the
   // exact same `/calendar?month=yyyy-MM` href the header's prev/next arrow
@@ -113,7 +123,13 @@ export function MonthView({
   });
 
   return (
-    <DaySummaryProvider events={summaryEvents} currentUserId={currentUserId} partnerName={partnerName} timeZone={timeZone}>
+    <DaySummaryProvider
+      events={summaryEvents}
+      currentUserId={currentUserId}
+      partnerName={partnerName}
+      timeZone={timeZone}
+      holidays={holidayMap}
+    >
     <motion.div
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -164,6 +180,7 @@ export function MonthView({
                   const dayEvents = singleDayEvents.filter((event) => isDayWithinEvent(day, event, timeZone));
                   const inMonth = isSameMonth(day, month);
                   const isToday = isSameDay(day, today);
+                  const holidayName = holidayMap.get(dateKey(day));
                   const visible = dayEvents.slice(0, MAX_CHIPS);
                   const hidden = dayEvents.length - visible.length;
                   return (
@@ -174,16 +191,17 @@ export function MonthView({
                         date: format(day, "PPP", { locale: dfLocale }),
                         count: touching.length,
                       })}
-                      className={`flex min-h-[4.75rem] min-w-0 flex-col gap-0.5 p-0.5 ${
+                      className={`flex min-h-[6.5rem] min-w-0 flex-col gap-0.5 p-0.5 ${
                         inMonth ? "bg-surface" : "bg-surface-2/60 opacity-45"
                       }`}
                     >
                       <span
                         aria-current={isToday ? "date" : undefined}
+                        title={holidayName}
                         className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full text-xs ${
                           isToday
-                            ? "bg-brand font-bold text-white shadow-sm"
-                            : `font-medium ${day.getDay() === 0 ? "text-expense" : day.getDay() === 6 ? "text-partner" : "text-ink"}`
+                            ? "today-indicator bg-brand font-bold text-white shadow-sm"
+                            : `font-medium ${holidayName || day.getDay() === 0 ? "text-expense" : day.getDay() === 6 ? "text-partner" : "text-ink"}`
                         }`}
                       >
                         {day.getDate()}
@@ -192,12 +210,12 @@ export function MonthView({
                         {visible.map((event) => (
                           <li key={event.id} className="min-w-0" title={t(CATEGORY_KEY[event.category])}>
                             <span
-                              className={`flex min-w-0 items-center gap-0.5 rounded-md px-1 py-px text-[10px] font-medium leading-tight ${CHIP_CLASSNAME[event.category]}`}
+                              className={`flex min-w-0 items-start gap-0.5 rounded-md px-1 py-px text-[10px] font-medium leading-tight ${CHIP_CLASSNAME[event.category]}`}
                             >
                               {event.category === "partner" && (
-                                <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT_CLASSNAME.partner}`} />
+                                <span aria-hidden className={`mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full ${DOT_CLASSNAME.partner}`} />
                               )}
-                              <span className="truncate">{event.title}</span>
+                              <span className="line-clamp-2 min-w-0 break-words">{event.title}</span>
                             </span>
                           </li>
                         ))}

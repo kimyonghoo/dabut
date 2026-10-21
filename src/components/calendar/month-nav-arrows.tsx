@@ -3,8 +3,10 @@
 import { useTransition } from "react";
 import { addMonths } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale } from "next-intl";
 import { useProgressRouter } from "@/components/feedback/use-progress-router";
 import { monthHref } from "./date-locale";
+import { MonthYearPicker } from "./month-year-picker";
 
 const navClass =
   "inline-flex h-8 w-8 items-center justify-center rounded-full text-lg text-ink-muted transition hover:bg-surface-2 hover:text-ink active:scale-90";
@@ -24,18 +26,22 @@ export function MonthNavArrows({
   prevLabel,
   nextLabel,
   basePath = "/calendar",
+  extraQuery,
 }: {
   month: Date;
   monthTitle: string;
   prevLabel: string;
   nextLabel: string;
   basePath?: "/calendar" | "/ledger";
+  /** Other query params to carry along when navigating months (e.g. `view=thread`). */
+  extraQuery?: Record<string, string>;
 }) {
   const router = useProgressRouter();
+  const locale = useLocale();
   const [, startTransition] = useTransition();
 
   function go(nextMonth: Date) {
-    const href = monthHref(nextMonth, basePath);
+    const href = monthHref(nextMonth, basePath, extraQuery);
     startTransition(() => {
       router.push(href);
     });
@@ -46,7 +52,7 @@ export function MonthNavArrows({
       <button type="button" aria-label={prevLabel} className={navClass} onClick={() => go(addMonths(month, -1))}>
         <ChevronLeft aria-hidden className="size-5" />
       </button>
-      <span>{monthTitle}</span>
+      <MonthYearPicker month={month} monthTitle={monthTitle} basePath={basePath} extraQuery={extraQuery} locale={locale} />
       <button type="button" aria-label={nextLabel} className={navClass} onClick={() => go(addMonths(month, 1))}>
         <ChevronRight aria-hidden className="size-5" />
       </button>
