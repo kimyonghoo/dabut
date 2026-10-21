@@ -43,6 +43,7 @@ import {
   Pizza,
   Plane,
   Receipt,
+  Rocket,
   Scissors,
   Shirt,
   ShoppingBag,
@@ -87,6 +88,7 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
   shirt: Shirt,
   gem: Gem,
   store: Store,
+  rocket: Rocket,
   // transport
   taxi: CarTaxiFront,
   car: Car,
@@ -168,6 +170,7 @@ export const CATEGORY_ICON_CHOICES = [
   "shirt",
   "gem",
   "store",
+  "rocket",
   // transport
   "taxi",
   "car",
