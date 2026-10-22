@@ -30,7 +30,10 @@ export function filterByPaymentMethod<T extends FilterableByPaymentMethod>(
   const selected = new Set(paymentMethodIds);
   const includeUnassigned = selected.has(UNASSIGNED_PAYMENT_METHOD_ID);
   return rows.filter((row) =>
-    row.paymentMethodId == null ? includeUnassigned : selected.has(row.paymentMethodId)
+    row.paymentMethodId == null
+      ? // 수입은 결제수단 개념이 없으므로 "미지정"에도 잡히지 않는다.
+        includeUnassigned && (row as { type?: string }).type !== "income"
+      : selected.has(row.paymentMethodId)
   );
 }
 

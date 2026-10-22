@@ -26,6 +26,8 @@ const DELETE_CONFIRM_MS = 3000;
 type TransactionRow = Database["public"]["Tables"]["transactions"]["Row"];
 type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 
+const FIXED_INCOME_CATEGORIES = ["월급", "용돈", "페이백"] as const;
+
 export function TransactionForm({
   mode,
   transaction,
@@ -54,7 +56,20 @@ export function TransactionForm({
     const seen = new Set(categories.map((category) => category.id));
     return [...categories, ...createdCategories.filter((category) => !seen.has(category.id))];
   }, [categories, createdCategories]);
-  const filteredCategories = allCategories.filter((category) => category.type === type);
+  const filteredCategories =
+    type === "income"
+      ? FIXED_INCOME_CATEGORIES.map((name) => allCategories.find((c) => c.type === "income" && c.name === name)).filter(
+          (c): c is NonNullable<typeof c> => Boolean(c)
+        ).concat(
+          // 예전에 만든 수입 카테고리는 수정 화면에서 선택값으로만 유지
+          allCategories.filter(
+            (c) =>
+              c.type === "income" &&
+              !FIXED_INCOME_CATEGORIES.includes(c.name as (typeof FIXED_INCOME_CATEGORIES)[number]) &&
+              c.id === transaction?.category_id
+          )
+        )
+      : allCategories.filter((category) => category.type === type);
 
   const [selectedByType, setSelectedByType] = useState<Partial<Record<"expense" | "income", string>>>(() =>
     transaction ? { [transaction.type as "expense" | "income"]: transaction.category_id } : {}
@@ -173,6 +188,7 @@ export function TransactionForm({
 
       <CategoryPicker
         type={type}
+        allowCreate={!isIncome}
         categories={filteredCategories}
         selectedId={selectedCategoryId}
         onSelect={(id) => setSelectedByType((prev) => ({ ...prev, [type]: id }))}
@@ -182,12 +198,14 @@ export function TransactionForm({
         }}
       />
 
-      <PaymentMethodPicker
-        name="paymentMethodId"
-        methods={paymentMethods}
-        defaultValue={transaction?.payment_method_id ?? null}
-        currentUserId={currentUserId}
-      />
+      {!isIncome && (
+        <PaymentMethodPicker
+          name="paymentMethodId"
+          methods={paymentMethods}
+          defaultValue={transaction?.payment_method_id ?? null}
+          currentUserId={currentUserId}
+        />
+      )}
 
       <label className={labelClass}>
         {t("occurredAt")}

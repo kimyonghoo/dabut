@@ -240,7 +240,10 @@ export async function createTransaction(
   const amountResult = validateAmount(formData.get("amount") as string);
   if ("error" in amountResult) return amountResult;
 
-  const paymentMethodResult = await resolvePaymentMethodId(supabase, formData.get("paymentMethodId"));
+  const paymentMethodResult = await resolvePaymentMethodId(
+    supabase,
+    formData.get("type") === "income" ? null : formData.get("paymentMethodId")
+  );
   if ("error" in paymentMethodResult) return paymentMethodResult;
 
   const { data, error } = await supabase.from("transactions").insert({
@@ -289,7 +292,10 @@ export async function updateTransaction(
   const amountResult = validateAmount(formData.get("amount") as string);
   if ("error" in amountResult) return amountResult;
 
-  const paymentMethodResult = await resolvePaymentMethodId(supabase, formData.get("paymentMethodId"));
+  const paymentMethodResult = await resolvePaymentMethodId(
+    supabase,
+    formData.get("type") === "income" ? null : formData.get("paymentMethodId")
+  );
   if ("error" in paymentMethodResult) return paymentMethodResult;
 
   const { data, error } = await supabase

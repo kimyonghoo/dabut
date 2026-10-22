@@ -33,12 +33,14 @@ const chipClass =
  */
 export function CategoryPicker({
   type,
+  allowCreate = true,
   categories,
   selectedId,
   onSelect,
   onCreated,
 }: {
   type: "expense" | "income";
+  allowCreate?: boolean;
   categories: PickerCategory[];
   selectedId: string | undefined;
   onSelect: (id: string) => void;
@@ -191,21 +193,23 @@ export function CategoryPicker({
             {expanded ? t("filterLess") : t("filterMore", { count: hiddenCategories.length })}
           </button>
         )}
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          onClick={() => {
-            setOpen((value) => !value);
-            setError(null);
-          }}
-          className={`${chipClass} border-dashed ${
-            open ? "border-brand bg-brand-soft text-brand-strong" : "border-line text-ink-muted hover:bg-surface-2"
-          } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand`}
-        >
-          <Plus aria-hidden className="size-4" />
-          {t("addCategory")}
-        </button>
+        {allowCreate && (
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={() => {
+              setOpen((value) => !value);
+              setError(null);
+            }}
+            className={`${chipClass} border-dashed ${
+              open ? "border-brand bg-brand-soft text-brand-strong" : "border-line text-ink-muted hover:bg-surface-2"
+            } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand`}
+          >
+            <Plus aria-hidden className="size-4" />
+            {t("addCategory")}
+          </button>
+        )}
       </div>
 
       <dialog

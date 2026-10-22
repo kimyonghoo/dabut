@@ -38,6 +38,7 @@ import {
   PawPrint,
   Pencil,
   Phone,
+  RotateCcw,
   PiggyBank,
   Pill,
   Pizza,
@@ -147,6 +148,7 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
   landmark: Landmark,
   wallet: Wallet,
   "hand-coins": HandCoins,
+  "rotate-ccw": RotateCcw,
   // misc
   sparkles: Sparkles,
   "more-horizontal": MoreHorizontal,
@@ -229,6 +231,7 @@ export const CATEGORY_ICON_CHOICES = [
   "landmark",
   "wallet",
   "hand-coins",
+  "rotate-ccw",
   // misc
   "sparkles",
 ] as const;
@@ -255,6 +258,8 @@ const NAME_ICON: Record<string, string> = {
   배달음식: "bicycle",
   주차비: "circle-parking",
   월급: "banknote",
+  용돈: "hand-coins",
+  페이백: "rotate-ccw",
 };
 
 const LEGACY_EMOJI: Record<string, string> = {

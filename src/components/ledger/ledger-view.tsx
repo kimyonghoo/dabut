@@ -155,7 +155,7 @@ export function LedgerView({
     ),
     searchQuery
   );
-  const unassignedCount = liveRows.filter((row) => row.paymentMethodId == null).length;
+  const unassignedCount = liveRows.filter((row) => row.type === "expense" && row.paymentMethodId == null).length;
   const totals = calculateMonthlyTotals(filtered.map((row) => ({ type: row.type, amount: row.amount })));
   const groups = groupByOccurredAt(filtered);
 
