@@ -1,5 +1,6 @@
 "use client";
 
+import { dragScrollRef } from "@/components/ui/drag-scroll";
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { BarChart3, CircleHelp, CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
@@ -309,6 +310,7 @@ export function LedgerView({
               role="group"
               aria-label={t("filterLabel")}
               // Horizontal scroller: stop the page-level tab swipe from hijacking it.
+              ref={dragScrollRef}
               onPointerDownCapture={(event) => event.stopPropagation()}
               className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
@@ -348,6 +350,7 @@ export function LedgerView({
             <div
               role="group"
               aria-label={t("paymentMethodFilterLabel")}
+              ref={dragScrollRef}
               onPointerDownCapture={(event) => event.stopPropagation()}
               className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
@@ -358,16 +361,6 @@ export function LedgerView({
                 className={chipStyle(paymentMethodIds.length === 0)}
               >
                 {t("filterAll")}
-              </button>
-              <button
-                type="button"
-                aria-pressed={paymentMethodIds.includes(UNASSIGNED_PAYMENT_METHOD_ID)}
-                onClick={() => togglePaymentMethod(UNASSIGNED_PAYMENT_METHOD_ID)}
-                className={chipStyle(paymentMethodIds.includes(UNASSIGNED_PAYMENT_METHOD_ID))}
-              >
-                <CircleHelp aria-hidden className="size-4" />
-                {t("filterUnassigned")}
-                <span className="text-xs opacity-70">{unassignedCount}</span>
               </button>
               {paymentMethods.map((method) => (
                 <button
@@ -381,6 +374,16 @@ export function LedgerView({
                   {method.name}
                 </button>
               ))}
+              <button
+                type="button"
+                aria-pressed={paymentMethodIds.includes(UNASSIGNED_PAYMENT_METHOD_ID)}
+                onClick={() => togglePaymentMethod(UNASSIGNED_PAYMENT_METHOD_ID)}
+                className={chipStyle(paymentMethodIds.includes(UNASSIGNED_PAYMENT_METHOD_ID))}
+              >
+                <CircleHelp aria-hidden className="size-4" />
+                {t("filterUnassigned")}
+                <span className="text-xs opacity-70">{unassignedCount}</span>
+              </button>
             </div>
           )}
 
@@ -388,6 +391,7 @@ export function LedgerView({
             <div
               role="radiogroup"
               aria-label={t("ownerFilterLabel")}
+              ref={dragScrollRef}
               onPointerDownCapture={(event) => event.stopPropagation()}
               className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >

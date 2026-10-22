@@ -1,5 +1,6 @@
 "use client";
 
+import { dragScrollRef } from "@/components/ui/drag-scroll";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Clock, MapPin, Search, Users } from "lucide-react";
@@ -113,6 +114,7 @@ export function ThreadList({
         <div
           role="radiogroup"
           aria-label={t("ownerFilterLabel")}
+          ref={dragScrollRef}
           onPointerDownCapture={(event) => event.stopPropagation()}
           className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >

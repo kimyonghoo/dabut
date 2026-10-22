@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { formatWon } from "@/components/ledger/category-icon";
+import { DragScrollRow } from "@/components/ui/drag-scroll";
 import { ShareDrilldown } from "@/components/ledger/share-drilldown";
 import { EngelCard } from "@/components/ledger/engel-card";
 import {
@@ -141,7 +142,7 @@ export default async function LedgerStatsPage({
         <h1 className="text-xl font-bold tracking-tight text-ink">{t("title")}</h1>
       </header>
 
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <DragScrollRow className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {RANGES.map((r) => (
           <Link
             key={r}
@@ -155,7 +156,7 @@ export default async function LedgerStatsPage({
             {rangeLabel[r]}
           </Link>
         ))}
-      </div>
+      </DragScrollRow>
 
       {/* 총 저축률 */}
       <div className="rounded-[22px] bg-gradient-to-br from-brand to-[#ff9a6c] p-[18px] text-white">
