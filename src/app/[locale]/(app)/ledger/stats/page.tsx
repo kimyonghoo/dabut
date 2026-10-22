@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
 import { EngelCard } from "@/components/ledger/engel-card";
+import { paymentBrandColor } from "@/components/ledger/payment-brand";
 import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 import {
   rangeBounds,
@@ -259,7 +260,7 @@ export default async function LedgerStatsPage({
                 <div className="h-2.5 overflow-hidden rounded-md bg-surface-2">
                   <div
                     className="h-full rounded-md"
-                    style={{ width: `${item.pct}%`, background: SERIES_COLORS[i % SERIES_COLORS.length] }}
+                    style={{ width: `${item.pct}%`, background: paymentBrandColor(item.name) ?? SERIES_COLORS[i % SERIES_COLORS.length] }}
                   />
                 </div>
               </li>
