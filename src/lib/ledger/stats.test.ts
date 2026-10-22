@@ -7,6 +7,8 @@ import {
   computeMonthlyTrend,
   computeWeekdayPattern,
   computeTopExpenses,
+  computeEngelIndex,
+  engelBand,
   type StatsTransaction,
 } from "./stats";
 
@@ -16,7 +18,7 @@ function tx(overrides: Partial<StatsTransaction>): StatsTransaction {
     amount: 0,
     occurredAt: "2026-10-01",
     categoryId: "cat-1",
-    categoryName: "식비",
+    categoryName: "외식",
     categoryIcon: "utensils",
     paymentMethodId: null,
     paymentMethodName: null,
@@ -62,13 +64,13 @@ describe("computeSavingsRate", () => {
 describe("computeCategoryShare", () => {
   it("sorts descending and computes percentage of total expense", () => {
     const transactions = [
-      tx({ categoryId: "c1", categoryName: "식비", amount: 60000 }),
+      tx({ categoryId: "c1", categoryName: "외식", amount: 60000 }),
       tx({ categoryId: "c2", categoryName: "쇼핑", amount: 40000 }),
       tx({ type: "income", categoryId: "c3", categoryName: "월급", amount: 999999 }),
     ];
     const result = computeCategoryShare(transactions, "2026-10-01", "2026-10-31", "기타");
     expect(result).toEqual([
-      { id: "c1", name: "식비", icon: "utensils", amount: 60000, pct: 60 },
+      { id: "c1", name: "외식", icon: "utensils", amount: 60000, pct: 60 },
       { id: "c2", name: "쇼핑", icon: "utensils", amount: 40000, pct: 40 },
     ]);
   });
@@ -146,5 +148,27 @@ describe("computeTopExpenses", () => {
   it("caps at the requested limit", () => {
     const transactions = Array.from({ length: 15 }, (_, i) => tx({ amount: i + 1 }));
     expect(computeTopExpenses(transactions, "2026-10-01", "2026-10-31", 10)).toHaveLength(10);
+  });
+});
+
+describe("computeEngelIndex", () => {
+  const mk = (categoryName: string, amount: number) => tx({ categoryName, amount, type: "expense" });
+  it("sums 외식/마트/배달/편의점 over total expense", () => {
+    const r = computeEngelIndex(
+      [mk("외식", 10000), mk("마트", 10000), mk("배달", 5000), mk("편의점", 5000), mk("교통", 70000)],
+      "2000-01-01",
+      "2999-12-31"
+    );
+    expect(r.pct).toBe(30);
+    expect(r.band).toBe("high");
+  });
+  it("returns null pct with no expense", () => {
+    expect(computeEngelIndex([], "2000-01-01", "2999-12-31").pct).toBeNull();
+  });
+  it("band boundaries", () => {
+    expect(engelBand(19.9)).toBe("veryLow");
+    expect(engelBand(20)).toBe("low");
+    expect(engelBand(25)).toBe("normal");
+    expect(engelBand(35)).toBe("veryHigh");
   });
 });

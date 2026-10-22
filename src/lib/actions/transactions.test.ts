@@ -43,7 +43,7 @@ function fakeSupabase(opts: {
                   opts.insertError
                     ? { data: null, error: opts.insertError }
                     : {
-                        data: { connection_id: row.connection_id, type: row.type, amount: row.amount, categories: { name: "식비" } },
+                        data: { connection_id: row.connection_id, type: row.type, amount: row.amount, categories: { name: "외식" } },
                         error: null,
                       },
               }),

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
+import { EngelCard } from "@/components/ledger/engel-card";
 import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 import {
   rangeBounds,
@@ -14,6 +15,7 @@ import {
   computeMonthlyTrend,
   computeWeekdayPattern,
   computeTopExpenses,
+  computeEngelIndex,
   type StatsRange,
   type StatsTransaction,
 } from "@/lib/ledger/stats";
@@ -85,6 +87,8 @@ export default async function LedgerStatsPage({
   const trend = computeMonthlyTrend(transactions, TREND_MONTHS, today);
   const weekday = computeWeekdayPattern(transactions, rangeStart, rangeEnd);
   const top10 = computeTopExpenses(transactions, rangeStart, rangeEnd);
+  const engel = computeEngelIndex(transactions, rangeStart, rangeEnd);
+  const engelKeys = ["veryLow", "low", "normal", "high", "veryHigh"] as const;
 
   const maxWeekday = Math.max(1, ...weekday.map((w) => w.amount));
   const peakWeekday = weekday.reduce((max, w) => (w.amount > max.amount ? w : max), weekday[0]);
@@ -337,6 +341,25 @@ export default async function LedgerStatsPage({
           </ul>
         )}
       </Card>
+
+      {/* ⑥ 엥겔지수 (재미로 보는) */}
+      <EngelCard
+        title={t("engelTitle")}
+        subtitle={t("engelSub")}
+        panelTitle={t("engelPanel")}
+        helpLabel={t("engelHelp")}
+        emptyText={t("engelEmpty")}
+        hint={t("engelHint", { food: formatWon(engel.food), total: formatWon(engel.total) })}
+        pct={engel.pct}
+        currentKey={engel.band}
+        bands={engelKeys.map((k) => ({
+          key: k,
+          range: t(`engelRange_${k}`),
+          label: t(`engelLabel_${k}`),
+          desc: t(`engelDesc_${k}`),
+        }))}
+        breakdown={engel.breakdown.map((b) => ({ name: b.name, amountText: formatWon(b.amount) }))}
+      />
     </main>
   );
 }

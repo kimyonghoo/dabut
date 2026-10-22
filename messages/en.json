@@ -108,7 +108,8 @@
     "partnerOwned": "Partner's",
     "filtersLabel": "Filters",
     "stats": "Stats",
-    "goalProgress": "Progress toward this month's goal"
+    "goalProgress": "Progress toward this month's goal",
+    "filterUnassigned": "Unassigned"
   },
   "calendar": {
     "monthView": "Month",
@@ -343,7 +344,28 @@
       "Thu",
       "Fri",
       "Sat"
-    ]
+    ],
+    "engelTitle": "Engel index",
+    "engelSub": "Just for fun",
+    "engelPanel": "Engel index by range",
+    "engelEmpty": "No expenses in this period",
+    "engelHint": "Dining out, groceries, delivery, convenience {food} / total spend {total}",
+    "engelHelp": "Show explanation",
+    "engelRange_veryLow": "Under 20%",
+    "engelLabel_veryLow": "Very low food share",
+    "engelDesc_veryLow": "Possibly more room for non-food spending",
+    "engelRange_low": "20-25%",
+    "engelLabel_low": "Low",
+    "engelDesc_low": "Relatively low food burden",
+    "engelRange_normal": "25-30%",
+    "engelLabel_normal": "Moderate",
+    "engelDesc_normal": "Worth checking the balance with other spending",
+    "engelRange_high": "30-35%",
+    "engelLabel_high": "High",
+    "engelDesc_high": "Food takes a large share of total spending",
+    "engelRange_veryHigh": "35% or more",
+    "engelLabel_veryHigh": "Very high",
+    "engelDesc_veryHigh": "Check why food spending rose and the burden of essentials"
   },
   "monthlyGoal": {
     "title": "This month's spending goal",

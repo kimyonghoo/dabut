@@ -191,3 +191,40 @@ export function computeTopExpenses(transactions: StatsTransaction[], start: stri
       categoryIcon: tx.categoryIcon,
     }));
 }
+
+export const ENGEL_KEYWORDS = ["외식", "마트", "배달", "편의점"] as const;
+export type EngelBandKey = "veryLow" | "low" | "normal" | "high" | "veryHigh";
+
+export function engelBand(pct: number): EngelBandKey {
+  if (pct < 20) return "veryLow";
+  if (pct < 25) return "low";
+  if (pct < 30) return "normal";
+  if (pct < 35) return "high";
+  return "veryHigh";
+}
+
+export type EngelIndex = {
+  /** null when there is no expense in the range. */
+  pct: number | null;
+  food: number;
+  total: number;
+  band: EngelBandKey | null;
+  breakdown: { name: string; amount: number }[];
+};
+
+/** (외식 + 마트 + 배달 + 편의점 지출) / 전체 지출 * 100 over the range. */
+export function computeEngelIndex(transactions: StatsTransaction[], start: string, end: string): EngelIndex {
+  let total = 0;
+  const byKeyword = new Map<string, number>(ENGEL_KEYWORDS.map((k) => [k, 0]));
+  for (const tx of transactions) {
+    if (tx.type !== "expense" || !inRange(tx.occurredAt, start, end)) continue;
+    total += tx.amount;
+    const keyword = ENGEL_KEYWORDS.find((k) => tx.categoryName?.includes(k));
+    if (keyword) byKeyword.set(keyword, (byKeyword.get(keyword) ?? 0) + tx.amount);
+  }
+  const breakdown = ENGEL_KEYWORDS.map((name) => ({ name: name as string, amount: byKeyword.get(name) ?? 0 }));
+  const food = breakdown.reduce((s, b) => s + b.amount, 0);
+  if (total === 0) return { pct: null, food, total, band: null, breakdown };
+  const pct = Math.round((food / total) * 1000) / 10;
+  return { pct, food, total, band: engelBand(pct), breakdown };
+}

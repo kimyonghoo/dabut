@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { BarChart3, CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
+import { BarChart3, CircleHelp, CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
 import { inputClass } from "@/components/ui/field";
@@ -20,6 +20,7 @@ import {
   filterByCategory,
   filterByOwner,
   filterByPaymentMethod,
+  UNASSIGNED_PAYMENT_METHOD_ID,
   filterBySearch,
   groupByOccurredAt,
 } from "@/lib/ledger/filter-by-category";
@@ -119,6 +120,7 @@ export function LedgerView({
     ),
     searchQuery
   );
+  const unassignedCount = liveRows.filter((row) => row.paymentMethodId == null).length;
   const totals = calculateMonthlyTotals(filtered.map((row) => ({ type: row.type, amount: row.amount })));
   const groups = groupByOccurredAt(filtered);
 
@@ -321,6 +323,16 @@ export function LedgerView({
                 className={chipStyle(paymentMethodIds.length === 0)}
               >
                 {t("filterAll")}
+              </button>
+              <button
+                type="button"
+                aria-pressed={paymentMethodIds.includes(UNASSIGNED_PAYMENT_METHOD_ID)}
+                onClick={() => togglePaymentMethod(UNASSIGNED_PAYMENT_METHOD_ID)}
+                className={chipStyle(paymentMethodIds.includes(UNASSIGNED_PAYMENT_METHOD_ID))}
+              >
+                <CircleHelp aria-hidden className="size-4" />
+                {t("filterUnassigned")}
+                <span className="text-xs opacity-70">{unassignedCount}</span>
               </button>
               {paymentMethods.map((method) => (
                 <button

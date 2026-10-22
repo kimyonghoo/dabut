@@ -108,7 +108,8 @@
     "partnerOwned": "对方登记",
     "filtersLabel": "筛选",
     "stats": "统计",
-    "goalProgress": "本月目标进度"
+    "goalProgress": "本月目标进度",
+    "filterUnassigned": "未指定"
   },
   "calendar": {
     "monthView": "日历",
@@ -343,7 +344,28 @@
       "四",
       "五",
       "六"
-    ]
+    ],
+    "engelTitle": "恩格尔系数",
+    "engelSub": "趣味指标",
+    "engelPanel": "恩格尔系数分档分析",
+    "engelEmpty": "此期间没有支出",
+    "engelHint": "外食、超市、外卖、便利店 {food} / 总支出 {total}",
+    "engelHelp": "查看说明",
+    "engelRange_veryLow": "低于20%",
+    "engelLabel_veryLow": "食品占比低",
+    "engelDesc_veryLow": "非食品消费可能更有余裕",
+    "engelRange_low": "20~25%",
+    "engelLabel_low": "偏低",
+    "engelDesc_low": "食品负担相对较低",
+    "engelRange_normal": "25~30%",
+    "engelLabel_normal": "一般",
+    "engelDesc_normal": "可关注食品与其他消费的平衡",
+    "engelRange_high": "30~35%",
+    "engelLabel_high": "偏高",
+    "engelDesc_high": "食品支出占总消费比重较大",
+    "engelRange_veryHigh": "35%以上",
+    "engelLabel_veryHigh": "很高",
+    "engelDesc_veryHigh": "需检查食品支出增加原因及必需支出负担"
   },
   "monthlyGoal": {
     "title": "本月目标支出额",

@@ -12,11 +12,15 @@ export function filterByCategory<T extends FilterableTransaction>(rows: T[], cat
 
 export type FilterableByPaymentMethod = { paymentMethodId: string | null };
 
+/** Sentinel id for the "결제수단 미지정" filter chip — rows with no payment method tagged. */
+export const UNASSIGNED_PAYMENT_METHOD_ID = "__none__";
+
 /**
  * Empty array = all payment methods. Multi-select: a row matches if its
- * payment method is any of `paymentMethodIds`. A row with no payment method
- * tagged (`paymentMethodId: null`) only ever shows under "all" — it never
- * matches a specific method filter.
+ * payment method is any of `paymentMethodIds`. The sentinel
+ * `UNASSIGNED_PAYMENT_METHOD_ID` additionally matches rows with no payment
+ * method tagged (`paymentMethodId: null`); without it such rows only ever
+ * show under "all".
  */
 export function filterByPaymentMethod<T extends FilterableByPaymentMethod>(
   rows: T[],
@@ -24,7 +28,10 @@ export function filterByPaymentMethod<T extends FilterableByPaymentMethod>(
 ): T[] {
   if (paymentMethodIds.length === 0) return rows;
   const selected = new Set(paymentMethodIds);
-  return rows.filter((row) => row.paymentMethodId != null && selected.has(row.paymentMethodId));
+  const includeUnassigned = selected.has(UNASSIGNED_PAYMENT_METHOD_ID);
+  return rows.filter((row) =>
+    row.paymentMethodId == null ? includeUnassigned : selected.has(row.paymentMethodId)
+  );
 }
 
 export type FilterableByOwner = { ownerId: string };

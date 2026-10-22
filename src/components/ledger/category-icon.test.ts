@@ -3,11 +3,11 @@ import { categoryIconKey, formatWon } from "./category-icon";
 
 describe("categoryIconKey", () => {
   it("prefers a stored lucide key", () => {
-    expect(categoryIconKey({ name: "식비", icon: "coffee" })).toBe("coffee");
+    expect(categoryIconKey({ name: "외식", icon: "coffee" })).toBe("coffee");
   });
   it("maps legacy emoji icons to keys", () => {
     expect(categoryIconKey({ name: "x", icon: "🐶" })).toBe("dog");
-    expect(categoryIconKey("식비", "☕")).toBe("coffee");
+    expect(categoryIconKey("외식", "☕")).toBe("coffee");
   });
   it("falls back to the name map, then the default", () => {
     expect(categoryIconKey({ name: "월급", icon: null })).toBe("banknote");
@@ -16,7 +16,7 @@ describe("categoryIconKey", () => {
     expect(categoryIconKey(null)).toBe("coins");
   });
   it("ignores unknown stored icons", () => {
-    expect(categoryIconKey({ name: "식비", icon: "nope" })).toBe("utensils");
+    expect(categoryIconKey({ name: "외식", icon: "nope" })).toBe("utensils");
   });
 });
 

@@ -236,7 +236,7 @@ export const CATEGORY_ICON_CHOICES = [
 export const DEFAULT_CATEGORY_ICON = "coins";
 
 const NAME_ICON: Record<string, string> = {
-  식비: "utensils",
+  외식: "utensils",
   육아: "baby",
   문화: "ticket",
   경조사: "gift",

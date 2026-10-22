@@ -9,7 +9,7 @@ import {
 
 describe("escapeHtml", () => {
   it("leaves plain text untouched", () => {
-    expect(escapeHtml("식비 점심")).toBe("식비 점심");
+    expect(escapeHtml("외식 점심")).toBe("외식 점심");
   });
 
   it("escapes &, <, > so arbitrary user text can't break Telegram HTML parsing", () => {
@@ -112,9 +112,9 @@ describe("transactionNotificationMessage", () => {
         actorName: "민지",
         type: "expense",
         amount: 15000,
-        categoryName: "식비",
+        categoryName: "외식",
       })
-    ).toBe("💸 <b>지출 발생</b>\n분류: 식비\n금액: 15,000원\n등록: 민지님");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 외식\n금액: 15,000원\n등록: 민지님");
   });
 
   it("includes the category icon next to the category name when present", () => {
@@ -124,10 +124,10 @@ describe("transactionNotificationMessage", () => {
         actorName: "민지",
         type: "expense",
         amount: 15000,
-        categoryName: "식비",
+        categoryName: "외식",
         categoryIcon: "🍚",
       })
-    ).toBe("💸 <b>지출 발생</b>\n분류: 🍚 식비\n금액: 15,000원\n등록: 민지님");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 🍚 외식\n금액: 15,000원\n등록: 민지님");
   });
 
   it("includes the payment method when present", () => {
@@ -137,10 +137,10 @@ describe("transactionNotificationMessage", () => {
         actorName: "민지",
         type: "expense",
         amount: 15000,
-        categoryName: "식비",
+        categoryName: "외식",
         paymentMethodName: "삼성카드",
       })
-    ).toBe("💸 <b>지출 발생</b>\n분류: 식비\n결제: 삼성카드\n금액: 15,000원\n등록: 민지님");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 외식\n결제: 삼성카드\n금액: 15,000원\n등록: 민지님");
   });
 
   it("appends a memo line when present", () => {
@@ -150,10 +150,10 @@ describe("transactionNotificationMessage", () => {
         actorName: "민지",
         type: "expense",
         amount: 15000,
-        categoryName: "식비",
+        categoryName: "외식",
         memo: "점심 김밥",
       })
-    ).toBe("💸 <b>지출 발생</b>\n분류: 식비\n금액: 15,000원\n메모: 점심 김밥\n등록: 민지님");
+    ).toBe("💸 <b>지출 발생</b>\n분류: 외식\n금액: 15,000원\n메모: 점심 김밥\n등록: 민지님");
   });
 
   it("omits the memo line entirely when memo is null, empty, or whitespace-only", () => {
@@ -162,9 +162,9 @@ describe("transactionNotificationMessage", () => {
       actorName: "민지",
       type: "expense" as const,
       amount: 15000,
-      categoryName: "식비",
+      categoryName: "외식",
     };
-    const expected = "💸 <b>지출 발생</b>\n분류: 식비\n금액: 15,000원\n등록: 민지님";
+    const expected = "💸 <b>지출 발생</b>\n분류: 외식\n금액: 15,000원\n등록: 민지님";
     expect(transactionNotificationMessage({ ...base, memo: null })).toBe(expected);
     expect(transactionNotificationMessage({ ...base, memo: "" })).toBe(expected);
     expect(transactionNotificationMessage({ ...base, memo: "   " })).toBe(expected);

@@ -108,7 +108,8 @@
     "partnerOwned": "상대방 등록",
     "filtersLabel": "필터",
     "stats": "통계",
-    "goalProgress": "이번 달 목표 대비"
+    "goalProgress": "이번 달 목표 대비",
+    "filterUnassigned": "미지정"
   },
   "calendar": {
     "monthView": "달력",
@@ -343,7 +344,28 @@
       "목",
       "금",
       "토"
-    ]
+    ],
+    "engelTitle": "엥겔지수",
+    "engelSub": "재미로 보는 지표",
+    "engelPanel": "엥겔지수 구간별 분석",
+    "engelEmpty": "이 기간엔 지출이 없어요",
+    "engelHint": "외식·마트·배달·편의점 {food} / 전체 지출 {total}",
+    "engelHelp": "설명 보기",
+    "engelRange_veryLow": "20% 미만",
+    "engelLabel_veryLow": "식비 비중 낮음",
+    "engelDesc_veryLow": "식비 외 소비에 상대적으로 여유가 있는 구조일 수 있음",
+    "engelRange_low": "20~25%",
+    "engelLabel_low": "낮은 편",
+    "engelDesc_low": "식비 부담이 비교적 낮은 소비 구조",
+    "engelRange_normal": "25~30%",
+    "engelLabel_normal": "보통",
+    "engelDesc_normal": "식비와 다른 소비의 균형을 살펴볼 구간",
+    "engelRange_high": "30~35%",
+    "engelLabel_high": "높은 편",
+    "engelDesc_high": "식비 지출이 전체 소비에서 차지하는 비중이 큼",
+    "engelRange_veryHigh": "35% 이상",
+    "engelLabel_veryHigh": "매우 높음",
+    "engelDesc_veryHigh": "식비 증가 원인과 가계의 필수 지출 부담을 점검할 필요"
   },
   "monthlyGoal": {
     "title": "이번 달 목표 지출액",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterByCategory, filterByOwner, filterByPaymentMethod, filterBySearch, groupByOccurredAt } from "./filter-by-category";
+import { UNASSIGNED_PAYMENT_METHOD_ID, filterByCategory, filterByOwner, filterByPaymentMethod, filterBySearch, groupByOccurredAt } from "./filter-by-category";
 
 const rows = [
   { id: "1", categoryId: "food", occurredAt: "2026-10-01" },
@@ -58,6 +58,19 @@ describe("filterByPaymentMethod", () => {
   it("never matches an untagged row against a specific method", () => {
     expect(filterByPaymentMethod(pmRows, ["card-a"]).some((r) => r.id === "3")).toBe(false);
     expect(filterByPaymentMethod(pmRows, ["card-b"]).map((r) => r.id)).toEqual(["2"]);
+  });
+});
+
+describe("filterByPaymentMethod unassigned", () => {
+  const rows = [
+    { id: "1", paymentMethodId: "card-a" },
+    { id: "2", paymentMethodId: null },
+  ];
+  it("matches only untagged rows with the sentinel", () => {
+    expect(filterByPaymentMethod(rows, [UNASSIGNED_PAYMENT_METHOD_ID]).map((r) => r.id)).toEqual(["2"]);
+  });
+  it("combines sentinel with a method", () => {
+    expect(filterByPaymentMethod(rows, [UNASSIGNED_PAYMENT_METHOD_ID, "card-a"]).map((r) => r.id)).toEqual(["1", "2"]);
   });
 });
 
