@@ -179,9 +179,9 @@ export async function startSignup(_prev: SignUpState, formData: FormData): Promi
 }
 
 // redirect() throws NEXT_REDIRECT — must be the last call, outside try/catch.
-async function redirectToCalendar(): Promise<never> {
+async function redirectToLedger(): Promise<never> {
   return redirect({
-    href: { pathname: "/calendar", query: { toast: "telegramSignupVerified" } },
+    href: { pathname: "/ledger", query: { toast: "telegramSignupVerified" } },
     locale: await getLocale(),
   });
 }
@@ -259,5 +259,5 @@ export async function verifySignupOtp(
     return { error: "failed" };
   }
 
-  return redirectToCalendar();
+  return redirectToLedger();
 }

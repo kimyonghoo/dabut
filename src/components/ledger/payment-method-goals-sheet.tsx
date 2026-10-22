@@ -130,7 +130,7 @@ export function PaymentMethodGoalsSheet({
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <PaymentMethodIcon icon={item.icon} className="size-5 text-ink-muted" />
+                        <PaymentMethodIcon icon={item.icon} name={item.name} className="size-5 text-ink-muted" />
                         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{item.name}</span>
                         {done ? (
                           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-income/15 px-2 py-0.5 text-xs font-bold text-income">

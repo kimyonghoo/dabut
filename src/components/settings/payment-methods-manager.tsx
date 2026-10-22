@@ -266,7 +266,7 @@ export function PaymentMethodsManager({ initialMethods }: { initialMethods: Paym
               className="flex flex-wrap items-center gap-2.5 rounded-2xl border border-line bg-surface px-3 py-2.5"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-base">
-                <PaymentMethodIcon icon={method.icon} className="size-4 text-brand" />
+                <PaymentMethodIcon icon={method.icon} name={method.name} className="size-4 text-brand" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-ink">{method.name}</p>

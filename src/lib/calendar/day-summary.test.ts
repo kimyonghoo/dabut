@@ -92,7 +92,7 @@ describe("splitDayEvents", () => {
   });
 
   it("returns empty sections when nothing is on that day", () => {
-    expect(splitDayEvents(events, new Date(2026, 9, 25), ME, "UTC")).toEqual({ mine: [], partner: [] });
+    expect(splitDayEvents(events, new Date(2026, 9, 25), ME, "UTC")).toEqual({ mine: [], partner: [], shared: [] });
   });
 
   it("does not mutate the input array", () => {
@@ -101,7 +101,7 @@ describe("splitDayEvents", () => {
     expect(events).toEqual(copy);
   });
 
-  it("shows a shared event identically on both sides, regardless of who owns it", () => {
+  it("puts each shared event once in `shared`, regardless of owner, and not in mine/partner", () => {
     const sharedByMe = ev({
       id: "shared-mine",
       visibility: "shared",
@@ -112,11 +112,12 @@ describe("splitDayEvents", () => {
       id: "shared-partner",
       owner_id: PARTNER,
       visibility: "shared",
-      start_at: "2026-10-18T14:00:00.000Z",
-      end_at: "2026-10-18T15:00:00.000Z",
+      start_at: "2026-10-18T07:00:00.000Z",
+      end_at: "2026-10-18T08:00:00.000Z",
     });
-    const { mine, partner } = splitDayEvents([sharedByMe, sharedByPartner], DAY, ME, "UTC");
-    expect(mine.map((e) => e.id)).toEqual(["shared-mine", "shared-partner"]);
-    expect(partner.map((e) => e.id)).toEqual(["shared-mine", "shared-partner"]);
+    const { mine, partner, shared } = splitDayEvents([sharedByMe, sharedByPartner], DAY, ME, "UTC");
+    expect(mine).toEqual([]);
+    expect(partner).toEqual([]);
+    expect(shared.map((e) => e.id)).toEqual(["shared-partner", "shared-mine"]);
   });
 });

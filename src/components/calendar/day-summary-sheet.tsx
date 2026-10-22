@@ -159,7 +159,7 @@ function DaySummarySheet({
 
   const day = useMemo(() => (dateKey ? parseDateKey(dateKey) : null), [dateKey]);
   const sections = useMemo(
-    () => (day ? splitDayEvents(events, day, currentUserId, timeZone) : { mine: [], partner: [] }),
+    () => (day ? splitDayEvents(events, day, currentUserId, timeZone) : { mine: [], partner: [], shared: [] }),
     [day, events, currentUserId, timeZone]
   );
 
@@ -192,15 +192,31 @@ function DaySummarySheet({
     return `${start}–${formatInTimeZone(event.end_at, timeZone, { timeStyle: "short" }, locale)}`;
   }
 
-  // "10월 3일 ~ 10월 4일" style full range for an event that spans different
-  // calendar days (in `timeZone`) — shown instead of/alongside the plain
-  // time so a multi-day event tapped from either end day reads unambiguously.
+  // Full "10월 22일 오후 8:00 ~ 10월 25일 오전 8:00" range (all-day: dates only)
+  // for an event that spans different calendar days in `timeZone`.
+  function rangeLabel(event: DaySummaryItem): string {
+    if (event.all_day || !event.end_at) return dateRangeLabel(event);
+    const opts: Intl.DateTimeFormatOptions = {
+      month: locale === "en" ? "short" : "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    };
+    const start = formatInTimeZone(event.start_at, timeZone, opts, locale);
+    const end = formatInTimeZone(event.end_at, timeZone, opts, locale);
+    return `${start} ~ ${end}`;
+  }
+
   function dateRangeLabel(event: DaySummaryItem): string {
     const startDay = parseDateKey(toZonedDateInputValue(event.start_at, timeZone));
     const endDay = event.end_at ? parseDateKey(toZonedDateInputValue(event.end_at, timeZone)) : startDay;
     if (!startDay || !endDay) return "";
     const pattern = shortDatePattern(locale);
     return `${format(startDay, pattern, { locale: dfLocale })} ~ ${format(endDay, pattern, { locale: dfLocale })}`;
+  }
+
+  function tr(key: string, fallback: string, values?: Record<string, string>): string {
+    return t.has(key as never) ? t(key as never, values as never) : fallback;
   }
 
   function renderSection(title: string, items: DaySummaryItem[], emptyText: string) {
@@ -227,24 +243,25 @@ function DaySummarySheet({
                     onClick={onClose}
                     className="flex flex-col gap-0.5 rounded-xl px-3 py-2.5 transition hover:bg-surface-2 active:scale-[0.99]"
                   >
-                    {multiDay && (
-                      <span className="flex items-center gap-2.5">
-                        <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSNAME[category]}`} />
-                        <span className="min-w-0 truncate text-[11px] font-medium text-ink-muted">
-                          {dateRangeLabel(event)}
+                    <span className="flex items-center gap-2.5">
+                      <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSNAME[category]}`} />
+                      {multiDay ? (
+                        <span className="min-w-0 flex-1 text-xs font-medium tabular-nums text-ink-muted">
+                          {rangeLabel(event)}
                         </span>
-                      </span>
-                    )}
-                    <span className={`flex items-center gap-2.5 ${multiDay ? "pl-[18px]" : ""}`}>
-                      {!multiDay && (
-                        <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSNAME[category]}`} />
+                      ) : (
+                        <span className="w-28 shrink-0 whitespace-nowrap text-xs font-medium tabular-nums text-ink-muted">
+                          {timeLabel(event)}
+                        </span>
                       )}
-                      <span className="w-28 shrink-0 whitespace-nowrap text-xs font-medium tabular-nums text-ink-muted">
-                        {timeLabel(event)}
-                      </span>
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{event.title}</span>
+                      {!multiDay && (
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{event.title}</span>
+                      )}
                       <ChevronRight aria-hidden className="size-4 shrink-0 text-ink-muted/60" />
                     </span>
+                    {multiDay && (
+                      <span className="min-w-0 truncate pl-[18px] text-sm font-medium text-ink">{event.title}</span>
+                    )}
                   </Link>
                 </li>
               );
@@ -321,6 +338,14 @@ function DaySummarySheet({
                 sections.partner,
                 t("partnerEmpty")
               )}
+              {sections.shared.length > 0 &&
+                renderSection(
+                  partnerName
+                    ? tr("sharedNamed", `같이 하는 일정 (나, ${partnerName})`, { name: partnerName })
+                    : tr("shared", "같이 하는 일정 (나, 상대방)"),
+                  sections.shared,
+                  tr("sharedEmpty", "같이 하는 일정이 없어요")
+                )}
             </div>
             <div className="px-4 pt-1">
               <Link

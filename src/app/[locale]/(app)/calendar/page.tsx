@@ -150,6 +150,7 @@ export default async function CalendarPage({
             timeZone={timeZone}
             partnerName={partnerName}
             isCurrentMonth={isSameMonth(month, new Date())}
+            monthKey={format(month, "yyyy-MM")}
           />
         </MonthSlide>
       ) : (

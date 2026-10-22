@@ -330,7 +330,7 @@ export function LedgerView({
                   onClick={() => togglePaymentMethod(method.id)}
                   className={chipStyle(paymentMethodIds.includes(method.id))}
                 >
-                  <PaymentMethodIcon icon={method.icon} className="size-4" />
+                  <PaymentMethodIcon icon={method.icon} name={method.name} className="size-4" />
                   {method.name}
                 </button>
               ))}

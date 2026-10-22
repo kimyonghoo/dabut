@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { CalendarHeart } from "lucide-react";
-import { groupEventsByDate } from "@/lib/calendar/group-by-date";
+import { expandEventsByDay, type DayEntry } from "@/lib/calendar/expand-multi-day";
 import { toZonedTimeInputValue } from "@/lib/dates/timezone";
 import { Link } from "@/i18n/navigation";
 import type { Database } from "@/types/database.types";
@@ -9,11 +9,33 @@ import { ThreadList, type ThreadGroup } from "./thread-list";
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type CategorizedEvent = EventRow & { category: "mine" | "partner" | "shared" };
 
-function timeLabel(event: EventRow, allDay: string, timeZone: string): string {
+function timeLabel(entry: DayEntry<EventRow>, allDay: string, timeZone: string): string {
+  const { event, dayPart } = entry;
   if (event.all_day) return allDay;
+  if (dayPart === "middle") return allDay;
   const start = toZonedTimeInputValue(event.start_at, timeZone);
+  if (dayPart === "first") return `${start}~`;
+  if (dayPart === "last") return `~${entry.endsAtMidnight ? "24:00" : toZonedTimeInputValue(event.end_at ?? event.start_at, timeZone)}`;
   if (!event.end_at) return start;
   return `${start}–${toZonedTimeInputValue(event.end_at, timeZone)}`;
+}
+
+function groupEntriesByDate(entries: DayEntry<CategorizedEvent>[], monthKey?: string) {
+  const byDate = new Map<string, DayEntry<CategorizedEvent>[]>();
+  for (const entry of entries) {
+    if (monthKey && !entry.date.startsWith(monthKey)) continue;
+    const list = byDate.get(entry.date);
+    if (list) list.push(entry);
+    else byDate.set(entry.date, [entry]);
+  }
+  return [...byDate.keys()].sort().map((date) => ({
+    date,
+    entries: byDate.get(date)!.sort((x, y) => {
+      // Continuing multi-day cards (middle/last) have no start time today: list them first.
+      const rank = (e: DayEntry<CategorizedEvent>) => (e.dayPart === "middle" || e.dayPart === "last" ? 0 : 1);
+      return rank(x) - rank(y) || x.event.start_at.localeCompare(y.event.start_at);
+    }),
+  }));
 }
 
 /**
@@ -27,6 +49,7 @@ export function ThreadView({
   timeZone,
   partnerName,
   isCurrentMonth,
+  monthKey,
 }: {
   events: CategorizedEvent[];
   currentUserId: string;
@@ -36,18 +59,20 @@ export function ThreadView({
   partnerName?: string | null;
   /** Whether the selected month is the real current month — gates the synthetic "오늘 일정없음" placeholder. */
   isCurrentMonth: boolean;
+  /** Optional "yyyy-MM": drops day groups outside this month (events overlapping the month edges). */
+  monthKey?: string;
 }) {
   const t = useTranslations("calendar");
-  const groups: ThreadGroup[] = groupEventsByDate(events, timeZone).map((group) => ({
+  const groups: ThreadGroup[] = groupEntriesByDate(expandEventsByDay(events, timeZone), monthKey).map((group) => ({
     date: group.date,
-    events: group.events.map((event) => ({
-      id: event.id,
-      ownerId: event.owner_id,
-      title: event.title,
-      location: event.location,
-      companions: event.companions,
-      category: event.category,
-      timeText: timeLabel(event, t("allDay"), timeZone),
+    events: group.entries.map((entry) => ({
+      id: entry.event.id,
+      ownerId: entry.event.owner_id,
+      title: entry.event.title,
+      location: entry.event.location,
+      companions: entry.event.companions,
+      category: entry.event.category,
+      timeText: timeLabel(entry, t("allDay"), timeZone),
     })),
   }));
 

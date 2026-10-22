@@ -60,30 +60,30 @@ export function compareDayEvents(a: DaySummaryEvent, b: DaySummaryEvent): number
 }
 
 /**
- * Picks the events that touch `day` and splits them by owner: events owned
- * by `currentUserId` are "mine", everything else is the partner's. A
- * `shared` event ("같이 하기로 한" — something both people are doing
- * together) appears in *both* lists identically, regardless of who owns
- * it — it's not "attributed" to just one side.
+ * Picks the events that touch `day` and splits them into three sections:
+ * personal events owned by `currentUserId` ("mine"), personal events owned
+ * by the partner ("partner"), and `shared` events ("같이 하는 일정"), each
+ * shared event appearing exactly once in `shared` regardless of owner.
  */
 export function splitDayEvents<T extends DaySummaryEvent>(
   events: readonly T[],
   day: Date,
   currentUserId: string,
   timeZone: string
-): { mine: T[]; partner: T[] } {
+): { mine: T[]; partner: T[]; shared: T[] } {
   const mine: T[] = [];
   const partner: T[] = [];
+  const shared: T[] = [];
   for (const event of events) {
     if (!isDayWithinEvent(day, event, timeZone)) continue;
     if (event.visibility === "shared") {
-      mine.push(event);
-      partner.push(event);
+      shared.push(event);
     } else {
       (event.owner_id === currentUserId ? mine : partner).push(event);
     }
   }
   mine.sort(compareDayEvents);
   partner.sort(compareDayEvents);
-  return { mine, partner };
+  shared.sort(compareDayEvents);
+  return { mine, partner, shared };
 }

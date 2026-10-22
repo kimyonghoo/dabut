@@ -245,7 +245,7 @@ export default async function LedgerStatsPage({
               <li key={item.id}>
                 <div className="mb-1 flex items-center justify-between gap-2 text-xs font-bold">
                   <span className="flex min-w-0 items-center gap-1.5 truncate">
-                    <PaymentMethodIcon icon={item.icon} className="size-3.5 shrink-0" />
+                    <PaymentMethodIcon icon={item.icon} name={item.name} className="size-3.5 shrink-0" />
                     <span className="truncate">{item.name}</span>
                   </span>
                   <span className="shrink-0 text-ink-muted">

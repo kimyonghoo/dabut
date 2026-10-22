@@ -302,7 +302,10 @@
     "allDay": "全天",
     "addEvent": "在这天添加日程",
     "close": "关闭",
-    "openDay": "{date}，{count, plural, =0 {无日程} other {# 个日程}}"
+    "openDay": "{date}，{count, plural, =0 {无日程} other {# 个日程}}",
+    "sharedNamed": "共同日程（我、{name}）",
+    "shared": "共同日程（我、对方）",
+    "sharedEmpty": "没有共同日程"
   },
   "stats": {
     "title": "统计",
@@ -332,16 +335,24 @@
     "top10": "消费 TOP 10",
     "top10Hint": "最大的{count}笔支出",
     "emptySection": "暂无数据",
-    "weekdayShort": ["日", "一", "二", "三", "四", "五", "六"]
+    "weekdayShort": [
+      "日",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六"
+    ]
   },
   "monthlyGoal": {
     "title": "本月目标支出额",
-    "placeholder": "目标金额（万元单位）",
+    "placeholder": "目标金额（韩元，例如 2,000,000）",
     "save": "保存",
     "invalid": "请输入正确的金额",
     "failed": "保存失败，请稍后再试",
     "noConnection": "与对方连接后才能设置共同目标",
-    "currentGoal": "本月目标：{amount}万元",
+    "currentGoal": "本月目标：{amount}",
     "progressLabel": "本月目标进度"
   },
   "monthPicker": {

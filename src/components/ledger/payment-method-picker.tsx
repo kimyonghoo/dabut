@@ -69,7 +69,7 @@ export function PaymentMethodPicker({
               onClick={() => toggle(method.id)}
               className={chipStyle(active)}
             >
-              <PaymentMethodIcon icon={method.icon} className="size-4" />
+              <PaymentMethodIcon icon={method.icon} name={method.name} className="size-4" />
               {method.name}
               {isPartnerOwned && <span className="text-xs text-ink-muted">({t("partnerOwned")})</span>}
             </button>

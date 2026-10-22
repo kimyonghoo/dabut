@@ -126,14 +126,14 @@ describe("MonthView multi-day events", () => {
     renderMonth([multiDayEvent], { monthViewTimeZone: "UTC", contextTimeZone: "UTC" });
 
     fireEvent.click(screen.getByLabelText(/10월 3일/));
-    expect(screen.getByText("10월 3일 ~ 10월 4일")).toBeInTheDocument();
+    expect(screen.getByText("10월 3일 오전 9:00 ~ 10월 4일 오후 6:00")).toBeInTheDocument();
   });
 
   it("shows the same full date range when tapping the *other* end day of the span", () => {
     renderMonth([multiDayEvent], { monthViewTimeZone: "UTC", contextTimeZone: "UTC" });
 
     fireEvent.click(screen.getByLabelText(/10월 4일/));
-    expect(screen.getByText("10월 3일 ~ 10월 4일")).toBeInTheDocument();
+    expect(screen.getByText("10월 3일 오전 9:00 ~ 10월 4일 오후 6:00")).toBeInTheDocument();
   });
 
   it("does not show a date-range row for an ordinary same-day event", () => {

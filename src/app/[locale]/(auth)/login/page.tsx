@@ -47,7 +47,7 @@ export default function LoginPage() {
       setPending(false);
       return;
     }
-    router.push("/calendar");
+    router.push("/ledger");
   }
 
   return (

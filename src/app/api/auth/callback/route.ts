@@ -3,7 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { routing } from "@/i18n/routing";
 
-const DEFAULT_NEXT = "/ko/calendar";
+const DEFAULT_NEXT = "/ko/ledger";
 
 /** Only allow same-site relative paths ("/foo"), never "//evil.com" or "/\\evil.com". */
 function safeNext(next: string | null): string {

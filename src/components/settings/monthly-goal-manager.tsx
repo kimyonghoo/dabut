@@ -7,17 +7,7 @@ import { buttonClass } from "@/components/ui/button";
 import { inputClass, errorClass } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/submit-button";
 import { showToast } from "@/components/feedback/toast-bus";
-
-/** Entered in 만원 (10,000-won) units, same convention as the payment-method goal input. */
-const WON_PER_MANWON = 10000;
-
-function parseGoalInput(raw: string): { value: number | null } | { error: string } {
-  const trimmed = raw.trim();
-  if (!trimmed) return { value: null };
-  const parsed = Number(trimmed);
-  if (!Number.isFinite(parsed) || parsed < 0) return { error: "invalid" };
-  return { value: Math.round(parsed * WON_PER_MANWON) };
-}
+import { formatWonPreview, parseWon } from "@/lib/ledger/parse-won";
 
 /**
  * "이번 달 목표 지출액" — a single goal shared by the whole connection
@@ -29,12 +19,15 @@ function parseGoalInput(raw: string): { value: number | null } | { error: string
 export function MonthlyGoalManager({ initialGoal }: { initialGoal: number | null }) {
   const t = useTranslations("monthlyGoal");
   const [goal, setGoal] = useState(initialGoal);
-  const [draft, setDraft] = useState(initialGoal != null ? String(initialGoal / WON_PER_MANWON) : "");
+  const [draft, setDraft] = useState(initialGoal != null ? String(initialGoal) : "");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const draftParsed = parseWon(draft);
+  const preview = "value" in draftParsed && draftParsed.value != null ? formatWonPreview(draftParsed.value) : null;
+
   function handleSave() {
-    const parsed = parseGoalInput(draft);
+    const parsed = parseWon(draft);
     if ("error" in parsed) {
       setError(parsed.error);
       return;
@@ -57,9 +50,9 @@ export function MonthlyGoalManager({ initialGoal }: { initialGoal: number | null
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <input
-          type="number"
-          inputMode="decimal"
-          min={0}
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder={t("placeholder")}
@@ -71,8 +64,9 @@ export function MonthlyGoalManager({ initialGoal }: { initialGoal: number | null
         </button>
       </div>
       {error && <p className={errorClass}>{t.has(error) ? t(error) : t("failed")}</p>}
-      {!error && goal != null && (
-        <p className="text-xs text-ink-muted">{t("currentGoal", { amount: (goal / WON_PER_MANWON).toLocaleString("ko-KR") })}</p>
+      {!error && preview && <p className="text-xs text-brand">{preview}</p>}
+      {!error && !preview && goal != null && (
+        <p className="text-xs text-ink-muted">{t("currentGoal", { amount: formatWonPreview(goal) })}</p>
       )}
     </div>
   );

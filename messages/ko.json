@@ -302,7 +302,10 @@
     "allDay": "종일",
     "addEvent": "이날 일정 추가",
     "close": "닫기",
-    "openDay": "{date}, {count, plural, =0 {일정 없음} other {일정 #개}}"
+    "openDay": "{date}, {count, plural, =0 {일정 없음} other {일정 #개}}",
+    "sharedNamed": "같이 하는 일정 (나, {name})",
+    "shared": "같이 하는 일정 (나, 상대방)",
+    "sharedEmpty": "같이 하는 일정이 없어요"
   },
   "stats": {
     "title": "통계",
@@ -332,16 +335,24 @@
     "top10": "소비 TOP 10",
     "top10Hint": "가장 큰 지출 거래 {count}건",
     "emptySection": "표시할 데이터가 없어요",
-    "weekdayShort": ["일", "월", "화", "수", "목", "금", "토"]
+    "weekdayShort": [
+      "일",
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토"
+    ]
   },
   "monthlyGoal": {
     "title": "이번 달 목표 지출액",
-    "placeholder": "목표 금액 (만원 단위)",
+    "placeholder": "목표 금액 (예: 2,000,000 또는 200만)",
     "save": "저장",
     "invalid": "올바른 금액을 입력해 주세요",
     "failed": "저장하지 못했어요. 잠시 후 다시 시도해 주세요",
     "noConnection": "상대방과 연결된 후에 설정할 수 있어요",
-    "currentGoal": "이번 달 목표: {amount}만원",
+    "currentGoal": "이번 달 목표: {amount}",
     "progressLabel": "이번 달 목표 대비"
   },
   "monthPicker": {
