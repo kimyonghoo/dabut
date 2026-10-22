@@ -365,7 +365,10 @@
     "engelDesc_high": "Food takes a large share of total spending",
     "engelRange_veryHigh": "35% or more",
     "engelLabel_veryHigh": "Very high",
-    "engelDesc_veryHigh": "Check why food spending rose and the burden of essentials"
+    "engelDesc_veryHigh": "Check why food spending rose and the burden of essentials",
+    "shareOther": "Other",
+    "shareCount": "{n} items",
+    "close": "Close"
   },
   "monthlyGoal": {
     "title": "This month's spending goal",

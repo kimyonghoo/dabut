@@ -233,7 +233,7 @@ export function TransactionForm({
         <SubmitButton className="w-full py-3.5 text-base" disabled={deletePending}>
           {t("save")}
         </SubmitButton>
-        {mode === "edit" && (
+        {mode === "edit" && (!currentUserId || transaction?.owner_id === currentUserId) && (
           <>
             <Button
               type="button"

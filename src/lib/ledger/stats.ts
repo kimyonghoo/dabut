@@ -228,3 +228,38 @@ export function computeEngelIndex(transactions: StatsTransaction[], start: strin
   const pct = Math.round((food / total) * 1000) / 10;
   return { pct, food, total, band: engelBand(pct), breakdown };
 }
+
+export type ShareTx = { date: string; label: string; sub: string; amount: number };
+export type ShareGroup = { id: string; name: string; icon: string | null; amount: number; pct: number; txs: ShareTx[] };
+
+/** Every group (no top-N cut, no "other" bucket) with its expense rows, biggest first — for drill-down sheets. */
+export function computeShareGroups(
+  transactions: StatsTransaction[],
+  start: string,
+  end: string,
+  keyOf: (tx: StatsTransaction) => { id: string; name: string; icon: string | null },
+  subOf: (tx: StatsTransaction) => string
+): ShareGroup[] {
+  const map = new Map<string, ShareGroup>();
+  let grand = 0;
+  for (const tx of transactions) {
+    if (tx.type !== "expense" || !inRange(tx.occurredAt, start, end)) continue;
+    const key = keyOf(tx);
+    grand += tx.amount;
+    let g = map.get(key.id);
+    if (!g) {
+      g = { id: key.id, name: key.name, icon: key.icon, amount: 0, pct: 0, txs: [] };
+      map.set(key.id, g);
+    }
+    g.amount += tx.amount;
+    g.txs.push({ date: tx.occurredAt, label: tx.memo?.trim() || subOf(tx), sub: subOf(tx), amount: tx.amount });
+  }
+  const groups = [...map.values()].sort((a, b) => b.amount - a.amount);
+  for (const g of groups) {
+    g.pct = grand === 0 ? 0 : (g.amount / grand) * 100;
+    g.txs.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.amount - a.amount));
+  }
+  return groups;
+}
+
+export const SHARE_VISIBLE = SHARE_TOP_N;

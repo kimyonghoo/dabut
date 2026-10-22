@@ -4,15 +4,14 @@ import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Card } from "@/components/ui/card";
-import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
+import { formatWon } from "@/components/ledger/category-icon";
+import { ShareDrilldown } from "@/components/ledger/share-drilldown";
 import { EngelCard } from "@/components/ledger/engel-card";
-import { paymentBrandColor } from "@/components/ledger/payment-brand";
-import { PaymentMethodIcon } from "@/components/ledger/payment-method-icon";
 import {
   rangeBounds,
   computeSavingsRate,
-  computeCategoryShare,
-  computePaymentMethodShare,
+  computeShareGroups,
+  SHARE_VISIBLE,
   computeMonthlyTrend,
   computeWeekdayPattern,
   computeTopExpenses,
@@ -27,7 +26,6 @@ const RANGES: StatsRange[] = ["month", "3m", "6m", "1y"];
 // dataviz reference categorical palette (validated order — see
 // node_modules-free copy in docs/superpowers brainstorming notes), reused
 // unchanged for the ranked category/payment-method bars.
-const SERIES_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"];
 const SEQUENTIAL_BLUE = ["#cde2fb", "#9ec5f4", "#5598e7", "#2a78d6", "#184f95"];
 
 type Row = {
@@ -78,13 +76,32 @@ export default async function LedgerStatsPage({
   }));
 
   const savings = computeSavingsRate(transactions, rangeStart, rangeEnd);
-  const categoryShare = computeCategoryShare(transactions, rangeStart, rangeEnd, t("categoryShare"));
-  const paymentMethodShare = computePaymentMethodShare(
+  const unassigned = t("paymentMethodUnassigned");
+  const categoryGroups = computeShareGroups(
     transactions,
     rangeStart,
     rangeEnd,
-    t("paymentMethodUnassigned")
+    (tx) => ({ id: tx.categoryId, name: tx.categoryName ?? tx.categoryId, icon: tx.categoryIcon }),
+    (tx) => tx.categoryName ?? ""
   );
+  const paymentGroups = computeShareGroups(
+    transactions,
+    rangeStart,
+    rangeEnd,
+    (tx) =>
+      tx.paymentMethodId
+        ? { id: tx.paymentMethodId, name: tx.paymentMethodName ?? tx.paymentMethodId, icon: null }
+        : { id: "__none__", name: unassigned, icon: null },
+    (tx) => tx.categoryName ?? ""
+  );
+  const drillProps = {
+    visible: SHARE_VISIBLE,
+    otherLabel: t("shareOther"),
+    closeLabel: t("close"),
+    backLabel: t("back"),
+    countLabel: t("shareCount"),
+    emptyText: t("emptySection"),
+  };
   const trend = computeMonthlyTrend(transactions, TREND_MONTHS, today);
   const weekday = computeWeekdayPattern(transactions, rangeStart, rangeEnd);
   const top10 = computeTopExpenses(transactions, rangeStart, rangeEnd);
@@ -176,31 +193,7 @@ export default async function LedgerStatsPage({
       <Card className="flex flex-col gap-0.5">
         <h3 className="text-sm font-extrabold text-ink">{t("categoryShare")}</h3>
         <p className="mb-3 text-[11px] text-ink-muted">{t("categoryShareHint")}</p>
-        {categoryShare.length === 0 ? (
-          <p className="py-4 text-center text-sm text-ink-muted">{t("emptySection")}</p>
-        ) : (
-          <ul className="flex flex-col gap-2.5">
-            {categoryShare.map((item, i) => (
-              <li key={item.id}>
-                <div className="mb-1 flex items-center justify-between gap-2 text-xs font-bold">
-                  <span className="flex min-w-0 items-center gap-1.5 truncate">
-                    <CategoryIcon category={{ name: item.name, icon: item.icon }} className="size-3.5 shrink-0" />
-                    <span className="truncate">{item.name}</span>
-                  </span>
-                  <span className="shrink-0 text-ink-muted">
-                    {formatWon(item.amount)} · {Math.round(item.pct)}%
-                  </span>
-                </div>
-                <div className="h-2.5 overflow-hidden rounded-md bg-surface-2">
-                  <div
-                    className="h-full rounded-md"
-                    style={{ width: `${item.pct}%`, background: SERIES_COLORS[i % SERIES_COLORS.length] }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ShareDrilldown kind="category" groups={categoryGroups} {...drillProps} />
       </Card>
 
       {/* ② 기간별 수입/지출 추이 */}
@@ -242,31 +235,7 @@ export default async function LedgerStatsPage({
       <Card className="flex flex-col gap-0.5">
         <h3 className="text-sm font-extrabold text-ink">{t("paymentMethodShare")}</h3>
         <p className="mb-3 text-[11px] text-ink-muted">{t("paymentMethodShareHint")}</p>
-        {paymentMethodShare.length === 0 ? (
-          <p className="py-4 text-center text-sm text-ink-muted">{t("emptySection")}</p>
-        ) : (
-          <ul className="flex flex-col gap-2.5">
-            {paymentMethodShare.map((item, i) => (
-              <li key={item.id}>
-                <div className="mb-1 flex items-center justify-between gap-2 text-xs font-bold">
-                  <span className="flex min-w-0 items-center gap-1.5 truncate">
-                    <PaymentMethodIcon icon={item.icon} name={item.name} className="size-3.5 shrink-0" />
-                    <span className="truncate">{item.name}</span>
-                  </span>
-                  <span className="shrink-0 text-ink-muted">
-                    {formatWon(item.amount)} · {Math.round(item.pct)}%
-                  </span>
-                </div>
-                <div className="h-2.5 overflow-hidden rounded-md bg-surface-2">
-                  <div
-                    className="h-full rounded-md"
-                    style={{ width: `${item.pct}%`, background: paymentBrandColor(item.name) ?? SERIES_COLORS[i % SERIES_COLORS.length] }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ShareDrilldown kind="payment" groups={paymentGroups} {...drillProps} />
       </Card>
 
       {/* ④ 요일별 지출 패턴 */}

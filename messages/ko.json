@@ -365,7 +365,10 @@
     "engelDesc_high": "식비 지출이 전체 소비에서 차지하는 비중이 큼",
     "engelRange_veryHigh": "35% 이상",
     "engelLabel_veryHigh": "매우 높음",
-    "engelDesc_veryHigh": "식비 증가 원인과 가계의 필수 지출 부담을 점검할 필요"
+    "engelDesc_veryHigh": "식비 증가 원인과 가계의 필수 지출 부담을 점검할 필요",
+    "shareOther": "기타",
+    "shareCount": "{n}건",
+    "close": "닫기"
   },
   "monthlyGoal": {
     "title": "이번 달 목표 지출액",

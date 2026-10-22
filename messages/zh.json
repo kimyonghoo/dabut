@@ -365,7 +365,10 @@
     "engelDesc_high": "食品支出占总消费比重较大",
     "engelRange_veryHigh": "35%以上",
     "engelLabel_veryHigh": "很高",
-    "engelDesc_veryHigh": "需检查食品支出增加原因及必需支出负担"
+    "engelDesc_veryHigh": "需检查食品支出增加原因及必需支出负担",
+    "shareOther": "其他",
+    "shareCount": "{n}笔",
+    "close": "关闭"
   },
   "monthlyGoal": {
     "title": "本月目标支出额",

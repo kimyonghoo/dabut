@@ -8,6 +8,7 @@ import {
   computeWeekdayPattern,
   computeTopExpenses,
   computeEngelIndex,
+  computeShareGroups,
   engelBand,
   type StatsTransaction,
 } from "./stats";
@@ -170,5 +171,19 @@ describe("computeEngelIndex", () => {
     expect(engelBand(20)).toBe("low");
     expect(engelBand(25)).toBe("normal");
     expect(engelBand(35)).toBe("veryHigh");
+  });
+});
+
+describe("computeShareGroups", () => {
+  it("groups expenses with rows, newest first, no top-N cut", () => {
+    const txs = [
+      tx({ categoryId: "a", categoryName: "A", amount: 100, occurredAt: "2026-10-01" }),
+      tx({ categoryId: "a", categoryName: "A", amount: 50, occurredAt: "2026-10-03", memo: "m" }),
+      tx({ categoryId: "b", categoryName: "B", amount: 10 }),
+      tx({ type: "income", categoryId: "c", categoryName: "C", amount: 999 }),
+    ];
+    const g = computeShareGroups(txs, "2026-10-01", "2026-10-31", (t) => ({ id: t.categoryId, name: t.categoryName ?? "", icon: null }), (t) => t.categoryName ?? "");
+    expect(g.map((x) => x.id)).toEqual(["a", "b"]);
+    expect(g[0].txs.map((x) => x.label)).toEqual(["m", "A"]);
   });
 });
