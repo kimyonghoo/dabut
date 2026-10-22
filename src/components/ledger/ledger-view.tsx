@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { BarChart3, CircleHelp, CreditCard, PiggyBank, Search, SearchX } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -49,6 +49,8 @@ export type LedgerCategory = { id: string; name: string; icon: string | null; ty
 
 const chipClass =
   "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand";
+
+const FILTER_STORAGE_KEY = "dabut:ledger-filters";
 
 export function LedgerView({
   rows,
@@ -104,6 +106,39 @@ export function LedgerView({
   const [paymentMethodIds, setPaymentMethodIds] = useState<string[]>([]);
   const [ownerFilter, setOwnerFilter] = useState<TransactionOwnership | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  // 수정/상세 갔다가 돌아와도 필터 유지 (탭 세션 동안)
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(FILTER_STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as {
+          categoryIds?: string[];
+          paymentMethodIds?: string[];
+          ownerFilter?: TransactionOwnership | null;
+          searchQuery?: string;
+        };
+        if (Array.isArray(saved.categoryIds)) setCategoryIds(saved.categoryIds);
+        if (Array.isArray(saved.paymentMethodIds)) setPaymentMethodIds(saved.paymentMethodIds);
+        if (saved.ownerFilter) setOwnerFilter(saved.ownerFilter);
+        if (typeof saved.searchQuery === "string") setSearchQuery(saved.searchQuery);
+      }
+    } catch {
+      // storage unavailable — filters just reset
+    }
+    setFiltersLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    try {
+      sessionStorage.setItem(
+        FILTER_STORAGE_KEY,
+        JSON.stringify({ categoryIds, paymentMethodIds, ownerFilter, searchQuery })
+      );
+    } catch {
+      // ignore
+    }
+  }, [filtersLoaded, categoryIds, paymentMethodIds, ownerFilter, searchQuery]);
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [chipsExpanded, setChipsExpanded] = useState(false);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteTransaction, "transactionDeleted");
