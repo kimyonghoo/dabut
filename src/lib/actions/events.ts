@@ -1,5 +1,6 @@
 "use server";
 
+import { claimUpdateNotification } from "@/lib/notifications/throttle";
 import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
@@ -291,7 +292,7 @@ export async function updateEvent(
   // RLS (owner-only update) silently matches 0 rows for a non-owner; only
   // notify when a row was actually updated. Fires once for the series as a
   // whole, not per occurrence — see module docs on notification strategy.
-  if (updated) {
+  if (updated && (await claimUpdateNotification(supabase, "events", eventId))) {
     await notifyConnectionMembers(supabase, {
       connectionId,
       excludeUserId: user.id,
@@ -367,6 +368,7 @@ async function updateSingleOccurrence(
     if (exceptionError) return { error: exceptionError.message };
   }
 
+  if (await claimUpdateNotification(supabase, "events", parentEventId))
   await notifyConnectionMembers(supabase, {
     connectionId: baseFields.connection_id,
     excludeUserId: user.id,

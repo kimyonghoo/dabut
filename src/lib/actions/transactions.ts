@@ -1,5 +1,6 @@
 "use server";
 
+import { claimUpdateNotification } from "@/lib/notifications/throttle";
 import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { startOfMonth, endOfMonth, format } from "date-fns";
@@ -314,7 +315,9 @@ export async function updateTransaction(
   if (error) return { error: error.message };
 
   const row = data as unknown as ReturnedTransaction | null;
-  await notifyTransaction(supabase, user, "updated", row);
+  if (row && (await claimUpdateNotification(supabase, "transactions", row.id))) {
+    await notifyTransaction(supabase, user, "updated", row);
+  }
   if (row) {
     await checkPaymentMethodMilestones(supabase, {
       ownerId: user.id,
