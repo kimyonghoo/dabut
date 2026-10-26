@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { usePathname } from "@/i18n/navigation";
 import { SwipeableTabs } from "@/components/navigation/swipeable-tabs";
+import { AddFab } from "@/components/navigation/add-fab";
 import { TabBar, type TabKey } from "@/components/navigation/tab-bar";
 
 export function resolveActiveTab(pathname: string): TabKey {
@@ -23,6 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <SwipeableTabs>{children}</SwipeableTabs>
       </main>
+      <AddFab />
       <TabBar activeTab={activeTab} />
     </div>
   );

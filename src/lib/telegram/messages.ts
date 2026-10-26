@@ -92,7 +92,8 @@ export function transactionNotificationMessage(input: {
   const { action, actorName, type, amount, categoryName, categoryIcon, paymentMethodName, memo } = input;
   const name = escapeHtml(actorName);
   const amountText = `${amount.toLocaleString("ko-KR")}원`;
-  const categoryLabel = categoryIcon
+  // lucide 아이콘 키(예: "soup")는 이름이 아니므로 표시하지 않고, 예전 이모지만 붙인다.
+  const categoryLabel = categoryIcon && !/^[a-z0-9-]+$/i.test(categoryIcon)
     ? `${escapeHtml(categoryIcon)} ${escapeHtml(categoryName)}`
     : escapeHtml(categoryName);
   const trimmedMemo = memo?.trim();
@@ -149,6 +150,8 @@ export type TomorrowDigestEvent = {
   allDay: boolean;
   /** True when the recipient themself owns this event, false for a partner's shared event. */
   isMine: boolean;
+  /** 같이 하는 일정(visibility=shared). 소유자와 상관없이 "OO랑 같이" 그룹으로 보낸다. */
+  isShared?: boolean;
 };
 
 function sortDigestEvents(events: TomorrowDigestEvent[]): TomorrowDigestEvent[] {
@@ -184,12 +187,17 @@ export function tomorrowDigestMessage(input: {
   const { month, day, weekday } = zonedDateParts(sorted[0].startAt, timeZone);
   const lines = [`📅 <b>내일 뭐해?</b>`, `${month}월 ${day}일 (${KOREAN_WEEKDAYS[weekday]})`];
 
-  const mine = events.filter((event) => event.isMine);
-  const theirs = events.filter((event) => !event.isMine);
+  const together = events.filter((event) => event.isShared);
+  const mine = events.filter((event) => !event.isShared && event.isMine);
+  const theirs = events.filter((event) => !event.isShared && !event.isMine);
 
   if (mine.length > 0) {
     lines.push("", "👤 <b>나</b>");
     lines.push(...digestEventLines(mine, timeZone));
+  }
+  if (together.length > 0) {
+    lines.push("", `🤝 <b>${escapeHtml(partnerName?.trim() || "상대방")}랑 같이</b>`);
+    lines.push(...digestEventLines(together, timeZone));
   }
   if (theirs.length > 0) {
     lines.push("", `👥 <b>${escapeHtml(partnerName?.trim() || "상대방")}</b>`);

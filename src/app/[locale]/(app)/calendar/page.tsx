@@ -3,8 +3,7 @@ import { format, endOfMonth, isSameMonth } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { expandEventsForDisplay } from "@/lib/calendar/expand-events-for-display";
-import { Link, redirect } from "@/i18n/navigation";
-import { buttonClass } from "@/components/ui/button";
+import { redirect } from "@/i18n/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { ViewToggle } from "@/components/calendar/view-toggle";
 import { MonthView } from "@/components/calendar/month-view";
@@ -129,12 +128,6 @@ export default async function CalendarPage({
         action={
           <div className="flex shrink-0 items-center gap-2">
             <TodayButton month={month} extraQuery={isThread ? { view: "thread" } : undefined} />
-            <Link
-              href={{ pathname: "/calendar/new", query: isThread ? { returnView: "thread" } : undefined }}
-              className={buttonClass("primary", "shrink-0 !px-3.5 !py-2")}
-            >
-              {t("newEvent")}
-            </Link>
           </div>
         }
       />

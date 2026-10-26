@@ -56,7 +56,9 @@ export function parseCompanions(text: string | null | undefined, labels: Relatio
   const otherPrefix = `${labels.other}:`;
 
   for (const part of parts) {
-    const relationKey = RELATION_KEYS.find((key) => key !== "other" && labels[key] === part);
+    const relationKey = RELATION_KEYS.find(
+      (key) => key !== "other" && (labels[key] === part || key === part.toLowerCase())
+    );
     if (relationKey) {
       if (!selected.includes(relationKey)) selected.push(relationKey);
       continue;
@@ -89,7 +91,8 @@ export function formatCompanions(selected: RelationKey[], other: string, labels:
   const trimmedOther = other.trim();
   const parts = selected.filter((key) => key !== "other").map((key) => labels[key]);
 
-  if (selected.includes("other") || trimmedOther) {
+  // 기타 칩을 해제하면 입력해 둔 텍스트도 함께 빠진다.
+  if (selected.includes("other")) {
     parts.push(trimmedOther ? `${labels.other}: ${trimmedOther}` : labels.other);
   }
 

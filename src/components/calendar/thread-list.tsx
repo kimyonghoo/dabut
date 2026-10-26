@@ -1,7 +1,7 @@
 "use client";
 
 import { dragScrollRef } from "@/components/ui/drag-scroll";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Clock, MapPin, Search, Users } from "lucide-react";
 import { dateGroupLabel } from "@/lib/dates/relative-day";
@@ -54,6 +54,13 @@ export function ThreadList({
   const [searchQuery, setSearchQuery] = useState("");
   const [ownerFilter, setOwnerFilter] = useState<EventOwnerFilter | null>(null);
   const { isRemoved, remove } = useOptimisticRemoval(quickDeleteEvent, "eventDeleted");
+
+  // 일정 목록을 열면 오늘 날짜 그룹으로 스크롤.
+  useEffect(() => {
+    const el = document.querySelector("[data-today-group]");
+    if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ behavior: "smooth", block: "start" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Prefer the partner's real nickname over the generic "상대방 일정" label
   // when we have one (same precedent as the ledger's OwnershipLegend and
@@ -150,7 +157,7 @@ export function ThreadList({
       {visible.map((group) => {
         const today = group.date === todayKey;
         return (
-          <section key={group.date} className="relative">
+          <section key={group.date} className="relative scroll-mt-14" {...(today ? { "data-today-group": "" } : {})}>
             <h3 className="sticky top-0 z-10 -mx-1 mb-2 bg-bg/90 px-1 py-1.5 backdrop-blur">
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
@@ -188,7 +195,9 @@ export function ThreadList({
                       href={eventEditHref(event.id, "thread")}
                       title={categoryLabel(event.category)}
                       draggable={false}
-                      className="block rounded-2xl border border-line bg-surface p-3 shadow-[0_2px_10px_rgba(59,47,42,0.05)] transition hover:border-brand/40 active:scale-[0.99]"
+                      className={`block rounded-2xl border bg-surface p-3 shadow-[0_2px_10px_rgba(59,47,42,0.05)] transition hover:border-brand/40 active:scale-[0.99] ${
+                        today ? "today-card border-brand/50" : "border-line"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <p className="min-w-0 truncate font-semibold text-ink">{event.title}</p>

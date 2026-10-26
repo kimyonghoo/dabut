@@ -108,6 +108,17 @@ body {
   }
 }
 
+.today-card {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand) 35%, transparent), 0 6px 18px color-mix(in srgb, var(--color-brand) 22%, transparent);
+  background-image: linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 8%, transparent), transparent 60%);
+  animation: today-card-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes today-card-glow {
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand) 30%, transparent), 0 4px 14px color-mix(in srgb, var(--color-brand) 16%, transparent); }
+  50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 55%, transparent), 0 8px 22px color-mix(in srgb, var(--color-brand) 32%, transparent); }
+}
+
 .today-cell-indicator {
   box-shadow: inset 0 0 0 2px var(--color-brand);
   animation: today-cell-pulse 2.4s ease-in-out infinite;
@@ -129,6 +140,7 @@ body {
     animation: none !important;
   }
 
+  .today-card,
   .today-cell-indicator {
     animation: none;
   }

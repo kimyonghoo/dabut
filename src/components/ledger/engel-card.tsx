@@ -37,6 +37,21 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
         </button>
       </div>
       <p className="mb-2 text-[11px] text-ink-muted">{subtitle}</p>
+      {open && (
+        <div className="mb-3 rounded-xl bg-surface-2 p-3">
+          <p className="mb-2 text-xs font-extrabold text-ink">{panelTitle}</p>
+          <ul className="flex flex-col gap-2">
+            {bands.map((b) => (
+              <li key={b.key} className={`rounded-lg px-2 py-1.5 ${b.key === currentKey ? "bg-brand-soft" : ""}`}>
+                <p className="text-xs font-bold text-ink">
+                  {b.range} · {b.label}
+                </p>
+                <p className="text-[11px] text-ink-muted">{b.desc}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {pct === null || !current ? (
         <p className="py-4 text-center text-sm text-ink-muted">{emptyText}</p>
       ) : (
@@ -54,21 +69,6 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
             ))}
           </ul>
         </>
-      )}
-      {open && (
-        <div className="mt-3 rounded-xl bg-surface-2 p-3">
-          <p className="mb-2 text-xs font-extrabold text-ink">{panelTitle}</p>
-          <ul className="flex flex-col gap-2">
-            {bands.map((b) => (
-              <li key={b.key} className={`rounded-lg px-2 py-1.5 ${b.key === currentKey ? "bg-brand-soft" : ""}`}>
-                <p className="text-xs font-bold text-ink">
-                  {b.range} · {b.label}
-                </p>
-                <p className="text-[11px] text-ink-muted">{b.desc}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
     </Card>
   );

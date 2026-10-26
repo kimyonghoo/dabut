@@ -102,6 +102,7 @@ export async function GET(request: Request) {
           startAt: e.start_at,
           allDay: e.all_day,
           isMine: e.owner_id === profile.id,
+          isShared: e.visibility === "shared",
         })),
         timeZone,
         partnerName,

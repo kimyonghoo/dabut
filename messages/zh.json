@@ -109,7 +109,8 @@
     "filtersLabel": "筛选",
     "stats": "统计",
     "goalProgress": "本月目标进度",
-    "filterUnassigned": "未指定"
+    "filterUnassigned": "未指定",
+    "addTransaction": "添加记录"
   },
   "calendar": {
     "monthView": "日历",
@@ -128,7 +129,8 @@
     "filtersLabel": "筛选",
     "filterAll": "全部",
     "ownerFilterLabel": "日程筛选",
-    "noEventsToday": "没有日程"
+    "noEventsToday": "没有日程",
+    "addEvent": "添加日程"
   },
   "events": {
     "title": "标题",

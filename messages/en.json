@@ -109,7 +109,8 @@
     "filtersLabel": "Filters",
     "stats": "Stats",
     "goalProgress": "Progress toward this month's goal",
-    "filterUnassigned": "Unassigned"
+    "filterUnassigned": "Unassigned",
+    "addTransaction": "Add transaction"
   },
   "calendar": {
     "monthView": "Month",
@@ -128,7 +129,8 @@
     "filtersLabel": "Filters",
     "filterAll": "All",
     "ownerFilterLabel": "Event filter",
-    "noEventsToday": "No events"
+    "noEventsToday": "No events",
+    "addEvent": "Add event"
   },
   "events": {
     "title": "Title",

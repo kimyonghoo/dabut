@@ -78,8 +78,8 @@ describe("formatCompanions", () => {
     expect(formatCompanions(["spouse", "other"], "", labels)).toBe("배우자, 기타");
   });
 
-  it("includes a formatted custom entry even if the other chip wasn't explicitly selected", () => {
-    expect(formatCompanions(["spouse"], "민수삼촌", labels)).toBe("배우자, 기타: 민수삼촌");
+  it("drops the custom text when the other chip is deselected", () => {
+    expect(formatCompanions(["spouse"], "민수삼촌", labels)).toBe("배우자");
   });
 
   it("trims surrounding whitespace from the custom text", () => {

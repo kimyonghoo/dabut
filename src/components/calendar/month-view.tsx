@@ -176,7 +176,8 @@ export function MonthView({
                 </div>
               )}
               <div className="grid grid-cols-7 gap-px bg-line">
-                {weekDays.map((day) => {
+                {weekDays.map((day, dayIndex) => {
+                  const cornerClass = `${weekIndex === 0 && dayIndex === 0 && laneCount === 0 ? "rounded-tl-xl" : ""} ${weekIndex === 0 && dayIndex === 6 && laneCount === 0 ? "rounded-tr-xl" : ""} ${weekIndex === weeks.length - 1 && dayIndex === 0 ? "rounded-bl-xl" : ""} ${weekIndex === weeks.length - 1 && dayIndex === 6 ? "rounded-br-xl" : ""}`;
                   const touching = events.filter((event) => isDayWithinEvent(day, event, timeZone));
                   const dayEvents = singleDayEvents.filter((event) => isDayWithinEvent(day, event, timeZone));
                   const inMonth = isSameMonth(day, month);
@@ -194,7 +195,7 @@ export function MonthView({
                       })}
                       className={`flex min-h-[6.5rem] min-w-0 flex-col gap-0.5 p-0.5 ${
                         inMonth ? "bg-surface" : "bg-surface-2/60 opacity-45"
-                      } ${isToday ? "today-cell-indicator" : ""}`}
+                      } ${isToday ? "today-cell-indicator" : ""} ${cornerClass}`}
                     >
                       <span
                         aria-current={isToday ? "date" : undefined}

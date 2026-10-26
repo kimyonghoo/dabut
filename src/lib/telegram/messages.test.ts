@@ -303,3 +303,18 @@ describe("tomorrowDigestMessage", () => {
     ).toBe("📅 <b>내일 뭐해?</b>\n10월 20일 (화)\n\n👥 <b>상대방</b>\n08:00  요가");
   });
 });
+
+describe("tomorrowDigestMessage shared grouping", () => {
+  it("puts shared events under '<partner>랑 같이'", () => {
+    const text = tomorrowDigestMessage({
+      events: [
+        { title: "영화", startAt: "2026-10-27T10:00:00Z", allDay: false, isMine: true, isShared: true },
+        { title: "회의", startAt: "2026-10-27T01:00:00Z", allDay: false, isMine: true },
+      ],
+      partnerName: "다리",
+    });
+    expect(text).toContain("다리랑 같이");
+    expect(text.indexOf("회의")).toBeLessThan(text.indexOf("다리랑 같이"));
+    expect(text.indexOf("다리랑 같이")).toBeLessThan(text.indexOf("영화"));
+  });
+});

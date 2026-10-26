@@ -109,7 +109,8 @@
     "filtersLabel": "필터",
     "stats": "통계",
     "goalProgress": "이번 달 목표 대비",
-    "filterUnassigned": "미지정"
+    "filterUnassigned": "미지정",
+    "addTransaction": "내역 추가"
   },
   "calendar": {
     "monthView": "달력",
@@ -128,7 +129,8 @@
     "filtersLabel": "필터",
     "filterAll": "전체",
     "ownerFilterLabel": "일정 필터",
-    "noEventsToday": "일정없음"
+    "noEventsToday": "일정없음",
+    "addEvent": "일정 추가"
   },
   "events": {
     "title": "제목",

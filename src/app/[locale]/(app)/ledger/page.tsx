@@ -1,10 +1,8 @@
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { Link } from "@/i18n/navigation";
 import { RealtimeRefresh } from "@/components/realtime/realtime-refresh";
 import { PageHeader } from "@/components/ui/page-header";
-import { buttonClass } from "@/components/ui/button";
 import { LedgerView, type LedgerRow } from "@/components/ledger/ledger-view";
 import { MonthNavArrows } from "@/components/calendar/month-nav-arrows";
 import { parseMonthParam } from "@/components/calendar/date-locale";
@@ -110,11 +108,6 @@ export default async function LedgerPage({
             nextLabel={t("nextMonth")}
             basePath="/ledger"
           />
-        }
-        action={
-          <Link href="/ledger/new" className={buttonClass("primary")}>
-            {t("newTransaction")}
-          </Link>
         }
       />
       <LedgerView
