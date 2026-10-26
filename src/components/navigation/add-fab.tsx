@@ -28,7 +28,7 @@ export function AddFab() {
           href={href}
           aria-label={label}
           title={label}
-          className="pointer-events-auto grid size-14 place-items-center rounded-full bg-brand text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition hover:bg-brand-strong active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          className="pointer-events-auto grid size-14 place-items-center rounded-full bg-brand/75 text-white backdrop-blur-sm shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition hover:bg-brand-strong/85 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           <Plus aria-hidden className="size-7" strokeWidth={2.5} />
         </Link>

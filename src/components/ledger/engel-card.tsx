@@ -24,7 +24,7 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
   const current = bands.find((b) => b.key === currentKey);
   return (
     <Card className="flex flex-col gap-0.5">
-      <div className="flex items-center gap-1">
+      <div className="relative flex items-center gap-1">
         <h3 className="text-sm font-extrabold text-ink">{title}</h3>
         <button
           type="button"
@@ -35,23 +35,30 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
         >
           <CircleHelp className="size-3.5" aria-hidden />
         </button>
+        {open && (
+          <div
+            role="tooltip"
+            className="absolute bottom-full left-0 z-20 mb-2 max-h-[60vh] w-[min(20rem,calc(100vw-3rem))] overflow-y-auto rounded-2xl border border-line bg-surface p-3 shadow-[0_8px_28px_rgba(0,0,0,0.18)]"
+          >
+            <p className="mb-2 text-xs font-extrabold text-ink">{panelTitle}</p>
+            <ul className="flex flex-col gap-1.5">
+              {bands.map((b) => (
+                <li key={b.key} className={`rounded-lg px-2 py-1.5 ${b.key === currentKey ? "bg-brand-soft" : ""}`}>
+                  <p className="text-xs font-bold text-ink">
+                    {b.range} · {b.label}
+                  </p>
+                  <p className="text-[11px] text-ink-muted">{b.desc}</p>
+                </li>
+              ))}
+            </ul>
+            <span
+              aria-hidden
+              className="absolute -bottom-1.5 left-[4.6rem] size-3 rotate-45 border-b border-r border-line bg-surface"
+            />
+          </div>
+        )}
       </div>
       <p className="mb-2 text-[11px] text-ink-muted">{subtitle}</p>
-      {open && (
-        <div className="mb-3 rounded-xl bg-surface-2 p-3">
-          <p className="mb-2 text-xs font-extrabold text-ink">{panelTitle}</p>
-          <ul className="flex flex-col gap-2">
-            {bands.map((b) => (
-              <li key={b.key} className={`rounded-lg px-2 py-1.5 ${b.key === currentKey ? "bg-brand-soft" : ""}`}>
-                <p className="text-xs font-bold text-ink">
-                  {b.range} · {b.label}
-                </p>
-                <p className="text-[11px] text-ink-muted">{b.desc}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
       {pct === null || !current ? (
         <p className="py-4 text-center text-sm text-ink-muted">{emptyText}</p>
       ) : (

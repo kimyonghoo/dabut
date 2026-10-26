@@ -110,7 +110,7 @@ body {
 
 .today-card {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand) 35%, transparent), 0 6px 18px color-mix(in srgb, var(--color-brand) 22%, transparent);
-  background-image: linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 8%, transparent), transparent 60%);
+  background-image: linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 26%, transparent), color-mix(in srgb, var(--color-brand) 8%, transparent) 70%);
   animation: today-card-glow 2.4s ease-in-out infinite;
 }
 
