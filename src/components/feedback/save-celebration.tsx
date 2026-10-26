@@ -1,36 +1,28 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { CELEBRATE_EVENT, type CelebrateDetail } from "./celebrate-bus";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
 
 const COLORS = ["#ffd166", "#ff8fab", "#8ecae6", "#95d5b2", "#ffb4a2", "#cdb4db"];
 const SHOW_MS = 1500;
 
-type Celebration = { name: string; icon: string | null; amount: number };
+type Celebration = CelebrateDetail;
 
 function Inner() {
   const t = useTranslations("toast");
-  const searchParams = useSearchParams();
-  const saved = searchParams.get("saved");
   const [data, setData] = useState<Celebration | null>(null);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    if (!saved) return;
-    const amount = Number(searchParams.get("sa"));
-    setData({
-      name: searchParams.get("sn") ?? "",
-      icon: searchParams.get("si"),
-      amount: Number.isFinite(amount) ? amount : 0,
-    });
-    setLeaving(false);
-    const url = new URL(window.location.href);
-    for (const key of ["saved", "sn", "si", "sa"]) url.searchParams.delete(key);
-    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saved]);
+    function onCelebrate(event: Event) {
+      setData((event as CustomEvent<CelebrateDetail>).detail);
+      setLeaving(false);
+    }
+    window.addEventListener(CELEBRATE_EVENT, onCelebrate);
+    return () => window.removeEventListener(CELEBRATE_EVENT, onCelebrate);
+  }, []);
 
   useEffect(() => {
     if (!data) return;
@@ -99,9 +91,5 @@ function Inner() {
 }
 
 export function SaveCelebration() {
-  return (
-    <Suspense fallback={null}>
-      <Inner />
-    </Suspense>
-  );
+  return <Inner />;
 }

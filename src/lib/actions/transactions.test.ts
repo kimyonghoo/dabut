@@ -74,7 +74,7 @@ describe("createTransaction", () => {
     const { client, inserted } = fakeSupabase({ memberships: [] });
     mocks.createClient.mockResolvedValue(client);
 
-    await expect(createTransaction({}, form())).rejects.toThrow("NEXT_REDIRECT");
+    const result = await createTransaction({}, form());
 
     expect(inserted).toHaveLength(1);
     expect(inserted[0]).toMatchObject({
@@ -89,24 +89,21 @@ describe("createTransaction", () => {
     });
     expect(mocks.notifyConnectionMembers).not.toHaveBeenCalled();
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/", "layout");
-    expect(mocks.redirect).toHaveBeenCalledWith({
-      href: { pathname: "/ledger", query: { saved: "1", sn: "외식", si: "", sa: "12000", month: "2026-10" } },
-      locale: "ko",
-    });
+    expect(result).toMatchObject({ celebrate: { name: "외식", amount: 12000 }, redirectTo: "/ledger?month=2026-10" });
   });
 
   it("paired user: scopes the entry to the caller's connection", async () => {
     const { client, inserted } = fakeSupabase({ memberships: [{ connection_id: "conn-1" }] });
     mocks.createClient.mockResolvedValue(client);
 
-    await expect(createTransaction({}, form())).rejects.toThrow("NEXT_REDIRECT");
+    const result = await createTransaction({}, form());
 
     expect(inserted[0]).toMatchObject({ connection_id: "conn-1", owner_id: "user-1", created_by: "user-1" });
     expect(mocks.notifyConnectionMembers).toHaveBeenCalledWith(
       client,
       expect.objectContaining({ connectionId: "conn-1", excludeUserId: "user-1" })
     );
-    expect(mocks.redirect).toHaveBeenCalled();
+    expect(result.redirectTo).toBe("/ledger?month=2026-10");
   });
 
   it("returns the database error and does not redirect when the insert fails", async () => {

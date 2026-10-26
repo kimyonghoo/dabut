@@ -1,5 +1,7 @@
 "use client";
 
+import { showCelebration } from "@/components/feedback/celebrate-bus";
+import { useRouter } from "@/i18n/navigation";
 import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowDownRight, ArrowUpRight, ChevronLeft, Trash2 } from "lucide-react";
@@ -45,6 +47,12 @@ export function TransactionForm({
   const { timeZone } = useTimezone();
   const action = mode === "create" ? createTransaction : updateTransaction.bind(null, transaction!.id);
   const [state, formAction] = useActionState<TransactionActionState, FormData>(action, {});
+  const router = useRouter();
+  useEffect(() => {
+    if (!state.celebrate || !state.redirectTo) return;
+    showCelebration(state.celebrate);
+    router.push(state.redirectTo);
+  }, [state, router]);
   const [type, setType] = useState<"expense" | "income">(
     (transaction?.type as "expense" | "income") ?? "expense"
   );

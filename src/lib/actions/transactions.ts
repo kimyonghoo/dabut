@@ -17,7 +17,12 @@ import { notifyConnectionMembers } from "@/lib/telegram/notify-connection";
 import { sendTelegramMessage } from "@/lib/telegram/send-message";
 import { resolveActorName } from "@/lib/telegram/actor-name";
 
-export type TransactionActionState = { error?: string };
+export type TransactionActionState = {
+  error?: string;
+  /** 새로 저장 성공: 클라이언트가 효과를 띄우고 redirectTo 로 이동한다 (서버 redirect 로 인한 로딩 화면을 없애기 위함). */
+  celebrate?: { name: string; icon: string | null; amount: number };
+  redirectTo?: string;
+};
 
 async function resolveConnectionId(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -197,15 +202,10 @@ async function checkPaymentMethodMilestones(
 // while browsing a non-current month lands back on that same month in the
 // common case, mirroring events.ts's redirectToCalendar.
 async function redirectToLedger(
-  toast: "transactionCreated" | "transactionUpdated" | "transactionDeleted",
-  month: string,
-  celebrate?: { name: string; icon: string | null; amount: number }
+  toast: "transactionUpdated" | "transactionDeleted",
+  month: string
 ): Promise<never> {
-  // 새로 저장한 경우엔 토스트 대신 화면 중앙 "저장 완료" 효과(SaveCelebration)를 보여준다.
-  const query: Record<string, string> = celebrate
-    ? { saved: "1", sn: celebrate.name, si: celebrate.icon ?? "", sa: String(celebrate.amount), month }
-    : { toast, month };
-  return redirect({ href: { pathname: "/ledger", query }, locale: await getLocale() });
+  return redirect({ href: { pathname: "/ledger", query: { toast, month } }, locale: await getLocale() });
 }
 
 async function notifyTransaction(
@@ -281,11 +281,11 @@ export async function createTransaction(
 
   revalidatePath("/", "layout");
   // redirect throws (NEXT_REDIRECT) — must stay last and outside any try/catch.
-  return redirectToLedger(
-    "transactionCreated",
-    (row?.occurred_at ?? formData.get("occurredAt") as string).slice(0, 7),
-    row ? { name: row.categories?.name ?? "", icon: row.categories?.icon ?? null, amount: Number(row.amount) } : undefined
-  );
+  const month = (row?.occurred_at ?? (formData.get("occurredAt") as string)).slice(0, 7);
+  return {
+    celebrate: { name: row?.categories?.name ?? "", icon: row?.categories?.icon ?? null, amount: Number(row?.amount ?? amountResult.amount) },
+    redirectTo: `/ledger?month=${month}`,
+  };
 }
 
 export async function updateTransaction(
