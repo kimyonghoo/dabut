@@ -145,3 +145,24 @@ body {
     animation: none;
   }
 }
+
+/* 저장 완료 효과 (SaveCelebration) */
+@keyframes celebrate-fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes celebrate-fade-out { to { opacity: 0 } }
+@keyframes celebrate-pop { 0% { transform: scale(0) rotate(-20deg) } 60% { transform: scale(1.18) rotate(6deg) } 100% { transform: scale(1) rotate(0) } }
+@keyframes celebrate-ring { 0% { transform: scale(0.9); opacity: 0.8 } 100% { transform: scale(1.7); opacity: 0 } }
+@keyframes celebrate-wiggle { 0%, 100% { transform: rotate(0) } 25% { transform: rotate(-10deg) scale(1.06) } 60% { transform: rotate(8deg) scale(1.06) } }
+@keyframes celebrate-rise { from { opacity: 0; transform: translateY(14px) scale(0.9) } to { opacity: 1; transform: none } }
+@keyframes celebrate-burst { 0% { opacity: 1; transform: translate(0, 0) scale(0.4) } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.1) rotate(200deg) } }
+@keyframes celebrate-float { 0% { opacity: 0; transform: translateY(0) scale(0.5) } 20% { opacity: 1 } 100% { opacity: 0; transform: translateY(-150px) translateX(var(--dx)) scale(1.2) } }
+.celebrate-badge { animation: celebrate-pop 0.65s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+.celebrate-icon { display: grid; place-items: center; animation: celebrate-wiggle 0.9s 0.45s ease-in-out both; }
+.celebrate-ring { position: absolute; inset: -6px; border-radius: 9999px; border: 3px solid var(--color-brand); opacity: 0; animation: celebrate-ring 0.9s 0.25s ease-out both; }
+.celebrate-msg { animation: celebrate-rise 0.5s 0.3s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.celebrate-amt { animation: celebrate-rise 0.5s 0.42s both; }
+.celebrate-spark { position: absolute; left: 50%; top: 66px; width: 10px; height: 10px; margin: -5px; border-radius: 9999px; opacity: 0; animation: celebrate-burst 0.9s 0.2s ease-out both; }
+.celebrate-heart { position: absolute; bottom: 40px; width: 14px; height: 14px; opacity: 0; animation: celebrate-float 1.3s ease-out both; }
+.celebrate-heart::before { content: ""; position: absolute; inset: 0; background: currentColor; clip-path: polygon(50% 100%, 0 40%, 0 15%, 25% 0, 50% 20%, 75% 0, 100% 15%, 100% 40%); }
+@media (prefers-reduced-motion: reduce) {
+  .celebrate-badge, .celebrate-icon, .celebrate-ring, .celebrate-msg, .celebrate-amt, .celebrate-spark, .celebrate-heart { animation-duration: 0.01ms !important; animation-delay: 0s !important; }
+}

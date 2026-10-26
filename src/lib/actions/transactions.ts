@@ -198,9 +198,14 @@ async function checkPaymentMethodMilestones(
 // common case, mirroring events.ts's redirectToCalendar.
 async function redirectToLedger(
   toast: "transactionCreated" | "transactionUpdated" | "transactionDeleted",
-  month: string
+  month: string,
+  celebrate?: { name: string; icon: string | null; amount: number }
 ): Promise<never> {
-  return redirect({ href: { pathname: "/ledger", query: { toast, month } }, locale: await getLocale() });
+  // 새로 저장한 경우엔 토스트 대신 화면 중앙 "저장 완료" 효과(SaveCelebration)를 보여준다.
+  const query: Record<string, string> = celebrate
+    ? { saved: "1", sn: celebrate.name, si: celebrate.icon ?? "", sa: String(celebrate.amount), month }
+    : { toast, month };
+  return redirect({ href: { pathname: "/ledger", query }, locale: await getLocale() });
 }
 
 async function notifyTransaction(
@@ -276,7 +281,11 @@ export async function createTransaction(
 
   revalidatePath("/", "layout");
   // redirect throws (NEXT_REDIRECT) — must stay last and outside any try/catch.
-  return redirectToLedger("transactionCreated", (row?.occurred_at ?? formData.get("occurredAt") as string).slice(0, 7));
+  return redirectToLedger(
+    "transactionCreated",
+    (row?.occurred_at ?? formData.get("occurredAt") as string).slice(0, 7),
+    row ? { name: row.categories?.name ?? "", icon: row.categories?.icon ?? null, amount: Number(row.amount) } : undefined
+  );
 }
 
 export async function updateTransaction(

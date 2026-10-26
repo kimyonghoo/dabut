@@ -294,7 +294,8 @@
     "dailyDigestToggleFailed": "설정을 저장하지 못했어요. 다시 시도해 주세요",
     "monthlyGoalSaved": "목표 지출액을 저장했어요",
     "monthlyGoalFailed": "저장하지 못했어요. 다시 시도해 주세요",
-    "monthlyGoalNoConnection": "상대방과 연결된 후에 설정할 수 있어요"
+    "monthlyGoalNoConnection": "상대방과 연결된 후에 설정할 수 있어요",
+    "savedCelebrate": "저장 완료!"
   },
   "daySummary": {
     "mine": "내 일정",

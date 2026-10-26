@@ -1,3 +1,4 @@
+import { SaveCelebration } from "@/components/feedback/save-celebration";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
@@ -99,6 +100,7 @@ export default async function LedgerPage({
   return (
     <main className="pb-24">
       <RealtimeRefresh table="transactions" />
+      <SaveCelebration />
       <PageHeader
         title={
           <MonthNavArrows

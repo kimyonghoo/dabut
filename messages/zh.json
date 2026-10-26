@@ -294,7 +294,8 @@
     "dailyDigestToggleFailed": "保存失败，请重试",
     "monthlyGoalSaved": "已保存目标支出额",
     "monthlyGoalFailed": "保存失败，请稍后再试",
-    "monthlyGoalNoConnection": "与对方连接后才能设置共同目标"
+    "monthlyGoalNoConnection": "与对方连接后才能设置共同目标",
+    "savedCelebrate": "已保存！"
   },
   "daySummary": {
     "mine": "我的日程",

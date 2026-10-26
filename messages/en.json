@@ -294,7 +294,8 @@
     "dailyDigestToggleFailed": "Couldn't save that. Please try again",
     "monthlyGoalSaved": "Spending goal saved",
     "monthlyGoalFailed": "Couldn't save that. Please try again",
-    "monthlyGoalNoConnection": "Connect with a partner first to set a shared goal"
+    "monthlyGoalNoConnection": "Connect with a partner first to set a shared goal",
+    "savedCelebrate": "Saved!"
   },
   "daySummary": {
     "mine": "My events",
