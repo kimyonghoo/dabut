@@ -23,7 +23,7 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
   const [open, setOpen] = useState(false);
   const current = bands.find((b) => b.key === currentKey);
   return (
-    <Card className="flex flex-col gap-0.5 !border-brand/30 !bg-brand-soft/60">
+    <Card className="flex flex-col gap-0.5">
       <div className="relative flex items-center gap-1">
         <h3 className="text-sm font-extrabold text-ink">{title}</h3>
         <button
