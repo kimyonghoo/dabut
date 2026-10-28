@@ -1,38 +1,68 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CELEBRATE_EVENT, type CelebrateDetail } from "./celebrate-bus";
+import { usePathname } from "@/i18n/navigation";
+import { CELEBRATE_EVENT, type CelebrateDetail, type CelebrateMessage } from "./celebrate-bus";
 import { CategoryIcon, formatWon } from "@/components/ledger/category-icon";
 
 const COLORS = ["#ffd166", "#ff8fab", "#8ecae6", "#95d5b2", "#ffb4a2", "#cdb4db"];
-const SHOW_MS = 1500;
+const MIN_SHOW_MS = 1500;
+const MAX_PENDING_MS = 15000;
 
 type Celebration = CelebrateDetail;
 
 function Inner() {
   const t = useTranslations("toast");
+  const pathname = usePathname();
   const [data, setData] = useState<Celebration | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const pendingRef = useRef(false);
+  const startedAtRef = useRef(0);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  useEffect(() => {
-    function onCelebrate(event: Event) {
-      setData((event as CustomEvent<CelebrateDetail>).detail);
-      setLeaving(false);
-    }
-    window.addEventListener(CELEBRATE_EVENT, onCelebrate);
-    return () => window.removeEventListener(CELEBRATE_EVENT, onCelebrate);
+  const clearTimers = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  };
+
+  const finish = useCallback(() => {
+    if (!pendingRef.current) return;
+    pendingRef.current = false;
+    clearTimers();
+    const remaining = Math.max(0, MIN_SHOW_MS - (Date.now() - startedAtRef.current));
+    timers.current.push(setTimeout(() => setLeaving(true), remaining));
+    timers.current.push(setTimeout(() => setData(null), remaining + 250));
   }, []);
 
   useEffect(() => {
-    if (!data) return;
-    const out = setTimeout(() => setLeaving(true), SHOW_MS);
-    const done = setTimeout(() => setData(null), SHOW_MS + 250);
-    return () => {
-      clearTimeout(out);
-      clearTimeout(done);
-    };
-  }, [data]);
+    function onMessage(event: Event) {
+      const message = (event as CustomEvent<CelebrateMessage>).detail;
+      if (message.kind === "start") {
+        clearTimers();
+        pendingRef.current = true;
+        startedAtRef.current = Date.now();
+        setData(message.detail);
+        setLeaving(false);
+        // 안전장치: 이동이 끝났다는 신호가 없어도 오래 붙잡아 두지 않는다.
+        timers.current.push(setTimeout(finish, MAX_PENDING_MS));
+      } else if (message.kind === "finish") {
+        finish();
+      } else {
+        pendingRef.current = false;
+        clearTimers();
+        setData(null);
+        setLeaving(false);
+      }
+    }
+    window.addEventListener(CELEBRATE_EVENT, onMessage);
+    return () => window.removeEventListener(CELEBRATE_EVENT, onMessage);
+  }, [finish]);
+
+  // 저장 후 가계부로 이동이 끝나면(경로가 /ledger 로 바뀌면) 효과를 마무리한다.
+  useEffect(() => {
+    if (pendingRef.current && pathname === "/ledger") finish();
+  }, [pathname, finish]);
 
   const sparks = useMemo(
     () =>

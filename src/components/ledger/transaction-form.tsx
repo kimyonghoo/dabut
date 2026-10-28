@@ -1,6 +1,6 @@
 "use client";
 
-import { showCelebration } from "@/components/feedback/celebrate-bus";
+import { cancelCelebration, startCelebration } from "@/components/feedback/celebrate-bus";
 import { useRouter } from "@/i18n/navigation";
 import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
@@ -49,9 +49,11 @@ export function TransactionForm({
   const [state, formAction] = useActionState<TransactionActionState, FormData>(action, {});
   const router = useRouter();
   useEffect(() => {
-    if (!state.celebrate || !state.redirectTo) return;
-    showCelebration(state.celebrate);
-    router.push(state.redirectTo);
+    if (state.celebrate && state.redirectTo) {
+      router.push(state.redirectTo);
+    } else if (state.error) {
+      cancelCelebration();
+    }
   }, [state, router]);
   const [type, setType] = useState<"expense" | "income">(
     (transaction?.type as "expense" | "income") ?? "expense"
@@ -125,7 +127,18 @@ export function TransactionForm({
   const isIncome = type === "income";
 
   return (
-    <form action={formAction} className="flex flex-col gap-5 pb-24">
+    <form
+      action={formAction}
+      onSubmit={(event) => {
+        // 새 내역 저장: 로딩 화면 대신 저장한 카테고리 아이콘 효과를 즉시 띄운다.
+        if (mode !== "create") return;
+        const amount = Number(new FormData(event.currentTarget).get("amount"));
+        const category = filteredCategories.find((c) => c.id === selectedCategoryId);
+        if (!category || !(amount > 0)) return;
+        startCelebration({ name: category.name, icon: category.icon, amount });
+      }}
+      className="flex flex-col gap-5 pb-24"
+    >
       <header className="flex items-center gap-2 pt-2">
         <Link
           href="/ledger"
