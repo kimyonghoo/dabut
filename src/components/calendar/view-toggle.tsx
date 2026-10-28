@@ -18,12 +18,12 @@ export function ViewToggle() {
     router.push({ pathname, query: month ? { view: next, month } : { view: next } });
 
   const itemClass = (active: boolean) =>
-    `flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition active:scale-[0.97] ${
+    `flex flex-1 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-semibold transition active:scale-[0.97] ${
       active ? "bg-surface text-brand shadow-sm" : "text-ink-muted hover:text-ink"
     }`;
 
   return (
-    <nav className="flex w-full max-w-60 rounded-full border border-line bg-surface-2 p-1">
+    <nav className="flex shrink-0 rounded-full border border-line bg-surface-2 p-0.5">
       <button
         type="button"
         aria-pressed={view === "month"}
@@ -31,7 +31,7 @@ export function ViewToggle() {
         onClick={() => go("month")}
       >
         <CalendarDays aria-hidden className="size-4" />
-        {t("monthView")}
+        <span className="sr-only">{t("monthView")}</span>
       </button>
       <button
         type="button"
@@ -40,7 +40,7 @@ export function ViewToggle() {
         onClick={() => go("thread")}
       >
         <AlignJustify aria-hidden className="size-4" />
-        {t("threadView")}
+        <span className="sr-only">{t("threadView")}</span>
       </button>
     </nav>
   );

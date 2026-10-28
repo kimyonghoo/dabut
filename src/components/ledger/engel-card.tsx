@@ -23,7 +23,7 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
   const [open, setOpen] = useState(false);
   const current = bands.find((b) => b.key === currentKey);
   return (
-    <Card className="flex flex-col gap-0.5">
+    <Card className="flex flex-col gap-0.5 !border-brand/30 !bg-brand-soft/60">
       <div className="relative flex items-center gap-1">
         <h3 className="text-sm font-extrabold text-ink">{title}</h3>
         <button
@@ -38,22 +38,22 @@ export function EngelCard({ title, subtitle, panelTitle, helpLabel, emptyText, h
         {open && (
           <div
             role="tooltip"
-            className="absolute bottom-full left-0 z-20 mb-2 max-h-[60vh] w-[min(20rem,calc(100vw-3rem))] overflow-y-auto rounded-2xl border border-line bg-surface p-3 shadow-[0_8px_28px_rgba(0,0,0,0.18)]"
+            className="absolute bottom-full left-0 z-20 mb-2 w-[min(20rem,calc(100vw-3rem))] rounded-2xl bg-[#2b211d] p-3 text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
           >
-            <p className="mb-2 text-xs font-extrabold text-ink">{panelTitle}</p>
+            <p className="mb-2 text-xs font-extrabold text-white">{panelTitle}</p>
             <ul className="flex flex-col gap-1.5">
               {bands.map((b) => (
-                <li key={b.key} className={`rounded-lg px-2 py-1.5 ${b.key === currentKey ? "bg-brand-soft" : ""}`}>
-                  <p className="text-xs font-bold text-ink">
+                <li key={b.key} className={`rounded-lg px-2 py-1.5 ${b.key === currentKey ? "bg-white/20" : ""}`}>
+                  <p className="text-xs font-bold text-white">
                     {b.range} · {b.label}
                   </p>
-                  <p className="text-[11px] text-ink-muted">{b.desc}</p>
+                  <p className="text-[11px] leading-snug text-white/70">{b.desc}</p>
                 </li>
               ))}
             </ul>
             <span
               aria-hidden
-              className="absolute -bottom-1.5 left-[4.6rem] size-3 rotate-45 border-b border-r border-line bg-surface"
+              className="absolute -bottom-1.5 left-[4.6rem] size-3 rotate-45 bg-[#2b211d]"
             />
           </div>
         )}

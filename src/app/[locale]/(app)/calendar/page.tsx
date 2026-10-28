@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { format, endOfMonth, isSameMonth } from "date-fns";
+import { addMonths, format, endOfMonth, isSameMonth } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { categorizeEvent } from "@/lib/calendar/categorize-event";
 import { expandEventsForDisplay } from "@/lib/calendar/expand-events-for-display";
@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ViewToggle } from "@/components/calendar/view-toggle";
 import { MonthView } from "@/components/calendar/month-view";
 import { MonthSlide } from "@/components/calendar/month-slide";
+import { MonthScroller, MonthSnapItem } from "@/components/calendar/month-scroller";
 import { MonthNavArrows } from "@/components/calendar/month-nav-arrows";
 import { ThreadView } from "@/components/calendar/thread-view";
 import { TodayButton } from "@/components/calendar/today-button";
@@ -97,9 +98,10 @@ export default async function CalendarPage({
   // The 6-week grid can spill into an adjacent year at a Dec/Jan boundary,
   // so every year actually present in the grid is covered, not just
   // `month`'s own year.
+  const windowMonths = [month, addMonths(month, 1), addMonths(month, 2)];
   const gridYears = isThread
     ? []
-    : Array.from(new Set(getMonthGridDays(month).map((d) => d.getFullYear())));
+    : Array.from(new Set(windowMonths.flatMap((m) => getMonthGridDays(m).map((d) => d.getFullYear()))));
   const holidayEntries: [string, string][] = Array.from(
     gridYears.reduce((map, year) => {
       for (const [key, name] of getHolidaysForYear(year, timeZone, locale)) map.set(key, name);
@@ -108,7 +110,7 @@ export default async function CalendarPage({
   );
 
   return (
-    <main className="flex flex-col gap-4 pb-6">
+    <main className="flex flex-col gap-3 pb-6">
       {profile && !profile.telegram_chat_id && <TelegramOnboardingBanner />}
       <RealtimeRefresh table="events" />
       {/* A single-occurrence cancel/detach (이 일정만) only writes
@@ -128,12 +130,10 @@ export default async function CalendarPage({
         action={
           <div className="flex shrink-0 items-center gap-2">
             <TodayButton month={month} extraQuery={isThread ? { view: "thread" } : undefined} />
+            <ViewToggle />
           </div>
         }
       />
-      <div className="flex justify-center">
-        <ViewToggle />
-      </div>
       {isThread ? (
         <MonthSlide monthKey={`thread-${format(month, "yyyy-MM")}`}>
           <ThreadView
@@ -148,16 +148,20 @@ export default async function CalendarPage({
         </MonthSlide>
       ) : (
         <>
-          <MonthSlide monthKey={format(month, "yyyy-MM")}>
-            <MonthView
-              month={month}
-              events={categorized}
-              currentUserId={user.id}
-              partnerName={partnerName}
-              timeZone={timeZone}
-              holidays={holidayEntries}
-            />
-          </MonthSlide>
+          <MonthScroller>
+            {windowMonths.map((m) => (
+              <MonthSnapItem key={format(m, "yyyy-MM")} title={format(m, monthTitlePattern(locale), { locale: getDateFnsLocale(locale) })}>
+                <MonthView
+                  month={m}
+                  events={categorized}
+                  currentUserId={user.id}
+                  partnerName={partnerName}
+                  timeZone={timeZone}
+                  holidays={holidayEntries}
+                />
+              </MonthSnapItem>
+            ))}
+          </MonthScroller>
           <CategoryLegend partnerName={partnerName} />
         </>
       )}
