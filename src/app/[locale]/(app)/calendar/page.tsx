@@ -98,7 +98,7 @@ export default async function CalendarPage({
   // The 6-week grid can spill into an adjacent year at a Dec/Jan boundary,
   // so every year actually present in the grid is covered, not just
   // `month`'s own year.
-  const windowMonths = [month, addMonths(month, 1), addMonths(month, 2)];
+  const windowMonths = [addMonths(month, -1), month, addMonths(month, 1)];
   const gridYears = isThread
     ? []
     : Array.from(new Set(windowMonths.flatMap((m) => getMonthGridDays(m).map((d) => d.getFullYear()))));
@@ -148,7 +148,7 @@ export default async function CalendarPage({
         </MonthSlide>
       ) : (
         <>
-          <MonthScroller>
+          <MonthScroller key={format(month, "yyyy-MM")} initialIndex={1}>
             {windowMonths.map((m) => (
               <MonthSnapItem key={format(m, "yyyy-MM")} title={format(m, monthTitlePattern(locale), { locale: getDateFnsLocale(locale) })}>
                 <MonthView
