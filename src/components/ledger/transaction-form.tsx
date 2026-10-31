@@ -203,6 +203,17 @@ export function TransactionForm({
         })}
       </fieldset>
 
+      <label className={labelClass}>
+        {t("occurredAt")}
+        <input
+          type="date"
+          name="occurredAt"
+          defaultValue={transaction?.occurred_at ?? today}
+          required
+          className={inputClass}
+        />
+      </label>
+
       <Card className="flex flex-col gap-1 p-5">
         <label htmlFor="tx-amount" className="text-sm font-medium text-ink-muted">
           {t("amount")}
@@ -265,17 +276,6 @@ export function TransactionForm({
           currentUserId={currentUserId}
         />
       )}
-
-      <label className={labelClass}>
-        {t("occurredAt")}
-        <input
-          type="date"
-          name="occurredAt"
-          defaultValue={transaction?.occurred_at ?? today}
-          required
-          className={inputClass}
-        />
-      </label>
 
       {state.error && (
         <p role="alert" className={errorClass}>
