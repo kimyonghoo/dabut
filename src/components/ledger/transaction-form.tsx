@@ -1,5 +1,6 @@
 "use client";
 
+import { suggestCategory, type MemoHistoryItem } from "@/lib/ledger/suggest-category";
 import { cancelCelebration, startCelebration } from "@/components/feedback/celebrate-bus";
 import { useRouter } from "@/i18n/navigation";
 import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
@@ -36,12 +37,15 @@ export function TransactionForm({
   categories,
   paymentMethods = [],
   currentUserId = null,
+  memoHistory = [],
 }: {
   mode: "create" | "edit";
   transaction?: TransactionRow;
   categories: CategoryRow[];
   paymentMethods?: PickerPaymentMethod[];
   currentUserId?: string | null;
+  /** 최근 거래의 메모/카테고리 (최신순) — 메모 기반 카테고리 자동 지정용. */
+  memoHistory?: MemoHistoryItem[];
 }) {
   const t = useTranslations("ledger");
   const { timeZone } = useTimezone();
@@ -86,6 +90,21 @@ export function TransactionForm({
   );
   const selectedCategoryId =
     filteredCategories.find((category) => category.id === selectedByType[type])?.id ?? filteredCategories[0]?.id;
+
+  // 메모를 입력하면 과거 기록과 비슷한 내용을 찾아 카테고리를 자동 지정 (직접 고른 뒤에는 건드리지 않음).
+  const manualPickRef = useRef(mode === "edit");
+  const [suggestedName, setSuggestedName] = useState<string | null>(null);
+  function onMemoChange(value: string) {
+    if (manualPickRef.current) return;
+    const id = suggestCategory(value, memoHistory, type);
+    const match = id ? filteredCategories.find((c) => c.id === id) : undefined;
+    if (match) {
+      setSelectedByType((prev) => ({ ...prev, [type]: match.id }));
+      setSuggestedName(match.name);
+    } else {
+      setSuggestedName(null);
+    }
+  }
 
   const [deletePending, startDelete] = useTransition();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -207,12 +226,31 @@ export function TransactionForm({
         </div>
       </Card>
 
+      <label className={labelClass}>
+        {t("memo")}
+        <input
+          type="text"
+          name="memo"
+          defaultValue={transaction?.memo ?? ""}
+          onChange={(event) => onMemoChange(event.target.value)}
+          autoComplete="off"
+          className={inputClass}
+        />
+        {suggestedName && (
+          <span className="text-xs font-medium text-brand">{t("memoSuggested", { category: suggestedName })}</span>
+        )}
+      </label>
+
       <CategoryPicker
         type={type}
         allowCreate={!isIncome}
         categories={filteredCategories}
         selectedId={selectedCategoryId}
-        onSelect={(id) => setSelectedByType((prev) => ({ ...prev, [type]: id }))}
+        onSelect={(id) => {
+          manualPickRef.current = true;
+          setSuggestedName(null);
+          setSelectedByType((prev) => ({ ...prev, [type]: id }));
+        }}
         onCreated={(category) => {
           setCreatedCategories((prev) => [...prev, category]);
           setSelectedByType((prev) => ({ ...prev, [category.type]: category.id }));
@@ -237,11 +275,6 @@ export function TransactionForm({
           required
           className={inputClass}
         />
-      </label>
-
-      <label className={labelClass}>
-        {t("memo")}
-        <input type="text" name="memo" defaultValue={transaction?.memo ?? ""} className={inputClass} />
       </label>
 
       {state.error && (

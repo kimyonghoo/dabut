@@ -13,7 +13,7 @@ export default async function EditTransactionPage({ params }: { params: Promise<
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const [categories, { data: paymentMethods }] = await Promise.all([
+  const [categories, { data: paymentMethods }, { data: history }] = await Promise.all([
     fetchCategoriesSortedByUsage(supabase),
     // Deliberately the one place that fetches *other members'* payment
     // methods too — RLS now allows a connection member to SELECT a payment
@@ -22,7 +22,14 @@ export default async function EditTransactionPage({ params }: { params: Promise<
     // registered. Only id/name/icon/owner_id are selected — never
     // monthly_goal, which stays private to whoever registered the method.
     supabase.from("payment_methods").select("id, name, icon, owner_id").order("created_at", { ascending: true }),
+    supabase
+      .from("transactions")
+      .select("memo, category_id, type")
+      .not("memo", "is", null)
+      .order("occurred_at", { ascending: false })
+      .limit(500),
   ]);
+  const memoHistory = (history ?? []).map((row) => ({ memo: row.memo, categoryId: row.category_id, type: row.type }));
 
   return (
     <TransactionForm
@@ -31,6 +38,7 @@ export default async function EditTransactionPage({ params }: { params: Promise<
       categories={categories}
       paymentMethods={paymentMethods ?? []}
       currentUserId={user?.id ?? null}
+      memoHistory={memoHistory}
     />
   );
 }

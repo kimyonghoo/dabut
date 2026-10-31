@@ -110,7 +110,8 @@
     "stats": "Stats",
     "goalProgress": "Progress toward this month's goal",
     "filterUnassigned": "Unassigned",
-    "addTransaction": "Add transaction"
+    "addTransaction": "Add transaction",
+    "memoSuggested": "Auto-picked '{category}' from similar entries"
   },
   "calendar": {
     "monthView": "Month",

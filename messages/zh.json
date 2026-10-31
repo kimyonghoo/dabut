@@ -110,7 +110,8 @@
     "stats": "统计",
     "goalProgress": "本月目标进度",
     "filterUnassigned": "未指定",
-    "addTransaction": "添加记录"
+    "addTransaction": "添加记录",
+    "memoSuggested": "已按相似记录自动选择“{category}”"
   },
   "calendar": {
     "monthView": "日历",

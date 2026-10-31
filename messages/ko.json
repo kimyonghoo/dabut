@@ -110,7 +110,8 @@
     "stats": "통계",
     "goalProgress": "이번 달 목표 대비",
     "filterUnassigned": "미지정",
-    "addTransaction": "내역 추가"
+    "addTransaction": "내역 추가",
+    "memoSuggested": "비슷한 기록으로 '{category}' 자동 지정"
   },
   "calendar": {
     "monthView": "달력",
